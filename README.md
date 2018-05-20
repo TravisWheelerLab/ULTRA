@@ -1,2 +1,2 @@
-# TRUCE
-Tandem Repeat Unified disCovErer
+# ULTRA
+ULTRA Locates Tandemly Repetitive Areas
