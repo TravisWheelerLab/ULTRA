@@ -11,7 +11,7 @@ To clone your own copy of Mirage source code repository for the first time:
 ```bash
    $ git clone https://github.com/TravisWheelerLab/ULTRA
    $ cd ULTRA
-   $ git checkout develop
+   $ git checkout develop-1
 ```
 
 To contribute to ULTRA development, you want to be on the
