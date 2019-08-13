@@ -27,8 +27,6 @@ public:
     std::string         line;
     long long  linePlace;
     
-    
-    
     // yucky
     
     /*std::deque <SequenceWindow*> rwdq;

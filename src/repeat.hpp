@@ -19,11 +19,18 @@ public:
     
     std::string sequenceName;
     
+    std::string traceback;
     std::string sequence;
     
     unsigned long long sequenceID;
     unsigned long long readID;
     
+    unsigned long long winOverlapSize;
+    unsigned long long winTotalLength;
+    
+    bool combinedRepeat;
+    
+    int                 falseStart;
     unsigned long long  windowStart;
     unsigned long long  sequenceStart;
     
@@ -48,6 +55,8 @@ public:
     void CreateLogo(SequenceWindow *window, UMatrix *matrix);
     void CreateConsensusFromLogo();
     void StoreSequence(SequenceWindow *window);
+    void StoreTraceback(UMatrix *matrix);
+    
     
     RepeatRegion();
     ~RepeatRegion();

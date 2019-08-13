@@ -158,7 +158,7 @@ void RepeatRegion::StoreSequence(SequenceWindow *window) {
     sequence.reserve(repeatLength + 1);
     
     for (int i = 0; i < repeatLength; ++i) {
-        sequence[i] = CharForSymbol(window->seq[i + windowStart]);
+        sequence.push_back(CharForSymbol(window->seq[i + windowStart]));
     }
     sequence[repeatLength] = '\0';
 }
@@ -175,14 +175,19 @@ RepeatRegion::RepeatRegion() {
     endScore = 0;
     regionScore = 0;
     readID = 0;
+    falseStart = 0;
     
     mismatches = 0;
     insertions = 0;
     deletions = 0;
     
+    winOverlapSize = 0;
+    
     logoMemory = NULL;
     logo = NULL;
     consensus = NULL;
+    
+    combinedRepeat = false;
 }
 
 RepeatRegion::~RepeatRegion() {
@@ -206,11 +211,41 @@ std::string RepeatRegion::GetConsensus() {
     std::string con = "";
     con.reserve(repeatPeriod + 1);
     for (int i = 0; i < repeatPeriod; ++i) {
-        con[i] = CharForSymbol(consensus[i]);
+        con.push_back(CharForSymbol(consensus[i]));
     }
     con[repeatPeriod] = '\0';
     
     return con;
+}
+
+void RepeatRegion::StoreTraceback(UMatrix *matrix) {
+    for (int i = 0; i < repeatPeriod; ++i) {
+        traceback.push_back('.');
+    }
+    
+    unsigned long long end = windowStart + repeatLength;
+    for (unsigned long long i = windowStart + repeatPeriod; i < end; ++i) {
+        cell c = matrix->cellDescriptions[matrix->traceback[i]];
+        
+        if (c.type == CT_INSERTION) {
+            i += c.indelNumber - 1;
+            for (int j = 0; j < c.indelNumber; ++j) {
+                traceback.push_back('I');
+            }
+        }
+        
+        else if (c.type == CT_DELETION) {
+            i += c.indelNumber - 1;
+            for (int j = 0; j < c.indelNumber; ++j) {
+                traceback.push_back('D');
+            }
+        }
+        
+        
+        else  {
+            traceback.push_back('.');
+        }
+    }
 }
 
 // This assumes that matrix has already calculated the traceback
@@ -239,6 +274,7 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos)
         }
     }
     
+    
    
     
     if (foundRepeat) {
@@ -247,6 +283,8 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos)
         cell desc = matrix->cellDescriptions[row];
         
         region = new RepeatRegion();
+        region->winOverlapSize = window->overlap;
+        region->winTotalLength = window->length + window->overlap;
         region->sequenceName = window->sequenceName;
         region->sequenceID = window->seqID;
         region->readID = window->readID;

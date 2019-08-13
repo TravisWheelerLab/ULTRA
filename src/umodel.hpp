@@ -22,6 +22,8 @@ public:
     double   tp_consecutiveInsertion     = 0.1;
     double   tp_consecutiveDeletion      = 0.1;
     
+    double   periodDecay                 = 0.9;
+    
     // If true then pt_zeroToMatch = tp_zeroToMatch / matrix->maxPeriod
     bool    adjustForMaximumPeriod      = false;
     
@@ -38,7 +40,7 @@ public:
     
     double windowedWeight = 0.75;
     
-  //  double matchScores[256][5][5];
+    //  double matchScores[256][5][5];
     //double backgroundScores[256][5];
     
     double logmp[5][5];
@@ -60,14 +62,14 @@ public:
     void    CalculateScores();    // Needs to be called before general use
     
     double   PreviousEmissionScore   (SequenceWindow   *seq,
-                                     int                index,
-                                     int                order,
-                                     int                d);
+                                      int                index,
+                                      int                order,
+                                      int                d);
     
     double   EmissionScore           (SequenceWindow   *seq,
-                                     int                index,
-                                     int                order);
-
+                                      int                index,
+                                      int                order);
+    
     void    CalculateCurrentColumn  (SequenceWindow   *seq,
                                      int               nucIndex,
                                      bool             *canBeRepetitive = NULL);

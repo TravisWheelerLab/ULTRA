@@ -41,6 +41,7 @@ public:
     
     double v_zeroToMatch            = 0.01;
     double v_matchToZero            = 0.05;
+    double v_repeatPeriodDecay      = 0.9;
     
     double v_matchToInsertion       = 0.07;
     double v_matchToDeletion        = 0.05;
@@ -61,7 +62,7 @@ public:
     int  v_windowSize           = 8192;
     int  v_overlapSize          = 100;
     
-    
+    bool v_showTraceback        = false;
     
     
     bool v_showWindowID         = false;
@@ -148,6 +149,13 @@ public:
         1
     };
     
+    setting_param repeatDecay = {
+        "Repeat probability decay",
+        "**reminder to write a good description later",
+        "pd",
+        1
+    };
+    
     setting_param repeatToInsertion = {
         "Insertion Probability",
         "Probability of transitioning from a repetitive state to an insertion state",
@@ -194,6 +202,13 @@ public:
         "Show Window ID",
         "Display the windowID corresponding to a repeat in the results CSV",
         "wid",
+        0
+    };
+    
+    setting_param showTraceback = {
+        "Show traceback",
+        "Output the Viterbi traceback in the results CSV",
+        "st",
         0
     };
     

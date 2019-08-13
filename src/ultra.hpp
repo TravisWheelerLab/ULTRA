@@ -66,6 +66,7 @@ public:
     void AnalyzeFileWithThread(void *tid);
     void AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *thrd);
     void OutputRepeats(bool flush = false);
+    bool FixRepeatOverlap();
     
     SequenceWindow *GetSequenceWindow(SequenceWindow *seq);
     

@@ -28,6 +28,8 @@ void UModel::CalculateScores() {
     // tscore[CT_BACKGROUND][*]
     tscore[CT_BACKGROUND][CT_BACKGROUND] = log2(1.0 - tp_zeroToMatch);
     
+    periodDecay = log2(periodDecay);
+    
     if (adjustForMaximumPeriod) {
         tscore[CT_BACKGROUND][CT_MATCH] = log2(tp_zeroToMatch / (double)matrix->maxPeriod);
     }
@@ -271,6 +273,7 @@ void UModel::CalculateCurrentColumn  (SequenceWindow *sequence,
                 int parentIndex = desc[row].parentIndex;
                 int order = desc[row].order;
                 double score = p[row] + tscore[CT_MATCH][CT_BACKGROUND];
+                score += (order - 1) * periodDecay;
                 
                 if (score > c[parentIndex]) {
                     c[parentIndex] = score;

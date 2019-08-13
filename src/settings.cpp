@@ -129,6 +129,10 @@ std::string Settings::DefaultParam(setting_param param) {
         defaultValue = std::to_string(v_matchToZero);
     }
     
+    else if (param == repeatDecay) {
+        defaultValue = std::to_string(v_repeatPeriodDecay);
+    }
+    
     else if (param == repeatToInsertion) {
         defaultValue = std::to_string(v_matchToInsertion);
     }
@@ -145,6 +149,8 @@ std::string Settings::DefaultParam(setting_param param) {
         defaultValue = std::to_string(v_consecutiveDeletion);
     }
     
+    
+    
     else if (param == outFilePath) {
         defaultValue = "STDOUT";
     }
@@ -155,6 +161,10 @@ std::string Settings::DefaultParam(setting_param param) {
     
     else if (param == showWindowID) {
         defaultValue = "Hide Window ID";
+    }
+    
+    else if (param == showTraceback) {
+        defaultValue = "Hide traceback";
     }
     
     else if (param == readWholeFile) {
@@ -281,6 +291,10 @@ int Settings::InterpretArgument(setting_param   arg,
             v_matchToZero = std::stod(arguments[0]);
         }
         
+        else if (arg == repeatDecay) {
+            v_repeatPeriodDecay = std::stod(arguments[0]);
+        }
+        
         else if (arg == repeatToInsertion) {
             v_matchToInsertion = std::stod(arguments[0]);
         }
@@ -303,6 +317,10 @@ int Settings::InterpretArgument(setting_param   arg,
         
         else if (arg == hideRepeatSequence) {
             v_outputRepeatSequence = false;
+        }
+        
+        else if (arg == showTraceback) {
+            v_showTraceback = true;
         }
         
         else if (arg == showWindowID) {
@@ -351,6 +369,7 @@ Settings::Settings(int argc, const char * argv[]) {
     
     settings.push_back(&zeroToRepeat);
     settings.push_back(&repeatToZero);
+    settings.push_back(&repeatDecay);
     settings.push_back(&repeatToInsertion);
     settings.push_back(&repeatToDeletion);
     settings.push_back(&consecutiveInsertion);
@@ -359,7 +378,9 @@ Settings::Settings(int argc, const char * argv[]) {
     settings.push_back(NULL);
     
     settings.push_back(&hideRepeatSequence);
+    settings.push_back(&showTraceback);
     settings.push_back(&showWindowID);
+    
     settings.push_back(&readWholeFile);
     settings.push_back(&windowSize);
     settings.push_back(&overlapSize);
