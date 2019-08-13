@@ -3,7 +3,7 @@ ULTRA Locates Tandemly Repetitive Areas
 
 We use a "git flow" workflow. We have two active branches:
  * **master** will be the stable ULTRA release branch. 
- * **develop** is the ULTRA development branch
+ * **prerelease** is the ULTRA development branch
 
 
 To clone your own copy of Mirage source code repository for the first time:
