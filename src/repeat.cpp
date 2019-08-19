@@ -45,11 +45,15 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix)
     
     int p = 0;
     
-
+    double lastUnitScore = 0;
+    int modp = 0;
+    
+    
     for (unsigned long long i = 0; i < endpoint; ++i) {
         
         int frow = matrix->traceback[fplace];
         int brow = matrix->traceback[bplace];
+     //   printf("%f\n", matrix->scoreColumns[fplace][frow]);
        // printf("%i(%i,%i,%i).", row, insertions, deletions, mismatches);
         
         cell fdesc = matrix->cellDescriptions[frow];
@@ -62,6 +66,10 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix)
             insertions += fdesc.indelNumber;
             i += fdesc.indelNumber;
             fplace += fdesc.indelNumber;
+            for (int j = 0; j < fdesc.indelNumber; ++j) {
+                
+            }
+            
            // printf("Insertion.\n");
         }
         
@@ -69,8 +77,16 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix)
             deletions += fdesc.indelNumber;
             bplace += fdesc.indelNumber;
             p += fdesc.indelNumber;
+            modp += fdesc.indelNumber + 1;
             //printf("Deletion.\n");
         }
+        
+        else {
+            ++modp;
+        }
+        
+        
+        modp = modp % repeatPeriod;
         
         if (bdesc.type == CT_INSERTION) {
             bplace += bdesc.indelNumber;
@@ -102,6 +118,8 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix)
         }
         
         
+        
+        
         ++p;
         ++fplace;
         ++bplace;
@@ -116,21 +134,19 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix)
             backset = repeatPeriod;
         }
         
-        
-        
     }
-
+  /*
+    unsigned long long p1 = windowStart + repeatLength;
+    unsigned long long p2 = windowStart + repeatLength - modp;
+    int t1 = matrix->traceback[p1];
+    int t2 = matrix->traceback[p2];
     
-    for (int i = 0; i < repeatPeriod; ++i) {
-       // printf("\n");
-        for (int j = 0; j < NUM_SYMBOLS; ++j) {
-       //     printf("%i, ",logo[i][j]);
-        }
-        
-    }
-    
-    
-    
+    lastUnitScore = matrix->scoreColumns[p2][t2] - matrix->scoreColumns[p1][t1];
+    printf("%f - %f = %f with rs = %f\n", matrix->scoreColumns[p2][t2], matrix->scoreColumns[p1][t1], lastUnitScore, regionScore);
+    printf("A: %llu %llu %f %f\n", modp, repeatLength, lastUnitScore, regionScore);
+    repeatLength -= modp;
+    regionScore -= lastUnitScore;
+    printf("B: %llu %llu %f %f\n\n", modp, repeatLength, lastUnitScore, regionScore);*/
     
 }
 

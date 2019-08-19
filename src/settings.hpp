@@ -31,6 +31,8 @@ class Settings {
 public:
     
     double v_scoreThreshold = 0.0;
+    int v_repeatThreshold = 3;
+    int v_lengthThreshold = 10;
     
     double v_Apctg = 0.3;
     double v_Tpctg = 0.3;
@@ -46,8 +48,8 @@ public:
     double v_matchToInsertion       = 0.07;
     double v_matchToDeletion        = 0.05;
     
-    double v_consecutiveInsertion   = 0.1;
-    double v_consecutiveDeletion    = 0.1;
+    double v_consecutiveInsertion   = 0.03;
+    double v_consecutiveDeletion    = 0.03;
     
     int v_numberOfThreads   = 1;
     int v_maxPeriod         = 15;
@@ -84,6 +86,21 @@ public:
         "s",
         1
     };
+    
+    setting_param repeatUnits = {
+        "Repeat Unit Threshold",
+        "Minimum number of repeat units necessary for a repeat to be recorded",
+        "mu",
+        1
+    };
+    
+    setting_param lengthThreshold =  {
+        "Region Length Trheshold",
+        "Minimum total repeat length necessary for a repeat to be recorded",
+        "ml",
+        1
+    };
+    
     
     setting_param ATRichness = {
         "AT Richness",

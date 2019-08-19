@@ -13,9 +13,9 @@ int main(int argc, const char * argv[]) {
     // insert code here...
     
     
-    //Settings settings = Settings(argc, argv);
-    const char * argu[] ={"./ultra", "-pd", "1.0", "-n", "2", "/Users/daniel/Desktop/chr18.fa"};
-    Settings settings = Settings(6, argu);
+   Settings settings = Settings(argc, argv);
+  //  const char * argu[] ={"./ultra", "-mi", "3", "-md", "-rd", "0.02", "-ri", "0.02", "-st", "-rn", "0.01", "/Users/daniel/Desktop/chr18.fa"};
+    //Settings settings = Settings(12, argu);
     
    // settings.v_windowSize = 20000;
    // settings.v_maxInsertion = 10;

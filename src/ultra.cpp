@@ -420,7 +420,10 @@ void Ultra::OutputRepeats(bool flush) {
         outRepeats.pop_back();
         
         
-        if (r->regionScore < scoreThreshold) {
+        if (r->regionScore < scoreThreshold ||
+            r->repeatLength < (r->repeatPeriod * settings->v_repeatThreshold) ||
+            r->repeatLength < settings->v_lengthThreshold) {
+            
             delete r;
             r = NULL;
             continue;

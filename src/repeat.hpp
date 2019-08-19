@@ -45,7 +45,7 @@ public:
     int*                logoMemory;
     int**               logo;
     symbol*             consensus;
-    
+        
     int mismatches;
     int insertions;
     int deletions;

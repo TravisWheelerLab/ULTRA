@@ -77,6 +77,14 @@ std::string Settings::DefaultParam(setting_param param) {
         defaultValue = std::to_string(v_scoreThreshold);
     }
     
+    else if (param == repeatUnits) {
+        defaultValue = std::to_string(v_repeatThreshold);
+    }
+    
+    else if (param == lengthThreshold) {
+        defaultValue = std::to_string(v_lengthThreshold);
+    }
+    
     else if (param == ATRichness) {
         defaultValue = std::to_string((v_Apctg + v_Tpctg));
       /*  defaultValue += ", A = ";
@@ -235,12 +243,25 @@ int Settings::InterpretArgument(setting_param   arg,
     else {
         for (int i = 0; i < arg.numberOfArguments; ++i) {
             int apos = index + i;
+            
+            if (apos >= argc) {
+                printf("Not enough arguments provided for: '%s'\n.", arg.flag.c_str());
+                exit(-1);
+            }
             std::string arg = argv[apos];
             arguments.push_back(arg);
         }
         
         if (arg == scoreThreshold) {
             v_scoreThreshold = std::stod(arguments[0]);
+        }
+        
+        else if (arg == repeatUnits) {
+            v_repeatThreshold = std::stoi(arguments[0]);
+        }
+        
+        else if (arg == lengthThreshold) {
+            v_lengthThreshold = std::stoi(arguments[0]);
         }
         
         else if (arg == ATRichness) {
@@ -280,6 +301,7 @@ int Settings::InterpretArgument(setting_param   arg,
         }
         
         else if (arg == maxDeletions) {
+            printf("%s\n", arguments[0].c_str());
             v_maxDeletion = std::stoi(arguments[0]);
         }
         
@@ -355,6 +377,8 @@ Settings::Settings(int argc, const char * argv[]) {
     
     settings.push_back(&outFilePath);
     settings.push_back(&scoreThreshold);
+    settings.push_back(&lengthThreshold);
+    settings.push_back(&repeatUnits);
     settings.push_back(&ATRichness);
     settings.push_back(&ATCGDistribution);
     settings.push_back(&matchProbability);
