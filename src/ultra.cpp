@@ -269,6 +269,13 @@ bool Ultra::FixRepeatOverlap() {
     }
     
     RepeatRegion *n = outRepeats.back();
+    
+    printf("%llu - %llu to %llu vs %llu to %llu\n",c->repeatLength, c->sequenceStart, c->sequenceStart + c->repeatLength,
+           n->sequenceStart, n->sequenceStart + n->repeatLength);
+    
+    for (int i = c->windowStart; i < c->windowStart + c->repeatLength; ++i) {
+        
+    }
 
     unsigned long long cSeqEnd = c->sequenceStart + c->repeatLength;
    // unsigned long long nSeqEnd = n->sequenceStart + n->repeatLength;
@@ -277,6 +284,15 @@ bool Ultra::FixRepeatOverlap() {
     double nScorePerSymbol = n->regionScore / (double)(n->repeatLength - n->repeatPeriod);
     
     if (c->sequenceID == n->sequenceID) {
+        
+        //Check to see if n is entirely contained in c
+        
+        if (c->sequenceStart + c->repeatLength > n->sequenceStart + n->repeatLength) {
+            delete n;
+            outRepeats.pop_back();
+            outRepeats.push_back(c);
+            return true;
+        }
         
         // Deal with small overlaps
         if (c->readID == n->readID) {
@@ -289,7 +305,11 @@ bool Ultra::FixRepeatOverlap() {
             // Check to see if there is partial overlap between c and n
             
             else if (n->sequenceStart < cSeqEnd) {
+                
+                //if (n->se)
+                
                 unsigned long long overlap = (cSeqEnd - n->sequenceStart);
+                unsigned long long tmp = n->repeatLength;
                 n->sequenceStart += overlap;
                 n->repeatLength -= overlap;
                 

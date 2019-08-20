@@ -135,18 +135,20 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix)
         }
         
     }
-  /*
-    unsigned long long p1 = windowStart + repeatLength;
-    unsigned long long p2 = windowStart + repeatLength - modp;
-    int t1 = matrix->traceback[p1];
-    int t2 = matrix->traceback[p2];
-    
-    lastUnitScore = matrix->scoreColumns[p2][t2] - matrix->scoreColumns[p1][t1];
-    printf("%f - %f = %f with rs = %f\n", matrix->scoreColumns[p2][t2], matrix->scoreColumns[p1][t1], lastUnitScore, regionScore);
-    printf("A: %llu %llu %f %f\n", modp, repeatLength, lastUnitScore, regionScore);
-    repeatLength -= modp;
-    regionScore -= lastUnitScore;
-    printf("B: %llu %llu %f %f\n\n", modp, repeatLength, lastUnitScore, regionScore);*/
+  
+    if (sequenceStart == 9128928 || sequenceStart == 9128932) {
+        printf("%llu\n", repeatLength);
+        printf("*******************\n");
+        for (int i = windowStart; i < windowStart + repeatLength; ++i) {
+            printf("%i.", matrix->traceback[i]);
+        }
+        printf("\n");
+        for (int i = windowStart; i < windowStart + repeatLength; ++i) {
+            printf("%c", CharForSymbol(window->seq[i]));
+        }
+        
+        printf("\n*******************\n");
+    }
     
 }
 
