@@ -269,13 +269,6 @@ bool Ultra::FixRepeatOverlap() {
     }
     
     RepeatRegion *n = outRepeats.back();
-    
-    printf("%llu - %llu to %llu vs %llu to %llu\n",c->repeatLength, c->sequenceStart, c->sequenceStart + c->repeatLength,
-           n->sequenceStart, n->sequenceStart + n->repeatLength);
-    
-    for (int i = c->windowStart; i < c->windowStart + c->repeatLength; ++i) {
-        
-    }
 
     unsigned long long cSeqEnd = c->sequenceStart + c->repeatLength;
    // unsigned long long nSeqEnd = n->sequenceStart + n->repeatLength;
@@ -309,7 +302,6 @@ bool Ultra::FixRepeatOverlap() {
                 //if (n->se)
                 
                 unsigned long long overlap = (cSeqEnd - n->sequenceStart);
-                unsigned long long tmp = n->repeatLength;
                 n->sequenceStart += overlap;
                 n->repeatLength -= overlap;
                 

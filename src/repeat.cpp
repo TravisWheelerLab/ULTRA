@@ -45,7 +45,7 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix)
     
     int p = 0;
     
-    double lastUnitScore = 0;
+    //double lastUnitScore = 0;
     int modp = 0;
     
     
@@ -136,20 +136,6 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix)
         
     }
   
-    if (sequenceStart == 9128928 || sequenceStart == 9128932) {
-        printf("%llu\n", repeatLength);
-        printf("*******************\n");
-        for (int i = windowStart; i < windowStart + repeatLength; ++i) {
-            printf("%i.", matrix->traceback[i]);
-        }
-        printf("\n");
-        for (int i = windowStart; i < windowStart + repeatLength; ++i) {
-            printf("%c", CharForSymbol(window->seq[i]));
-        }
-        
-        printf("\n*******************\n");
-    }
-    
 }
 
 void RepeatRegion::CreateConsensusFromLogo()
