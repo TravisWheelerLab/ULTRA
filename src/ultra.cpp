@@ -270,7 +270,7 @@ bool Ultra::FixRepeatOverlap() {
     
     RepeatRegion *n = outRepeats.back();
     
-    printf("%llu - %llu to %llu vs %llu to %llu\n",c->repeatLength, c->sequenceStart, c->sequenceStart + c->repeatLength,
+  //  printf("%llu - %llu to %llu vs %llu to %llu\n",c->repeatLength, c->sequenceStart, c->sequenceStart + c->repeatLength,
            n->sequenceStart, n->sequenceStart + n->repeatLength);
     
     for (int i = c->windowStart; i < c->windowStart + c->repeatLength; ++i) {
