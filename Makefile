@@ -1,10 +1,20 @@
+CXXFLAGS = -O3 -lpthread
 
+all:
+	@cd src && ${MAKE} CXXFLAGS="${CXXFLAGS}"
 
-all: ultra
+prefix = /usr/local
+exec_prefix = ${prefix}
+bindir = ${exec_prefix}/bin
 
-ultra: *.cpp *.hpp
-	@$(CXX) -std=c++11 $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o ../$@ *.cpp
+install: all
+	mkdir -p ${bindir}
+	cp src/ ${bindir}
+
+profile:
+	@cd src && ${MAKE} profile CXXFLAGS="${CXXFLAGS}"
 
 clean:
-	@rm -f ../ultra
-	@rm -f ../profile
+	@cd src && ${MAKE} clean
+
+
