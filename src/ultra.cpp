@@ -42,21 +42,7 @@ void Ultra::AnalyzeFile() {
         exit(-1);
     }
     
-    fprintf(out, "Sequence Name,");
-    if (outputReadID) {
-        fprintf(out, "Window ID,");
-    }
-    fprintf(out, "Start,End,Period,Score,Mismatches,Insertions,Deletions,Consensus");
-    if (outputRepeatSequence) {
-        fprintf(out, ",Sequence");
-    }
-    
-    if (settings->v_showTraceback) {
-        fprintf(out, ",Traceback");
-    }
-    
-    fprintf(out, "\n");
-    
+    OutputJSONStart();
     
     for (int i = 1; i < numberOfThreads; ++i) {
         //printf("Creating thread with id %i\n", i);
@@ -80,11 +66,12 @@ SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq) {
     
     // Check to see if we need to read more sequence first
     
-    if (!reader->doneReadingFile) {
-        if (!reader->isReading) {
-            if (reader->readyWindows.size() < minReaderSize) {
+    if (!reader->DoneReadingFile()) {
+        if (!reader->IsReading()) {
+            if (reader->ReadyWindowsSize() < minReaderSize) {
                 shouldRead = true;
-                reader->isReading = true;
+                reader->SetIsReading(true);
+                
             }
         }
     }
@@ -97,7 +84,7 @@ SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq) {
             pthread_mutex_lock(&innerLock);
         
         reader->FillWindows();
-        reader->isReading = false;
+        reader->SetIsReading(false);
         
         if (multithreading)
             pthread_mutex_unlock(&innerLock);
@@ -105,56 +92,6 @@ SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq) {
     
     retval = reader->GetReadyWindow();
     
-    /*
-     SequenceWindow *retval = NULL;
-     pthread_mutex_lock(&outerLock);
-     bool shouldRead = false;
-     
-     if (seq != NULL)
-     reader->AddWaitingWindow(seq);
-     
-     // We aren't done yet
-     if (reader->doneReadingFile == false || reader->readyWindows.size() > 0) {
-     if (reader->doneReadingFile == false &&
-     reader->readyWindows.size() < minReaderSize)
-     {
-     //         printf("%i: Filling windows in critical section\n", tid);
-     if (reader->isReading == false) {
-     reader->isReading = true;
-     shouldRead = true;
-     }
-     
-     }
-     
-     else {
-     // Busy wait un til there is a sequence window ready
-     while (reader->doneReadingFile != false && reader->readyWindows.size() == 0) {
-     
-     }
-     
-     if (reader->readyWindows.size() > 0) {
-     retval = reader->GetReadyWindow();
-     }
-     }
-     }
-     
-     if (!shouldRead) {
-     retval = reader->GetReadyWindow();
-     }
-     
-     
-     pthread_mutex_unlock(&outerLock);
-     
-     if (shouldRead) {
-     pthread_mutex_lock(&innerLock);
-     
-     reader->FillWindows();
-     
-     pthread_mutex_unlock(&innerLock);
-     }
-     
-     
-     */
     return retval;
 }
 
@@ -165,8 +102,8 @@ void Ultra::AnalyzeFileWithThread(void *dat) {
     
     
     SequenceWindow *currentWindow = GetSequenceWindow(NULL);
-    while (currentWindow != NULL || !reader->doneReadingFile) {
-        //printf("%i: %llx %i\n", i++, (unsigned long long)currentWindow, reader->doneReadingFile);
+    while (currentWindow != NULL || !reader->DoneReadingFile()) {
+        //printf("%i: %llx %i\n", i++, (unsigned long)currentWindow, reader->doneReadingFile);
         
         if (currentWindow == NULL) {
             //printf("Current windowi s NULL...\n");
@@ -223,7 +160,37 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     RepeatRegion *r = GetNextRepeat(sequence, model->matrix, &i);
     
     
+    
+    
     while (r != NULL) {
+        
+        
+        if (sequence->jrepeat) {
+            JSONRepeat *jrep = new JSONRepeat();
+            
+            jrep->passID = passID;
+            jrep->start = r->sequenceStart;
+            jrep->length = r->repeatLength;
+            jrep->consensus = r->GetConsensus();
+            
+            if (settings->v_outputRepeatSequence) {
+                r->StoreSequence(sequence);
+                jrep->sequence = r->sequence;
+            }
+            
+            if (settings->v_showTraceback) {
+                r->StoreTraceback(model->matrix);
+                jrep->traceback = r->traceback;
+            }
+            
+            jrep->insertions = r->insertions;
+            jrep->deletions = r->deletions;
+            jrep->substitutions = r->mismatches;
+            jrep->score = r->regionScore;
+            
+            sequence->jrepeat->subrepeats.push_back(jrep);
+            
+        }
         
         if (outputRepeatSequence) {
             r->StoreSequence(sequence);
@@ -258,7 +225,7 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
 bool Ultra::FixRepeatOverlap() {
     // We will return true if we combined repeats
-   // return false;
+    // return false;
     
     RepeatRegion *c = outRepeats.back();
     outRepeats.pop_back();
@@ -269,9 +236,9 @@ bool Ultra::FixRepeatOverlap() {
     }
     
     RepeatRegion *n = outRepeats.back();
-
-    unsigned long long cSeqEnd = c->sequenceStart + c->repeatLength;
-   // unsigned long long nSeqEnd = n->sequenceStart + n->repeatLength;
+    
+    unsigned long cSeqEnd = c->sequenceStart + c->repeatLength;
+    // unsigned long nSeqEnd = n->sequenceStart + n->repeatLength;
     
     double cScorePerSymbol = c->regionScore / (double)(c->repeatLength - c->repeatPeriod);
     double nScorePerSymbol = n->regionScore / (double)(n->repeatLength - n->repeatPeriod);
@@ -283,6 +250,7 @@ bool Ultra::FixRepeatOverlap() {
         if (c->sequenceStart + c->repeatLength > n->sequenceStart + n->repeatLength) {
             delete n;
             outRepeats.pop_back();
+            c->overlapCorrection = OC_PERIOD_LEFT;
             outRepeats.push_back(c);
             return true;
         }
@@ -292,6 +260,7 @@ bool Ultra::FixRepeatOverlap() {
             // Just make sure that n doesn't dwarf c
             if (n->sequenceStart <= c->sequenceStart + 3) {
                 delete c;
+                n->overlapCorrection = OC_PERIOD_RIGHT;
                 return true;
             }
             
@@ -301,7 +270,9 @@ bool Ultra::FixRepeatOverlap() {
                 
                 //if (n->se)
                 
-                unsigned long long overlap = (cSeqEnd - n->sequenceStart);
+                n->overlapCorrection = OC_PERIOD_SPLIT;
+                
+                unsigned long overlap = (cSeqEnd - n->sequenceStart);
                 n->sequenceStart += overlap;
                 n->repeatLength -= overlap;
                 
@@ -320,13 +291,13 @@ bool Ultra::FixRepeatOverlap() {
         // Check for overlap problems across the sequence window overlap
         else if (n->readID == c->readID + 1 && cSeqEnd > n->sequenceStart) {
             
-            unsigned long long overlap = (cSeqEnd - n->sequenceStart);
-            
+            unsigned long overlap = (cSeqEnd - n->sequenceStart);
             
             
             // If C starts in the window overlap we can always let n take care of it
             if (c->windowStart >= reader->maxSeqLength - n->winOverlapSize) {
                 delete c;
+                n->overlapCorrection = OC_OVERLAP_RIGHT;
                 return true;
             }
             
@@ -334,6 +305,7 @@ bool Ultra::FixRepeatOverlap() {
             else if (n->windowStart + n->repeatLength < n->winOverlapSize) {
                 outRepeats.pop_back();
                 delete n;
+                c->overlapCorrection = OC_OVERLAP_LEFT;
                 outRepeats.push_back(c);
                 return false;
             }
@@ -357,6 +329,7 @@ bool Ultra::FixRepeatOverlap() {
                         n->traceback = c->traceback.substr(0, c->repeatLength - overlap).append(n->traceback);
                     }
                     
+                    n->overlapCorrection = OC_OVERLAP_RIGHT;
                     delete c;
                     return true;
                     
@@ -389,6 +362,8 @@ bool Ultra::FixRepeatOverlap() {
                         n->traceback = n->traceback.substr(overlap / 2);
                     }
                     
+                    c->overlapCorrection = OC_OVERLAP_SPLIT;
+                    
                     
                 }
                 
@@ -403,9 +378,17 @@ bool Ultra::FixRepeatOverlap() {
 
 void Ultra::OutputRepeats(bool flush) {
     
-    
-    // unsigned long long symbolsMasked = 0;
-    // unsigned long long lastSeq = 0;
+    if (AnalyzingJSON) {
+        if (!flush)
+            return;
+        
+        else {
+            OutputJSONRepeats();
+            return;
+        }
+    }
+    // unsigned long symbolsMasked = 0;
+    // unsigned long lastSeq = 0;
     
     
     int min = 10 * numberOfThreads;
@@ -441,34 +424,154 @@ void Ultra::OutputRepeats(bool flush) {
             continue;
         }
         
-        fprintf(out, "%s", r->sequenceName.c_str());
-        if (outputReadID) {
-            fprintf(out, ",%llu", r->readID);
-        }
-        fprintf(out, ",%llu", r->sequenceStart);
-        fprintf(out, ",%llu", r->sequenceStart + r->repeatLength);
-        
-        fprintf(out, ",%i", r->repeatPeriod);
-        fprintf(out, ",%f", r->regionScore);
-        
-        fprintf(out, ",%i,%i,%i", r->mismatches, r->insertions, r->deletions);
-        fprintf(out, ",%s", r->GetConsensus().c_str());
-        
-        if (outputRepeatSequence) {
-            fprintf(out, ",%s", r->sequence.c_str());
-        }
-        
-        if (settings->v_showTraceback) {
-            fprintf(out, ",%s", r->traceback.c_str());
-        }
-        
-        fprintf(out, "\n");
+        OutputRepeat(r);
+        //fprintf(out, "%f to %f, ", r->startScore, r->endScore);
+        /*fprintf(out, "%s", r->sequenceName.c_str());
+         
+         if (outputReadID) {
+         fprintf(out, ",%lu", r->readID);
+         }
+         
+         if (settings->v_debugOverlapCorrection) {
+         fprintf(out, ",%i", r->overlapCorrection);
+         }
+         
+         fprintf(out, ",%lu", r->sequenceStart);
+         fprintf(out, ",%lu", r->sequenceStart + r->repeatLength);
+         
+         fprintf(out, ",%i", r->repeatPeriod);
+         fprintf(out, ",%f", r->regionScore);
+         
+         fprintf(out, ",%i,%i,%i", r->mismatches, r->insertions, r->deletions);
+         fprintf(out, ",%s", r->GetConsensus().c_str());
+         
+         if (outputRepeatSequence) {
+         fprintf(out, ",%s", r->sequence.c_str());
+         }
+         
+         if (settings->v_showTraceback) {
+         fprintf(out, ",%s", r->traceback.c_str());
+         }
+         
+         fprintf(out, "\n");*/
         
         delete r;
         r = NULL;
     }
     
+    if (flush) {
+        fprintf(out, "]\n}\n");
+    }
+    
     fflush(out);
+}
+
+void Ultra::OutputJSONRepeats() {
+    for (int i = 0; i < reader->jsonReader->repeats.size(); ++i) {
+        reader->jsonReader->repeats[i]->OutputRepeat(out, i == 0);
+    }
+    
+    fprintf(out, "]\n}\n");
+}
+
+
+
+void Ultra::OutputJSONStart() {
+    fprintf(out, "{\"Passes\":[{\n");
+    fprintf(out, "\"Pass ID\": %i,\n", passID);
+    fprintf(out, "\"Version\": \"%s\",\n", ULTRA_VERSION_STRING);
+    fprintf(out, "\"Parameters\": {\n");
+    fprintf(out, "%s\n}\n}],\n", settings->JSONString().c_str());
+    
+    fprintf(out, "\"Repeats\": [");
+}
+
+void Ultra::OutputJSONKey(std::string key) {
+    fprintf(out, "\"%s\": ", key.c_str());
+}
+
+void Ultra::OutputRepeat(RepeatRegion *r) {
+    if (!firstRepeat) {
+        fprintf(out, ",\n\n");
+    }
+    
+    else {
+        firstRepeat = false;
+    }
+    
+    fprintf(out, "{");
+    
+    OutputJSONKey("PassID");
+    fprintf(out, "%i", passID);
+    
+    fprintf(out, ",\n");
+    OutputJSONKey("SequenceName");
+    fprintf(out, "\"%s\"", r->sequenceName.c_str());
+    
+    fprintf(out, ",\n");
+    OutputJSONKey("Start");
+    fprintf(out, "%lu", r->sequenceStart);
+    
+    fprintf(out, ",\n");
+    OutputJSONKey("Length");
+    fprintf(out, "%lu", r->repeatLength);
+    
+    fprintf(out, ",\n");
+    OutputJSONKey("Period");
+    fprintf(out, "%i", r->repeatPeriod);
+    
+    fprintf(out, ",\n");
+    OutputJSONKey("Score");
+    fprintf(out, "%f", r->regionScore);
+    
+    fprintf(out, ",\n");
+    OutputJSONKey("Substitutions");
+    fprintf(out, "%i", r->mismatches);
+    
+    fprintf(out, ",\n");
+    OutputJSONKey("Insertions");
+    fprintf(out, "%i", r->insertions);
+    
+    fprintf(out, ",\n");
+    OutputJSONKey("Deletions");
+    fprintf(out, "%i", r->deletions);
+    
+    
+    
+    fprintf(out, ",\n");
+    OutputJSONKey("Consensus");
+    fprintf(out, "\"%s\"", r->GetConsensus().c_str());
+
+    if (outputReadID) {
+        fprintf(out, ",\n");
+        OutputJSONKey("ReadID");
+        fprintf(out, "\"%lu\"", r->readID);
+        
+    }
+    
+    if (outputRepeatSequence) {
+        
+        fprintf(out, ",\n");
+        OutputJSONKey("Sequence");
+        fprintf(out, "\"%s\"", r->sequence.c_str());
+        
+    }
+    
+    if (settings->v_showTraceback) {
+        fprintf(out, ",\n");
+        OutputJSONKey("Traceback");
+        fprintf(out, "\"%s\"", r->traceback.c_str());
+        
+    }
+    
+    if (settings->v_debugOverlapCorrection) {
+        fprintf(out, ",\n");
+        OutputJSONKey("OC");
+        fprintf(out, "\"%i\"", r->overlapCorrection);
+        
+    }
+    
+    fprintf(out, "}");
 }
 
 void Ultra::AddRepeat(RepeatRegion *region) {
@@ -502,14 +605,6 @@ void Ultra::SortRepeatRegions() {
     std::sort(outRepeats.begin(), outRepeats.end(), CompareRepeatOrder());
 }
 
-Ultra::Ultra(UModel*        m,
-             FASTAReader*   r)
-{
-    out = stdout;
-    
-    reader = r;
-    outRepeats.reserve(repeatBuffer + 100);
-}
 
 Ultra::Ultra(Settings* s, int n) {
     settings = s;
@@ -529,13 +624,42 @@ Ultra::Ultra(Settings* s, int n) {
     outputReadID = settings->v_showWindowID;
     outputRepeatSequence = settings->v_outputRepeatSequence;
     
+    passID = settings->v_passID;
+    AnalyzingJSON = settings->v_JSONInput;
     
-    //printf("Creating reader.\n");
-    reader = new FASTAReader(settings->v_filePath,
-                             settings->v_numberOfWindows,
-                             settings->v_windowSize,
-                             settings->v_overlapSize);
+    if (settings->v_JSONInput) {
+        reader = new FileReader(settings->v_filePath,
+                                 settings->v_windowSize,
+                                 settings->v_overlapSize,
+                                settings->v_numberOfThreads > 1);
+        
+        reader->jsonReader->ReadFile();
+        
+        if (passID == -1) {
+            unsigned long largestPass = 1;
+            for (int i = 0; i < reader->jsonReader->passes.size(); ++i) {
+                int t = reader->jsonReader->passes[i]->passID;
+                
+                if (t >= largestPass)
+                    largestPass = t + 1;
+            }
+            passID = largestPass;
+        }
+        
+    }
     
+    
+    else {
+        reader = new FileReader(settings->v_filePath,
+                                settings->v_numberOfWindows,
+                                 settings->v_windowSize,
+                                 settings->v_overlapSize,
+                                settings->v_numberOfThreads > 1);
+    }
+    
+    if (passID < 0)
+    passID = 0;
+   
     int leng = settings->v_windowSize + settings->v_overlapSize + 2;
     
     //printf("Creating threads.\n");
@@ -560,6 +684,13 @@ Ultra::Ultra(Settings* s, int n) {
         mod->tp_consecutiveDeletion   = settings->v_consecutiveDeletion;
         
         mod->CalculateScores();
+        /*
+         for (int i = 0; i < 5; ++i) {
+         for (int j = 0; j < 5; ++j) {
+         printf("%f ", mod->mscore[i][j]);
+         }
+         printf("\n");
+         }*/
         
         models.push_back(mod);
     }

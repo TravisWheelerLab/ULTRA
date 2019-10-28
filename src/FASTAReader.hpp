@@ -17,6 +17,7 @@
 #include <deque>
 #include <stack>
 #include <pthread.h>
+#include <unistd.h>
 
 #include "SequenceWindow.hpp"
 
@@ -24,8 +25,9 @@ class FASTAReader {
 public:
     
     std::ifstream       file;
+    unsigned long       randomWindows;
     std::string         line;
-    long long  linePlace;
+    long long           linePlace;
     
     // yucky
     
@@ -41,23 +43,28 @@ public:
     std::vector<SequenceWindow*>waitingWindows;
     
     // If readWholeFile is set to true, then maxWindows is ignored
-    bool                readWholeFile;
-    unsigned long long  maxWindows;
-    unsigned long long  maxSeqLength;
-    unsigned long long  maxOverlapLength;
+    bool           readWholeFile;
+    unsigned long  maxWindows;
+    unsigned long  maxSeqLength;
+    unsigned long  maxOverlapLength;
     
-    symbol*             overlapBuffer;//    = NULL;
-    unsigned long long  overlapLength;//    = 0;
+    double A_pctg;
+    double T_pctg;
+    double C_pctg;
+    double G_pctg;
     
-    std::string         sequenceName;       // = "";
-    unsigned long long  sequenceID;         // = 0;
-    unsigned long long  readID;             // = 0; // read id's may not be contiguous
-    unsigned long long  symbolsReadInSeq;   // = 0;
+    symbol*        overlapBuffer;//    = NULL;
+    unsigned long  overlapLength;//    = 0;
+    
+    std::string    sequenceName;       // = "";
+    unsigned long  sequenceID;         // = 0;
+    unsigned long  readID;             // = 0; // read id's may not be contiguous
+    unsigned long  symbolsReadInSeq;   // = 0;
     
     bool doneReadingFile;  //  = false;
     bool isReading;
     
-    bool CopyOverlapBufferFromWindow(SequenceWindow* window, unsigned long long overlapLength);
+    bool CopyOverlapBufferFromWindow(SequenceWindow* window, unsigned long overlapLength);
     bool FillWindows();
     bool ReadWindow(SequenceWindow* window);
     
@@ -74,11 +81,15 @@ public:
     bool            AddWaitingWindow(SequenceWindow* window);
     
     
-    FASTAReader(std::string         filePath,
-                unsigned long long  maxWindows=100,
-                unsigned long long  maxSeqLength=10000,
-                unsigned long long  maxOverlapLength=100);
+    FASTAReader(std::string    filePath,
+                unsigned long  maxWindows=100,
+                unsigned long  maxSeqLength=10000,
+                unsigned long  maxOverlapLength=100);
     
+    FASTAReader(unsigned long   randomWindows,
+                unsigned long   maxWindows=100,
+                unsigned long   maxSeqLength=10000,
+                unsigned long   maxOverlapLength=100);
     ~FASTAReader();
     
     

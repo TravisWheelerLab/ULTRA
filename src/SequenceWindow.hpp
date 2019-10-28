@@ -10,21 +10,24 @@
 #include <stdio.h>
 #include <string>
 #include "Symbol.hpp"
-
+#include "JSONRepeat.hpp"
 #define  READ_ALL       (1<<29)
 
 
 
 class SequenceWindow {
 public:
-    unsigned long long  windowID;   // A unique number assigned to this window
-    unsigned long long  seqID;      // A unique number representing the whole sequence
-    unsigned long long  readID;     // A unique number representing this particular read
+    
+    JSONRepeat *jrepeat = NULL;
+    
+    unsigned long  windowID;   // A unique number assigned to this window
+    unsigned long  seqID;      // A unique number representing the whole sequence
+    unsigned long  readID;     // A unique number representing this particular read
     
     std::string         sequenceName;
     
-    unsigned long long  start; // where the window starts in the sequence
-    unsigned long long  end; // Where the window ends in the sequence
+    unsigned long  start; // where the window starts in the sequence
+    unsigned long  end; // Where the window ends in the sequence
     
     
     // We don't actually need seq (which will always be pointing to overlapSeq)
@@ -35,20 +38,20 @@ public:
     symbol* newSeq;     // Where in seqMem the nonoverlap bit of the sequence begins
     symbol* seq;        // The beginning of the entire sequence
     
-    unsigned long long  length;  // How many nucleotides are in this window
-    unsigned long long  overlap; // The length of sequence shared with this.seqID - 1
+    unsigned long  length;  // How many nucleotides are in this window
+    unsigned long  overlap; // The length of sequence shared with this.seqID - 1
     
-    unsigned long long  symbolCounts[27];
-    double              symbolFreqs[27];
+    unsigned long  symbolCounts[27];
+    double         symbolFreqs[27];
     
-    unsigned long long  maxLength;  // The largest length of sequence we can store
-    unsigned long long  maxOverlap; // The largest amount of overlap we can store
+    unsigned long  maxLength;  // The largest length of sequence we can store
+    unsigned long  maxOverlap; // The largest amount of overlap we can store
     
     
     void        PrepareWindow(std::string seqName,
-                       unsigned long long seqID,
-                       unsigned long long start,
-                       unsigned long long overlap);
+                       unsigned long seqID,
+                       unsigned long start,
+                       unsigned long overlap);
     
     // ReadLine() returns how much of line was read
     // and will returns -1 if the line is a new sequence
@@ -58,10 +61,12 @@ public:
     void        CalculateSymbolFrequencies();
     
     
+    
+    
     //bool operator<(const SequenceWindow& rhs);
     
-    SequenceWindow(unsigned long long maxLength,
-                   unsigned long long maxOverlap);
+    SequenceWindow(unsigned long maxLength,
+                   unsigned long maxOverlap);
     ~SequenceWindow();
     
     

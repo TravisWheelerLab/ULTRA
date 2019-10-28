@@ -23,6 +23,7 @@ public:
     double   tp_consecutiveDeletion      = 0.1;
     
     double   periodDecay                 = 0.9;
+    double   periodDecayOffset           = 0.0;
     
     // If true then pt_zeroToMatch = tp_zeroToMatch / matrix->maxPeriod
     bool    adjustForMaximumPeriod      = false;

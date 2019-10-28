@@ -15,9 +15,9 @@ bool compareSequenceWindows(SequenceWindow *lhs,
 }*/
 
 void SequenceWindow::PrepareWindow(std::string seqName,
-                                   unsigned long long sid,
-                                   unsigned long long strt,
-                                   unsigned long long overlapLength)
+                                   unsigned long sid,
+                                   unsigned long strt,
+                                   unsigned long overlapLength)
 {
     
     overlap = overlapLength;
@@ -40,9 +40,9 @@ void SequenceWindow::PrepareWindow(std::string seqName,
 long long SequenceWindow::ReadLine(std::string line,
                                    long long place)
 {
-    //printf ("(mem: %llx overlap:%llx newseq: %llx, length: %llu, place %llu) Reading line: %s\n", (unsigned long long)seqMem, (unsigned long long)overlapSeq, (unsigned long long)newSeq, length, place,  line.c_str());
-    unsigned long long windowRemaining = maxLength - length;
-    unsigned long long charactersToRead = windowRemaining;
+    //printf ("(mem: %llx overlap:%llx newseq: %llx, length: %llu, place %llu) Reading line: %s\n", (unsigned long)seqMem, (unsigned long)overlapSeq, (unsigned long)newSeq, length, place,  line.c_str());
+    unsigned long windowRemaining = maxLength - length;
+    unsigned long charactersToRead = windowRemaining;
     
     if (charactersToRead > line.length() - place) {
         charactersToRead = line.length() - place;
@@ -90,7 +90,7 @@ void SequenceWindow::CopyOverlap(symbol *b)
     
     //printf("%i %i\n", readID, overlap);
     
-    for (unsigned long long i = 0; i < overlap; ++i) {
+    for (unsigned long i = 0; i < overlap; ++i) {
         overlapSeq[i] = b[i];
         
     }
@@ -98,7 +98,7 @@ void SequenceWindow::CopyOverlap(symbol *b)
 
 
 void SequenceWindow::CalculateSymbolFrequencies() {
-    unsigned long long totalSymbols = 0;
+    unsigned long totalSymbols = 0;
     
     for (int i = 0; i < 27; ++i) {
         totalSymbols += symbolCounts[i];
@@ -120,8 +120,8 @@ bool SequenceWindow::operator<(const SequenceWindow& rhs) {
     return (this->readID < rhs.readID);
 }*/
 
-SequenceWindow::SequenceWindow (unsigned long long ml,
-                                unsigned long long mo) {
+SequenceWindow::SequenceWindow (unsigned long ml,
+                                unsigned long mo) {
     
     maxLength = ml;
     maxOverlap = mo;
@@ -132,9 +132,9 @@ SequenceWindow::SequenceWindow (unsigned long long ml,
     
     
     seqMem      = (symbol* )malloc(sizeof(symbol) * (maxLength + maxOverlap + 1));
-   // unsigned long long memloc = (unsigned long long)seqMem;
-   // unsigned long long size = (unsigned long long)(sizeof(symbol) * (maxLength + maxOverlap + 1));
-    //printf("Sequence Window (%llx) has created %llx to %llx\n", (unsigned long long)this, (unsigned long long)seqMem, size + memloc);
+   // unsigned long memloc = (unsigned long)seqMem;
+   // unsigned long size = (unsigned long)(sizeof(symbol) * (maxLength + maxOverlap + 1));
+    //printf("Sequence Window (%llx) has created %llx to %llx\n", (unsigned long)this, (unsigned long)seqMem, size + memloc);
     overlapSeq  = &seqMem[0];
     newSeq      = &seqMem[mo];
     seq         = &seqMem[0];
@@ -156,7 +156,7 @@ SequenceWindow::SequenceWindow (unsigned long long ml,
 }
 
 SequenceWindow::~SequenceWindow() {
-    //printf("%llx has is being deleted\n", (unsigned long long)this);
+    //printf("%llx has is being deleted\n", (unsigned long)this);
     if (seqMem != NULL) {
         free(seqMem);
         seqMem = NULL;

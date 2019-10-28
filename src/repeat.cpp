@@ -26,11 +26,11 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix)
     
     
     
-    unsigned long long backset = repeatPeriod;
-    unsigned long long endpoint = repeatLength - repeatPeriod;
+    unsigned long backset = repeatPeriod;
+    unsigned long endpoint = repeatLength - repeatPeriod;
     
-    unsigned long long fplace = repeatPeriod + windowStart;
-    unsigned long long bplace = windowStart;
+    unsigned long fplace = repeatPeriod + windowStart;
+    unsigned long bplace = windowStart;
     
     //printf("%llu %llu %llu\n", backset, fplace, endpoint);
     if (endpoint > window->length + window->overlap)
@@ -49,7 +49,7 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix)
     int modp = 0;
     
     
-    for (unsigned long long i = 0; i < endpoint; ++i) {
+    for (unsigned long i = 0; i < endpoint; ++i) {
         
         int frow = matrix->traceback[fplace];
         int brow = matrix->traceback[bplace];
@@ -186,6 +186,7 @@ RepeatRegion::RepeatRegion() {
     deletions = 0;
     
     winOverlapSize = 0;
+    overlapCorrection = OC_NONE;
     
     logoMemory = NULL;
     logo = NULL;
@@ -227,8 +228,8 @@ void RepeatRegion::StoreTraceback(UMatrix *matrix) {
         traceback.push_back('.');
     }
     
-    unsigned long long end = windowStart + repeatLength;
-    for (unsigned long long i = windowStart + repeatPeriod; i < end; ++i) {
+    unsigned long end = windowStart + repeatLength;
+    for (unsigned long i = windowStart + repeatPeriod; i < end; ++i) {
         cell c = matrix->cellDescriptions[matrix->traceback[i]];
         
         if (c.type == CT_INSERTION) {
@@ -261,13 +262,13 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos)
     bool foundRepeat = false;
     int i;
     
-    unsigned long long seqLength = window->length + window->overlap;
+    unsigned long seqLength = window->length + window->overlap;
     
     RepeatRegion *region = NULL;
     
     for (i = *pos; i < seqLength; ++i) {
         
-       // printf("%i: %llx, %llx, %llx\n", i, (unsigned long long)matrix, (unsigned long long)matrix->traceback, (unsigned long long)&matrix->traceback[i]);
+       // printf("%i: %llx, %llx, %llx\n", i, (unsigned long)matrix, (unsigned long)matrix->traceback, (unsigned long)&matrix->traceback[i]);
         if (matrix->traceback[i] > 0) {
             foundRepeat = true;
             break;
@@ -327,6 +328,10 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos)
         region->readID = window->readID;
         region->CreateLogo(window, matrix);
         region->CreateConsensusFromLogo();
+    }
+    
+    if (window->jrepeat != NULL) {
+        
     }
     
     return region;

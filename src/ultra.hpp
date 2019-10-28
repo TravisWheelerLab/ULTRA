@@ -13,6 +13,9 @@
 #include "umodel.hpp"
 #include "umatrix.hpp"
 #include "FASTAReader.hpp"
+#include "JSONReader.hpp"
+#include "FileReader.hpp"
+
 #include "repeat.hpp"
 #include <algorithm>
 #include <stdio.h>
@@ -35,7 +38,8 @@ public:
 
     Settings*       settings = NULL;
     
-    FASTAReader*    reader  = NULL;
+    FileReader*     reader = NULL;
+    //FASTAReader*    reader  = NULL;
     
     int numberOfThreads = 1;
     int minReaderSize = 100;
@@ -48,24 +52,32 @@ public:
     bool outputRepeatSequence   = true;
     bool outputReadID           = false;
     bool multithreading         = false;
+    bool AnalyzingJSON          = false;
     //bool outputSequenceSummary  = true;
     
     
     bool canOutput = false;
-    unsigned long long repeatBuffer = 2000;
+    bool firstRepeat = true;
+    unsigned long repeatBuffer = 2000;
     
     
     
     std::vector<RepeatRegion *>outRepeats{};
+    std::vector<JSONRepeat *>outJRepeats{};
     
     std::vector<UModel *>models{};
     int count = 0;
+    int passID = 0;
     std::vector<uthread *> threads{};
     
     void AnalyzeFile();
     void AnalyzeFileWithThread(void *tid);
     void AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *thrd);
     void OutputRepeats(bool flush = false);
+    void OutputRepeat(RepeatRegion *r);
+    void OutputJSONRepeats();
+    void OutputJSONKey(std::string key);
+    void OutputJSONStart();
     bool FixRepeatOverlap();
     
     SequenceWindow *GetSequenceWindow(SequenceWindow *seq);
@@ -78,7 +90,6 @@ public:
     pthread_mutex_t repeatLock;
     
     Ultra(Settings* settings, int numberOfThreads);
-    Ultra(UModel* m, FASTAReader* r);
 };
 
 class CompareRepeatOrder {

@@ -53,11 +53,11 @@ public:
     int         length;                                 // Number of columns in matrix
     int         cellsPerColumn;                         // Number of rows in matrix
     
-    double*     scoreMatrix                = NULL;
-    double**    scoreColumns              = NULL;
+    double*     scoreMatrix                 = NULL;
+    double**    scoreColumns                = NULL;
     
-    int*        tracebackMatrix            = NULL;
-    int**       tracebackColumns          = NULL;
+    int*        tracebackMatrix             = NULL;
+    int**       tracebackColumns            = NULL;
     
     int         currentColumnIndex;
     int         previousColumnIndex;

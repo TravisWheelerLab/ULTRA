@@ -33,10 +33,10 @@ std::string Settings::StringHelp() {
     long long longestName = 0;
     for (int i = 0; i < settings.size(); ++i) {
         if (settings[i] == NULL)
-            continue;
+        continue;
         
         if (settings[i]->name.size() > longestName)
-            longestName = settings[i]->name.size();
+        longestName = settings[i]->name.size();
     }
     
     for (int i = 0; i < settings.size(); ++i) {
@@ -72,7 +72,7 @@ std::string Settings::StringHelp() {
 std::string Settings::DefaultParam(setting_param param) {
     
     std::string defaultValue = "";
- //   printf("-%s = %s", param.flag.c_str(), param.name.c_str());
+    //   printf("-%s = %s", param.flag.c_str(), param.name.c_str());
     if (param == scoreThreshold) {
         defaultValue = std::to_string(v_scoreThreshold);
     }
@@ -87,15 +87,15 @@ std::string Settings::DefaultParam(setting_param param) {
     
     else if (param == ATRichness) {
         defaultValue = std::to_string((v_Apctg + v_Tpctg));
-      /*  defaultValue += ", A = ";
-        defaultValue += std::to_string(v_Apctg);
-        defaultValue += ", T = ";
-        defaultValue += std::to_string(v_Tpctg);
-        defaultValue += ", C = ";
-        defaultValue += std::to_string(v_Cpctg);
-        defaultValue += ", G = ";
-        defaultValue += std::to_string(v_Gpctg);*/
-
+        /*  defaultValue += ", A = ";
+         defaultValue += std::to_string(v_Apctg);
+         defaultValue += ", T = ";
+         defaultValue += std::to_string(v_Tpctg);
+         defaultValue += ", C = ";
+         defaultValue += std::to_string(v_Cpctg);
+         defaultValue += ", G = ";
+         defaultValue += std::to_string(v_Gpctg);*/
+        
     }
     
     else if (param == ATCGDistribution) {
@@ -171,8 +171,24 @@ std::string Settings::DefaultParam(setting_param param) {
         defaultValue = "Hide Window ID";
     }
     
+    else if (param == randomSeq) {
+        defaultValue = "Do not generate random windows";
+    }
+    
     else if (param == showTraceback) {
         defaultValue = "Hide traceback";
+    }
+    
+    else if (param == JSONInput) {
+        defaultValue = "False";
+    }
+    
+    else if (param == JPasses) {
+        defaultValue = "None";
+    }
+    
+    else if (param == JSONPassID) {
+        defaultValue = "Smallest unused positive pass ID";
     }
     
     else if (param == readWholeFile) {
@@ -191,6 +207,11 @@ std::string Settings::DefaultParam(setting_param param) {
         defaultValue = std::to_string(v_numberOfWindows);
     }
     
+    else if (param == debugOverlapCorrection) {
+        defaultValue = std::to_string(v_debugOverlapCorrection);
+    }
+    
+    
     return defaultValue;
 }
 
@@ -198,12 +219,12 @@ bool Settings::CheckFlags(bool printErrors) {
     
     for (int i = 0; i < settings.size(); ++i) {
         if (settings[i] == NULL)
-            continue;
+        continue;
         
         for (int j = 0; j < settings.size(); ++j) {
             
             if (i == j || settings[j] == NULL)
-                continue;
+            continue;
             
             
             if (settings[i]->flag == settings[j]->flag) {
@@ -229,10 +250,12 @@ int Settings::InterpretArgument(setting_param   arg,
                                 const char**    argv,
                                 int             index)
 {
+    
     index++;
     int itemsLeft = argc - index;
     std::vector<std::string> arguments;
     arguments.reserve(arg.numberOfArguments);
+    
     
     
     if (arg.numberOfArguments > itemsLeft) {
@@ -278,7 +301,7 @@ int Settings::InterpretArgument(setting_param   arg,
         else if (arg == ATCGDistribution) {
             v_Apctg = std::stod(arguments[0]);
             v_Tpctg = std::stod(arguments[1]);
-        
+            
             v_Cpctg = std::stod(arguments[2]);
             v_Gpctg = std::stod(arguments[3]);
         }
@@ -301,7 +324,7 @@ int Settings::InterpretArgument(setting_param   arg,
         }
         
         else if (arg == maxDeletions) {
-            printf("%s\n", arguments[0].c_str());
+            // printf("%s\n", arguments[0].c_str());
             v_maxDeletion = std::stoi(arguments[0]);
         }
         
@@ -349,6 +372,30 @@ int Settings::InterpretArgument(setting_param   arg,
             v_showWindowID = true;
         }
         
+        else if (arg == randomSeq) {
+            v_randomWindows = std::stoi(arguments[0]);
+        }
+        
+        else if (arg == JSONInput) {
+            v_JSONInput = true;
+        }
+        
+        else if (arg == JPasses) {
+            v_JSONInput  = true;
+            char *passStr = (char *)malloc(sizeof(char) * arguments[0].size() + 1);
+            strcpy(passStr, arguments[0].c_str());
+            char delims[] = ",";
+            char *passID = strtok(passStr, delims);
+            while (passID != NULL) {
+                v_JSONPasses.push_back(atoi(passID));
+                passID = strtok(NULL, delims);
+            }
+        }
+        
+        else if (arg == JSONPassID) {
+            v_passID = std::stoi(arguments[0]);
+        }
+        
         else if (arg == readWholeFile) {
             v_readWholeFile = true;
         }
@@ -365,15 +412,214 @@ int Settings::InterpretArgument(setting_param   arg,
             v_numberOfWindows = std::stoi(arguments[0]);
         }
         
+        else if (arg == debugOverlapCorrection) {
+            v_debugOverlapCorrection = true;
+        }
+        
+        else {
+            printf("Unhandled argument. Exiting\n");
+            exit(0);
+        }
+        
         // Do some checks for the help flag and what have you...
     }
     
     return (int)arguments.size();
 }
 
+std::string Settings::JSONStringForArgument(setting_param arg) {
+    std::string json = "";
+    
+    json = "\"" + arg.name + "\": \"";
+    if (arg == scoreThreshold) {
+        json += std::to_string(v_scoreThreshold);
+    }
+    
+    else if (arg == repeatUnits) {
+        json += std::to_string(v_repeatThreshold);
+    }
+    
+    else if (arg == lengthThreshold) {
+        json += std::to_string(v_lengthThreshold);
+    }
+    
+    else if (arg == ATRichness) {
+        return ""; // We catch at richness on atcgdistribution
+    }
+    
+    else if (arg == ATCGDistribution) {
+        json += std::to_string(v_Apctg);
+        json += ", ";
+        json += std::to_string(v_Tpctg);
+        json += ", ";
+        json += std::to_string(v_Cpctg);
+        json += ", ";
+        json += std::to_string(v_Gpctg);
+    }
+    
+    
+    else if (arg == matchProbability) {
+        json += std::to_string(v_matchProbability);
+    }
+    
+    else if (arg == numberOfThreads) {
+        json += std::to_string(v_numberOfThreads);
+    }
+    
+    else if (arg == maxPeriod) {
+        json += std::to_string(v_maxPeriod);
+    }
+    
+    else if (arg == maxInsertions) {
+        json += std::to_string(v_maxInsertion);
+    }
+    
+    else if (arg == maxDeletions) {
+        // printf("%s\n", arguments[0].c_str());
+        json += std::to_string(v_maxDeletion);
+    }
+    
+    else if (arg == zeroToRepeat) {
+        json += std::to_string(v_zeroToMatch);
+    }
+    
+    else if (arg == repeatToZero) {
+        json += std::to_string(v_matchToZero);
+    }
+    
+    else if (arg == repeatDecay) {
+        json += std::to_string(v_repeatPeriodDecay);
+    }
+    
+    else if (arg == repeatToInsertion) {
+        json += std::to_string(v_matchToInsertion);
+    }
+    
+    else if (arg == repeatToDeletion) {
+        json += std::to_string(v_matchToDeletion);
+    }
+    
+    else if (arg == consecutiveInsertion) {
+        json += std::to_string(v_consecutiveInsertion);
+    }
+    
+    else if (arg == consecutiveDeletion) {
+        json += std::to_string(v_consecutiveDeletion);
+    }
+    
+    else if (arg == outFilePath) {
+        json += v_outFilePath;
+    }
+    
+    else if (arg == hideRepeatSequence) {
+        json += std::to_string(v_outputRepeatSequence);
+    }
+    
+    else if (arg == showTraceback) {
+        json += std::to_string(v_showTraceback);
+    }
+    
+    else if (arg == showWindowID) {
+        json += std::to_string(v_showWindowID);
+    }
+    
+    else if (arg == randomSeq) {
+        return "";
+    }
+    
+    else if (arg == JSONInput) {
+        if (!v_JSONInput)
+            json += "false";
+        else
+            json += "true";
+        
+    }
+    
+    else if (arg == JPasses) {
+        if (!v_JSONInput) {
+            json += "none";
+        }
+        
+        else if (v_JSONPasses.size() > 0) {
+            json += std::to_string(v_JSONPasses[0]);
+            for (int i = 1; i < v_JSONPasses.size(); ++i) {
+                json += ",";
+                json += std::to_string(v_JSONPasses[i]);
+            }
+        }
+        
+        else {
+            json += "all";
+        }
+    }
+    
+    else if (arg == JSONPassID) {
+        json += std::to_string(v_passID);
+    }
+    
+    else if (arg == JSONPassID) {
+        json += v_passID;
+    }
+    
+    else if (arg == readWholeFile) {
+        json += std::to_string(v_readWholeFile);
+    }
+    
+    else if (arg == windowSize) {
+        json += std::to_string(v_windowSize);
+    }
+    
+    else if (arg == overlapSize) {
+        json += std::to_string(v_overlapSize);
+    }
+    
+    else if (arg == numberOfWindows) {
+        json += std::to_string(v_numberOfWindows);
+    }
+    
+    else if (arg == debugOverlapCorrection) {
+        json += std::to_string(v_debugOverlapCorrection);
+    }
+    
+    else {
+        printf("Unhandled setting_param for JSON output. Exiting\n");
+        exit(0);
+    }
+    
+    json += "\"";
+    return json;
+}
+
+std::string Settings::JSONString() {
+    std::string json = "\"Input File\": \"";
+    json += v_filePath;
+    json += "\"";
+    
+    
+    
+    for (int i = 0; i < settings.size(); ++i) {
+        setting_param *p = settings[i];
+        
+        if (p == NULL)
+            continue;
+        
+        std::string s = JSONStringForArgument(*p);
+        
+        if (s == "")
+            continue;
+        
+        json += ",\n";
+        
+        json += s;
+    }
+    
+    return json;
+}
 
 Settings::Settings(int argc, const char * argv[]) {
     
+    o_argc = argc;
+    o_argv = argv;
     
     settings.push_back(&outFilePath);
     settings.push_back(&scoreThreshold);
@@ -405,10 +651,18 @@ Settings::Settings(int argc, const char * argv[]) {
     settings.push_back(&showTraceback);
     settings.push_back(&showWindowID);
     
+    
+    // settings.push_back(&randomSeq);
+    settings.push_back(&JSONInput);
+    settings.push_back(&JPasses);
+    settings.push_back(&JSONPassID);
     settings.push_back(&readWholeFile);
     settings.push_back(&windowSize);
     settings.push_back(&overlapSize);
     settings.push_back(&numberOfWindows);
+    
+    settings.push_back(NULL);
+    settings.push_back(&debugOverlapCorrection);
     
     if (!CheckFlags()) {
         printf("Flags were found to be inconsistent.\n \
@@ -439,7 +693,7 @@ Settings::Settings(int argc, const char * argv[]) {
             setting_param *param = NULL;
             for (int x = 0; x < settings.size(); ++x) {
                 if (settings[x] == NULL)
-                    continue;
+                continue;
                 
                 if (argument == settings[x]->flag) {
                     param = settings[x];
@@ -458,7 +712,7 @@ Settings::Settings(int argc, const char * argv[]) {
             }
             
             else {
-               i += InterpretArgument(*param, argc, argv, i);
+                i += InterpretArgument(*param, argc, argv, i);
             }
             
             

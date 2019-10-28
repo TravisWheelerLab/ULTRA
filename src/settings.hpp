@@ -2,8 +2,6 @@
 //  settings.hpp
 //  ultraP
 //
-//  Created by Daniel Olson on 7/3/19.
-//  Copyright © 2019 Daniel Olson. All rights reserved.
 //
 
 #ifndef settings_hpp
@@ -13,7 +11,7 @@
 #include <string>
 #include <vector>
 #include <string.h>
-#define ULTRA_VERSION_STRING       "1.0b"
+#define ULTRA_VERSION_STRING       "0.99.0"
 
 
 typedef struct t_set_param{
@@ -29,8 +27,9 @@ typedef struct t_set_param{
 
 class Settings {
 public:
-    
-    double v_scoreThreshold = 0.0;
+    int o_argc;
+    const char **o_argv;
+    double v_scoreThreshold = -10000.0;
     int v_repeatThreshold = 3;
     int v_lengthThreshold = 10;
     
@@ -45,19 +44,24 @@ public:
     double v_matchToZero            = 0.05;
     double v_repeatPeriodDecay      = 0.9;
     
-    double v_matchToInsertion       = 0.07;
-    double v_matchToDeletion        = 0.05;
+    double v_matchToInsertion       = 0.02;
+    double v_matchToDeletion        = 0.02;
     
-    double v_consecutiveInsertion   = 0.03;
-    double v_consecutiveDeletion    = 0.03;
+    double v_consecutiveInsertion   = 0.02;
+    double v_consecutiveDeletion    = 0.02;
     
     int v_numberOfThreads   = 1;
     int v_maxPeriod         = 15;
     int v_maxInsertion      = 8;
     int v_maxDeletion       = 7;
     
+    unsigned long v_randomWindows    = 0;
+    
     std::string v_filePath      = "";
     std::string v_outFilePath   = "";
+    bool v_JSONInput            = false;
+    std::vector<int> v_JSONPasses;
+    int v_passID                = -1;
 
     bool v_readWholeFile        = false;
     int  v_numberOfWindows      = 1024;
@@ -66,10 +70,10 @@ public:
     
     bool v_showTraceback        = false;
     
-    
     bool v_showWindowID         = false;
     
     bool v_outputRepeatSequence = true;
+    bool v_debugOverlapCorrection = false;
     
     
     //***************************
@@ -229,12 +233,41 @@ public:
         0
     };
     
+    setting_param JSONInput = {
+        "Read JSON file",
+        "Process all passes in JSON file",
+        "json",
+        0
+    };
+    
+    setting_param JPasses = {
+        "Process passes in JSON file",
+        "Process selected passes in JSON file",
+        "jpass",
+        1
+    };
+    
+    setting_param JSONPassID = {
+        "Pass ID",
+        "Assigns a custom pass ID",
+        "pid",
+        1
+    };
+    
     
     setting_param readWholeFile = {
         "Completely Read File",
         "Read the entire input file during initialization.",
         "R",
         0
+    };
+    
+    // lots of bugs, we're not using this for now
+    setting_param randomSeq = {
+        "Randomly generate n windows",
+        "Run Ultra on a randomly generated windows instead of a FASTA file",
+        "RAN",
+        1
     };
     
     setting_param windowSize = {
@@ -258,6 +291,13 @@ public:
         1
     };
     
+    setting_param debugOverlapCorrection = {
+        "Debug overlap correction",
+        "Report overlap correction in repeat information",
+        "doc",
+        0
+    };
+    
     
     std::vector<setting_param *> settings;
     
@@ -266,6 +306,9 @@ public:
     std::string StringUsage();
     std::string StringVersion();
     std::string StringHelp();
+    std::string JSONStringForArgument(setting_param arg);
+    std::string JSONString();
+    
     
     std::string DefaultParam(setting_param param);
     

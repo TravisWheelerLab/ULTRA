@@ -13,6 +13,13 @@
 #include "SequenceWindow.hpp"
 #include "umatrix.hpp"
 
+#define OC_NONE             0
+#define OC_OVERLAP_LEFT     1
+#define OC_OVERLAP_RIGHT    2
+#define OC_OVERLAP_SPLIT    3
+#define OC_PERIOD_LEFT      4
+#define OC_PERIOD_RIGHT     5
+#define OC_PERIOD_SPLIT     6
 
 class RepeatRegion {
 public:
@@ -22,19 +29,19 @@ public:
     std::string traceback;
     std::string sequence;
     
-    unsigned long long sequenceID;
-    unsigned long long readID;
+    unsigned long sequenceID;
+    unsigned long readID;
     
-    unsigned long long winOverlapSize;
-    unsigned long long winTotalLength;
+    unsigned long winOverlapSize;
+    unsigned long winTotalLength;
     
     bool combinedRepeat;
     
     int                 falseStart;
-    unsigned long long  windowStart;
-    unsigned long long  sequenceStart;
+    unsigned long  windowStart;
+    unsigned long  sequenceStart;
     
-    unsigned long long  repeatLength;
+    unsigned long  repeatLength;
     
     int                 repeatPeriod;
     
@@ -49,6 +56,8 @@ public:
     int mismatches;
     int insertions;
     int deletions;
+    
+    int overlapCorrection;
     
     
     std::string GetConsensus();

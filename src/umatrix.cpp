@@ -405,7 +405,7 @@ void UMatrix::CreateMatrix() {
     // Allocate the cell description
     cellsPerColumn = numberOfCells;
     cellDescriptions = (cell *)malloc(sizeof(cell) * (cellsPerColumn + 1));
-    //printf("%llx to %llx\n", (unsigned long long)cellDescriptions, (unsigned long long)cellDescriptions + sizeof(cell) * (cellsPerColumn + 1));
+    //printf("%llx to %llx\n", (unsigned long)cellDescriptions, (unsigned long)cellDescriptions + sizeof(cell) * (cellsPerColumn + 1));
     // Calculate cell descriptions
     int cellIndex = 1;
     
