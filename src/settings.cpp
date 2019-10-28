@@ -211,6 +211,10 @@ std::string Settings::DefaultParam(setting_param param) {
         defaultValue = std::to_string(v_debugOverlapCorrection);
     }
     
+    else if (param == showVersion) {
+        defaultValue = "";
+    }
+    
     
     return defaultValue;
 }
@@ -378,6 +382,11 @@ int Settings::InterpretArgument(setting_param   arg,
         
         else if (arg == JSONInput) {
             v_JSONInput = true;
+        }
+        
+        else if (arg == showVersion) {
+            printf("%s\n", ULTRA_VERSION_STRING);
+            exit(0);
         }
         
         else if (arg == JPasses) {
@@ -581,6 +590,10 @@ std::string Settings::JSONStringForArgument(setting_param arg) {
         json += std::to_string(v_debugOverlapCorrection);
     }
     
+    else if (arg == showVersion) {
+        return "";
+    }
+    
     else {
         printf("Unhandled setting_param for JSON output. Exiting\n");
         exit(0);
@@ -660,6 +673,7 @@ Settings::Settings(int argc, const char * argv[]) {
     settings.push_back(&windowSize);
     settings.push_back(&overlapSize);
     settings.push_back(&numberOfWindows);
+    settings.push_back(&showVersion);
     
     settings.push_back(NULL);
     settings.push_back(&debugOverlapCorrection);

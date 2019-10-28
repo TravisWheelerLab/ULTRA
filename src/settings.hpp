@@ -2,6 +2,8 @@
 //  settings.hpp
 //  ultraP
 //
+//  Created by Daniel Olson on 7/3/19.
+//  Copyright © 2019 Daniel Olson. All rights reserved.
 //
 
 #ifndef settings_hpp
@@ -298,6 +300,12 @@ public:
         0
     };
     
+    setting_param showVersion = {
+        "Ultra Version",
+        "Shows Ultra's version",
+        "v",
+        0
+    };
     
     std::vector<setting_param *> settings;
     
