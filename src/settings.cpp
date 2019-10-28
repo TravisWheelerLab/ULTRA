@@ -19,7 +19,7 @@ std::string Settings::StringUsage() {
 
 std::string Settings::StringVersion() {
     
-    return "Ultra 0.99.1\n";
+    return ULTRA_VERSION_STRING;
 }
 
 std::string Settings::StringHelp() {
