@@ -7,9 +7,8 @@
 #include "ultra.hpp"
 
 void *UltraThreadLaunch(void *dat) {
-    
     uthread *uth = (uthread *)dat;
-    //   printf("Launching with %i\n", uth->id);
+    
     uth->ultra->AnalyzeFileWithThread(dat);
     return NULL;
 }
@@ -21,12 +20,8 @@ void Ultra::AnalyzeFile() {
         exit(-1);
     }
     
-    // printf("Setting number of threads to %i\n", numberOfThreads);
     reader->FillWindows();
-    //  printf("Windows filled\n");
-    
-    
-    
+
     if (pthread_mutex_init(&outerLock, NULL) != 0) {
         printf("Failed to create outer mutex lock. Exiting.\n");
         exit(-1);
@@ -45,7 +40,6 @@ void Ultra::AnalyzeFile() {
     OutputJSONStart();
     
     for (int i = 1; i < numberOfThreads; ++i) {
-        //printf("Creating thread with id %i\n", i);
         pthread_create(&threads[i]->p_thread, NULL, UltraThreadLaunch, threads[i]);
     }
     
@@ -103,12 +97,6 @@ void Ultra::AnalyzeFileWithThread(void *dat) {
     
     SequenceWindow *currentWindow = GetSequenceWindow(NULL);
     while (currentWindow != NULL || !reader->DoneReadingFile()) {
-        //printf("%i: %llx %i\n", i++, (unsigned long)currentWindow, reader->doneReadingFile);
-        
-        if (currentWindow == NULL) {
-            //printf("Current windowi s NULL...\n");
-        }
-        
         if (currentWindow != NULL)
             AnalyzeSequenceWindow(currentWindow, uth);
         
@@ -132,33 +120,19 @@ void Ultra::AnalyzeFileWithThread(void *dat) {
 void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     
     int sleng = (int)sequence->length + (int)sequence->overlap;
-    //matrix->AdjustScoreToZero(0, 2);
+    
     UModel *model = uth->model;
     model->matrix->RestartMatrix();
-    
-    /* UMatrix *newmat = new UMatrix(matrix->maxPeriod,
-     matrix->maxInsertions,
-     matrix->maxDeletions,
-     matrix->length);
-     delete matrix;
-     matrix = newmat;
-     model->matrix = matrix;*/
-    
-    /* printf("Analyzing sequence: ");
-     for (int i = 0; i < 20; ++i) {
-     printf("%c", CharForSymbol(sequence->seq[i]));
-     }
-     printf("\n");*/
+
     
     for (int i = 0; i < sleng; ++i) {
-        // printf("%i\n", i);
         model->CalculateCurrentColumn(sequence, i);
     }
+    
     
     model->matrix->CalculateTraceback(model->matrix->previousColumnIndex);
     int i = 0;
     RepeatRegion *r = GetNextRepeat(sequence, model->matrix, &i);
-    
     
     
     
@@ -187,6 +161,8 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
             jrep->deletions = r->deletions;
             jrep->substitutions = r->mismatches;
             jrep->score = r->regionScore;
+            
+            jrep->period = r->repeatPeriod;
             
             sequence->jrepeat->subrepeats.push_back(jrep);
             
@@ -238,14 +214,11 @@ bool Ultra::FixRepeatOverlap() {
     RepeatRegion *n = outRepeats.back();
     
     unsigned long cSeqEnd = c->sequenceStart + c->repeatLength;
-    // unsigned long nSeqEnd = n->sequenceStart + n->repeatLength;
     
     double cScorePerSymbol = c->regionScore / (double)(c->repeatLength - c->repeatPeriod);
     double nScorePerSymbol = n->regionScore / (double)(n->repeatLength - n->repeatPeriod);
     
     if (c->sequenceID == n->sequenceID) {
-        
-        //Check to see if n is entirely contained in c
         
         if (c->sequenceStart + c->repeatLength > n->sequenceStart + n->repeatLength) {
             delete n;
@@ -330,6 +303,7 @@ bool Ultra::FixRepeatOverlap() {
                     }
                     
                     n->overlapCorrection = OC_OVERLAP_RIGHT;
+                    
                     delete c;
                     return true;
                     
@@ -425,36 +399,6 @@ void Ultra::OutputRepeats(bool flush) {
         }
         
         OutputRepeat(r);
-        //fprintf(out, "%f to %f, ", r->startScore, r->endScore);
-        /*fprintf(out, "%s", r->sequenceName.c_str());
-         
-         if (outputReadID) {
-         fprintf(out, ",%lu", r->readID);
-         }
-         
-         if (settings->v_debugOverlapCorrection) {
-         fprintf(out, ",%i", r->overlapCorrection);
-         }
-         
-         fprintf(out, ",%lu", r->sequenceStart);
-         fprintf(out, ",%lu", r->sequenceStart + r->repeatLength);
-         
-         fprintf(out, ",%i", r->repeatPeriod);
-         fprintf(out, ",%f", r->regionScore);
-         
-         fprintf(out, ",%i,%i,%i", r->mismatches, r->insertions, r->deletions);
-         fprintf(out, ",%s", r->GetConsensus().c_str());
-         
-         if (outputRepeatSequence) {
-         fprintf(out, ",%s", r->sequence.c_str());
-         }
-         
-         if (settings->v_showTraceback) {
-         fprintf(out, ",%s", r->traceback.c_str());
-         }
-         
-         fprintf(out, "\n");*/
-        
         delete r;
         r = NULL;
     }
@@ -468,7 +412,7 @@ void Ultra::OutputRepeats(bool flush) {
 
 void Ultra::OutputJSONRepeats() {
     for (int i = 0; i < reader->jsonReader->repeats.size(); ++i) {
-        reader->jsonReader->repeats[i]->OutputRepeat(out, i == 0);
+        reader->jsonReader->repeats[i]->OutputRepeat(out, scoreThreshold, i == 0);
     }
     
     fprintf(out, "]\n}\n");
@@ -477,7 +421,20 @@ void Ultra::OutputJSONRepeats() {
 
 
 void Ultra::OutputJSONStart() {
-    fprintf(out, "{\"Passes\":[{\n");
+    fprintf(out, "{\"Passes\":[\n");
+    
+    if (reader->format == JSON) {
+        if (reader->jsonReader->passes.size() > 0) {
+            
+            for (int i = 0; i < reader->jsonReader->passes.size(); ++i) {
+                reader->jsonReader->passes[i]->OutputPass(out);
+                fprintf(out, ",\n");
+            }
+            
+        }
+    }
+    
+    fprintf(out, "{");
     fprintf(out, "\"Pass ID\": %i,\n", passID);
     fprintf(out, "\"Version\": \"%s\",\n", ULTRA_VERSION_STRING);
     fprintf(out, "\"Parameters\": {\n");
@@ -574,33 +531,6 @@ void Ultra::OutputRepeat(RepeatRegion *r) {
     fprintf(out, "}");
 }
 
-void Ultra::AddRepeat(RepeatRegion *region) {
-    /*
-     pthread_mutex_lock(&repeatLock);
-     bool output = false;
-     repeats.push_back(region);
-     
-     
-     if (repeatBuffer < repeats.size()) {
-     {
-     for (int i = 0; i < repeats.size(); ++i) {
-     outRepeats.push_back(repeats[i]);
-     }
-     
-     outRepeats.clear();
-     
-     output = true;
-     
-     }
-     }
-     
-     pthread_mutex_unlock(&repeatLock);
-     
-     if (output)
-     OutputRepeats();*/
-    
-}
-
 void Ultra::SortRepeatRegions() {
     std::sort(outRepeats.begin(), outRepeats.end(), CompareRepeatOrder());
 }
@@ -643,7 +573,7 @@ Ultra::Ultra(Settings* s, int n) {
                 if (t >= largestPass)
                     largestPass = t + 1;
             }
-            passID = largestPass;
+            passID = (int)largestPass;
         }
         
     }
@@ -664,7 +594,6 @@ Ultra::Ultra(Settings* s, int n) {
     
     //printf("Creating threads.\n");
     for (int i = 0; i < numberOfThreads; ++i) {
-        //printf("Creating model %i\n", i);
         UModel *mod = new UModel(settings->v_maxPeriod,
                                  settings->v_maxInsertion,
                                  settings->v_maxDeletion,
@@ -684,13 +613,6 @@ Ultra::Ultra(Settings* s, int n) {
         mod->tp_consecutiveDeletion   = settings->v_consecutiveDeletion;
         
         mod->CalculateScores();
-        /*
-         for (int i = 0; i < 5; ++i) {
-         for (int j = 0; j < 5; ++j) {
-         printf("%f ", mod->mscore[i][j]);
-         }
-         printf("\n");
-         }*/
         
         models.push_back(mod);
     }
@@ -720,7 +642,6 @@ Ultra::Ultra(Settings* s, int n) {
 
 
 bool CompareRepeatOrder::operator() (RepeatRegion *lhs, RepeatRegion *rhs) {
-    // printf("%i vs %i and %i vs %i\n", lhs->readID, rhs->readID, lhs->windowStart, rhs->windowStart);
     if (lhs->readID != rhs->readID) {
         return lhs->readID > rhs->readID;
     }
