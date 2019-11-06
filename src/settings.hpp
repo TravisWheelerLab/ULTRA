@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 //#include <string.h>
-#define ULTRA_VERSION_STRING       "0.99.0"
+#define ULTRA_VERSION_STRING       "0.99.2"
 
 
 typedef struct t_set_param{
