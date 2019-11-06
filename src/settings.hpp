@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
-#include <string.h>
+//#include <string.h>
 #define ULTRA_VERSION_STRING       "0.99.0"
 
 
@@ -116,7 +116,7 @@ public:
     };
     
     setting_param ATCGDistribution = {
-        "ACTG Distribution",
+        "ATCG Distribution",
         "Frequency of As Ts Cs and Gs in the input sequence",
         "atcg",
         4

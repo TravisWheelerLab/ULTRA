@@ -1,5 +1,3 @@
-
-
 all: ultra
 
 ultra: *.cpp *.hpp

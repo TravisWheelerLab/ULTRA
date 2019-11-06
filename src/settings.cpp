@@ -696,8 +696,6 @@ Settings::Settings(int argc, const char * argv[]) {
         argc = argc - 1;
     }
     
-    
-    
     for (int i = 1; i < argc; ++i) {
         // We found a command
         if (argv[i][0] == '-') {
@@ -728,9 +726,6 @@ Settings::Settings(int argc, const char * argv[]) {
             else {
                 i += InterpretArgument(*param, argc, argv, i);
             }
-            
-            
-            
         }
         
         else {
