@@ -113,7 +113,6 @@ void Ultra::AnalyzeFileWithThread(void *dat) {
         else {
             pthread_exit(NULL);
         }
-        
     }
 }
 
@@ -575,7 +574,6 @@ Ultra::Ultra(Settings* s, int n) {
             }
             passID = (int)largestPass;
         }
-        
     }
     
     

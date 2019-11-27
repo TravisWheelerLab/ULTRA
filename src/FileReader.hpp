@@ -2,6 +2,8 @@
 //  FileReader.hpp
 //  ultrax
 //
+//  Created by Daniel Olson on 10/16/19.
+//  Copyright © 2019 Daniel Olson. All rights reserved.
 //
 
 #ifndef FileReader_hpp
@@ -20,15 +22,15 @@ typedef enum {
 class FileReader {
 public:
     
-    unsigned long maxWindows;
-    unsigned long maxSeqLength;
-    unsigned long maxOverlapLength;
+    unsigned long       maxWindows;
+    unsigned long       maxSeqLength;
+    unsigned long       maxOverlapLength;
     
-    bool multithread = true;
-    file_type format = UNKNOWN;
+    bool                multithread         = true;
+    file_type           format              = UNKNOWN;
     
-    FASTAReader *fastaReader = NULL;
-    JSONReader *jsonReader = NULL;
+    FASTAReader*        fastaReader         = NULL;
+    JSONReader*         jsonReader          = NULL;
     
     SequenceWindow *GetReadyWindow();
     bool AddReadyWindow(SequenceWindow* window);

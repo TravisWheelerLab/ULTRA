@@ -2,6 +2,8 @@
 //  JSONReader.cpp
 //  ultrax
 //
+//  Created by Daniel Olson on 10/16/19.
+//  Copyright © 2019 Daniel Olson. All rights reserved.
 //
 
 #include "JSONReader.hpp"
@@ -195,3 +197,5 @@ JSONReader::JSONReader(std::string fp,
     windows.reserve(256);
     readyWindows.reserve(256);
 }
+
+

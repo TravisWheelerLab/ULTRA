@@ -2,6 +2,8 @@
 //  JSONRepeat.hpp
 //  ultrax
 //
+//  Created by Daniel Olson on 9/25/19.
+//  Copyright © 2019 Daniel Olson. All rights reserved.
 //
 
 #ifndef JSONRepeat_hpp
@@ -16,32 +18,35 @@
 class JSONRepeat {
 public:
     
-    int passID;
+    int             passID;
     
-    unsigned long start;
-    unsigned long length;
+    unsigned long   start;
+    unsigned long   length;
     
-    int period;
+    int             period;
     
-    double score;
+    double          score;
     
-    int substitutions;
-    int insertions;
-    int deletions;
+    int             substitutions;
+    int             insertions;
+    int             deletions;
     
-    std::string consensus;
-    std::string sequence;
-    std::string traceback;
+    std::string     consensus;
+    std::string     sequence;
+    std::string     traceback;
     
-    std::string sequenceName;
+    std::string     sequenceName;
     
-    int overlap_code;
+    int             overlap_code;
     
-    std::vector<JSONRepeat *> subrepeats;
     
-    void OutputRepeat(FILE *out, bool first=true);
+    std::vector<JSONRepeat*> subrepeats;
+    
+    void OutputRepeat(FILE *out, float threshold, bool first);
     
     bool InterpretRepeat(json11::Json repeat);
+    void FixSubrepeatOverlap();
+    
 };
 
 #endif /* JSONRepeat_hpp */

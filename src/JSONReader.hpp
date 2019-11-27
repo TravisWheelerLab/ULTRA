@@ -2,6 +2,8 @@
 //  JSONReader.hpp
 //  ultrax
 //
+//  Created by Daniel Olson on 10/16/19.
+//  Copyright © 2019 Daniel Olson. All rights reserved.
 //
 
 #ifndef JSONReader_hpp
@@ -17,21 +19,22 @@
 
 class JSONReader {
 public:
-    std::string filePath;
-    unsigned long maxSeqLength = 10000;
-    unsigned long maxOverlapLength = 100;
+    std::string     filePath;
+    unsigned long   maxSeqLength        = 10000;
+    unsigned long   maxOverlapLength    = 100;
     
-    int readID = 0;
-    int sequenceID = 0;
+    int             readID              = 0;
+    int             sequenceID          = 0;
     
-    std::vector<JSONPass *>passes;
-    std::vector<JSONRepeat *>repeats;
+    std::vector<JSONPass *>         passes;
+    std::vector<JSONRepeat *>       repeats;
     
-    std::vector<SequenceWindow*>windows;
-    std::vector<SequenceWindow*>readyWindows;
+    std::vector<SequenceWindow*>    windows;
+    std::vector<SequenceWindow*>    readyWindows;
     
     
-    bool multithread = true;
+    
+    bool            multithread = true;
     pthread_mutex_t readyLock;
     pthread_mutex_t waitingLock;
     
@@ -47,7 +50,7 @@ public:
     
     void AddWindowsForRepeat(JSONRepeat *r);
     void CreateWindows();
-    
+        
     JSONReader(std::string filePath,
                unsigned long maxSeqLeng=10000,
                unsigned long maxOverlapLeng = 100);

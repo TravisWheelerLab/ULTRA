@@ -24,7 +24,7 @@ public:
     unsigned long  seqID;      // A unique number representing the whole sequence
     unsigned long  readID;     // A unique number representing this particular read
     
-    std::string         sequenceName;
+    std::string    sequenceName;
     
     unsigned long  start; // where the window starts in the sequence
     unsigned long  end; // Where the window ends in the sequence

@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <cstring>
 #include <vector>
 //#include <string.h>
 #define ULTRA_VERSION_STRING       "0.99.2"

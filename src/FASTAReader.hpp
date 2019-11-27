@@ -25,22 +25,13 @@ class FASTAReader {
 public:
     
     std::ifstream       file;
-    unsigned long       randomWindows;
+    
     std::string         line;
     long long           linePlace;
     
-    // yucky
-    
-    /*std::deque <SequenceWindow*> rwdq;
-    std::vector <SequenceWindow*>wwvec;
-    std::priority_queue<SequenceWindow*, std::deque<SequenceWindow*>, CompareSequenceWindows>    readyWindows;
-    std::vector<SequenceWindow*>             waitingWindows;
-    std::vector<SequenceWindow*>            windows;
-    */
-    
-    std::vector<SequenceWindow*>windows;
-    std::vector<SequenceWindow*>readyWindows;
-    std::vector<SequenceWindow*>waitingWindows;
+    std::vector<SequenceWindow*> windows;
+    std::vector<SequenceWindow*> readyWindows;
+    std::vector<SequenceWindow*> waitingWindows;
     
     // If readWholeFile is set to true, then maxWindows is ignored
     bool           readWholeFile;

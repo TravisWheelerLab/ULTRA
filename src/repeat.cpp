@@ -305,11 +305,11 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos)
         
         for (; i < seqLength; ++i) {
             if (matrix->traceback[i] != 0) {
-                length++;
+                ++length;
             }
             
             else {
-                ++i; // always make i end + 1
+                ++i; // always make i = end + 1
                 break;
             }
         }

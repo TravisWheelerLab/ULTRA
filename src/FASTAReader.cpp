@@ -294,7 +294,6 @@ FASTAReader::FASTAReader(std::string         filePath,
     
     readWholeFile = false;
     
-    randomWindows = 0;
     A_pctg = 0.3;
     T_pctg = 0.3;
     C_pctg = 0.2;
@@ -313,7 +312,6 @@ FASTAReader::FASTAReader(std::string         filePath,
     
     if (mxWindows == -1) {
         readWholeFile = true;
-        
     }
     
     else {
@@ -362,7 +360,6 @@ FASTAReader::FASTAReader(unsigned long   rn,
                          unsigned long   maxOverlapLength)
 {
     doneReadingFile = false;
-    randomWindows = rn;
     symbolsReadInSeq = 0;
     
     readID = 0;

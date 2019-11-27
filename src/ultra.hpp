@@ -82,7 +82,6 @@ public:
     
     SequenceWindow *GetSequenceWindow(SequenceWindow *seq);
     
-    void AddRepeat(RepeatRegion *region);
     void SortRepeatRegions();
     
     pthread_mutex_t outerLock;

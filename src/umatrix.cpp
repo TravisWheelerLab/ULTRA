@@ -333,36 +333,9 @@ void UMatrix::RestartMatrix() {
     for (int i = 0; i < maxPeriod + 1; ++i) {
         previousTracebackColumn[i] = 0;
     }
-    
-    
-    /*previousScoreColumn = scoreColumns[0];
-    currentScoreColumn = scoreColumns[1];
-    
-    previousTracebackColumn = tracebackColumns[0];
-    currentTracebackColumn = tracebackColumns[1];
-    */
-    
-    // Zero out 0th columns
-  /*  for (int i = 0; i < cellsPerColumn; ++i) {
-        previousScoreColumn[i] = 0;
-    }
-    
-    for (int i = 0; i < maxPeriod + 1; ++i) {
-        previousTracebackColumn[i] = 0;
-    }
-    
-    traceback = (int *)malloc(sizeof(int) * (length + 1));
-    
-    for (int i = 0; i < length; ++i) {
-        traceback[i] = -1;
-    }
-    
-    currentColumnIndex = 1;
-    previousColumnIndex = 0;*/
-    
 }
 
-/*** UMATRIX CLASS MANAGEMENT ***/
+/** UMATRIX CLASS MANAGEMENT ***/
 
 /*
  CreateMatrix allocates and initializes resources used by UMatrix:
@@ -372,6 +345,7 @@ void UMatrix::RestartMatrix() {
  4. Assign columns
  5. Initialize the 0th columns
  */
+
 void UMatrix::CreateMatrix() {
     
     // Creation of cell descriptions
@@ -424,8 +398,8 @@ void UMatrix::CreateMatrix() {
         cellDescriptions[cellIndex].indelNumber = 0;
         
         ++cellIndex;
-        // Calculate number of indels
         
+        // Calculate number of indels
         int numIns = maxInsertions;
         int numDel = maxDeletions;
         

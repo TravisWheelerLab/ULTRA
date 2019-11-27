@@ -240,7 +240,6 @@ void UModel::CalculateCurrentColumn  (SequenceWindow *sequence,
                                       int      nucIndex,
                                       bool     *canBeRepetitive)
 {
-
     bool cbr = false; // can be repetitive - true if it is possible for next character to be repetitve
     double bestRepeatScore = NEG_INF;
     

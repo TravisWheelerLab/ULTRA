@@ -24,24 +24,24 @@
 class RepeatRegion {
 public:
     
-    std::string sequenceName;
+    std::string         sequenceName;
     
-    std::string traceback;
-    std::string sequence;
+    std::string         traceback;
+    std::string         sequence;
     
-    unsigned long sequenceID;
-    unsigned long readID;
+    unsigned long       sequenceID;
+    unsigned long       readID;
     
-    unsigned long winOverlapSize;
-    unsigned long winTotalLength;
+    unsigned long       winOverlapSize;
+    unsigned long       winTotalLength;
     
-    bool combinedRepeat;
+    bool                combinedRepeat;
     
     int                 falseStart;
-    unsigned long  windowStart;
-    unsigned long  sequenceStart;
+    unsigned long       windowStart;
+    unsigned long       sequenceStart;
     
-    unsigned long  repeatLength;
+    unsigned long       repeatLength;
     
     int                 repeatPeriod;
     
@@ -53,11 +53,11 @@ public:
     int**               logo;
     symbol*             consensus;
         
-    int mismatches;
-    int insertions;
-    int deletions;
-    
-    int overlapCorrection;
+    int                 mismatches;
+    int                 insertions;
+    int                 deletions;
+        
+    int                 overlapCorrection;
     
     
     std::string GetConsensus();
