@@ -19,8 +19,20 @@ void UModel::SetMatchProbabilities(double p) {
             
             else
                 matchProbabilities[i][j] = ip;
+            
         }
     }
+}
+
+void UModel::SetATCGProbabilities(double A,
+                                  double T,
+                                  double C,
+                                  double G) {
+    
+    backgroundProbabilties[N_A] = A;
+    backgroundProbabilties[N_T] = T;
+    backgroundProbabilties[N_C] = C;
+    backgroundProbabilties[N_G] = G;
 }
 
 void UModel::CalculateScores() {

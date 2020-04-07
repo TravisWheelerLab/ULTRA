@@ -119,6 +119,7 @@ void JSONRepeat::OutputRepeat(FILE *out, float threshold, bool first) {
         for (int i = 0; i < subrepeats.size(); ++i) {
             subrepeats[i]->OutputRepeat(out, threshold, i == 0);
         }
+        
         if (subrepeats.size() > 0) {
             fprintf(out, "]\n");
         }

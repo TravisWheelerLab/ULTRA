@@ -248,15 +248,8 @@ int *UMatrix::ForwardTraceback(int    *traceArray,
 // This has not been debugged yet
 void UMatrix::CalculateTraceback(int startColumn)
 {
-    // Find the best row
+    // Assume best row is 0
     int row = 0;
-    
-    for (int i = 1; i < cellsPerColumn; ++i) {
-        if (scoreColumns[startColumn][i] > scoreColumns[startColumn][row]) {
-            row = i;
-        }
-        //printf("%i %i %i: %f vs %f \n", startColumn, i, row, scoreColumns[startColumn][i], scoreColumns[startColumn][row]);
-    }
     
     // Do the normal calculations
     
@@ -429,8 +422,20 @@ void UMatrix::CreateMatrix() {
             cellIndex++;
         }
         
+        
+        
     }
+    
     cellsPerColumn = cellIndex;
+    
+   /* for (int i = 0; i < cellsPerColumn; ++i) {
+        printf("%i: (T: %i) (O: %i) (I: %i) (P: %i)\n",
+               i,
+               cellDescriptions[i].type,
+               cellDescriptions[i].order,
+               cellDescriptions[i].indelNumber,
+               cellDescriptions[i].parentIndex);
+    }*/
     
     // Allocate matrices
     scoreMatrix = (double *)malloc(sizeof(double) * cellsPerColumn * (length + 1));

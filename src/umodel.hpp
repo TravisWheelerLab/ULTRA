@@ -59,6 +59,10 @@ public:
     //void    CalculateEmissionScores (unsigned char symbolFreq);
     
     void SetMatchProbabilities(double p);
+    void SetATCGProbabilities(double A,
+                              double T,
+                              double C,
+                              double G);
     
     void    CalculateScores();    // Needs to be called before general use
     

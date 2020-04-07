@@ -215,6 +215,21 @@ std::string Settings::DefaultParam(setting_param param) {
         defaultValue = "";
     }
     
+    else if (param == splitRepeats) {
+        defaultValue = std::to_string(v_splitRepeats);
+    }
+    
+    else if (param == splitDepth) {
+        defaultValue = std::to_string(v_splitDepth);
+    }
+    
+    else if (param == splitCutoff) {
+        defaultValue = std::to_string(v_splitCutoff);
+    }
+    
+    else if (param == maxSplitPeriod) {
+        defaultValue = std::to_string(v_maxSplitPeriod);
+    }
     
     return defaultValue;
 }
@@ -425,6 +440,22 @@ int Settings::InterpretArgument(setting_param   arg,
             v_debugOverlapCorrection = true;
         }
         
+        else if (arg == splitRepeats) {
+            v_splitRepeats = true;
+        }
+        
+        else if (arg == splitDepth) {
+            v_splitDepth = std::stoi(arguments[0]);
+        }
+        
+        else if (arg == splitCutoff) {
+            v_splitCutoff = std::stoi(arguments[0]);
+        }
+        
+        else if (arg == maxSplitPeriod) {
+            v_maxSplitPeriod = std::stoi(arguments[0]);
+        }
+        
         else {
             printf("Unhandled argument. Exiting\n");
             exit(0);
@@ -442,6 +473,25 @@ std::string Settings::JSONStringForArgument(setting_param arg) {
     json = "\"" + arg.name + "\": \"";
     if (arg == scoreThreshold) {
         json += std::to_string(v_scoreThreshold);
+    }
+    
+    else if (arg == splitRepeats) {
+        if (!v_splitRepeats)
+            json += "false";
+        else
+            json += "true";
+    }
+    
+    else if (arg == splitDepth) {
+        json += std::to_string(v_splitDepth);
+    }
+    
+    else if (arg == splitCutoff) {
+        json += std::to_string(v_splitCutoff);
+    }
+    
+    else if (arg == maxSplitPeriod) {
+        json += std::to_string(v_maxSplitPeriod);
     }
     
     else if (arg == repeatUnits) {
@@ -657,6 +707,13 @@ Settings::Settings(int argc, const char * argv[]) {
     settings.push_back(&repeatToDeletion);
     settings.push_back(&consecutiveInsertion);
     settings.push_back(&consecutiveDeletion);
+    
+    settings.push_back(NULL);
+    
+    settings.push_back(&splitRepeats);
+    settings.push_back(&splitDepth);
+    settings.push_back(&splitCutoff);
+    settings.push_back(&maxSplitPeriod);
     
     settings.push_back(NULL);
     

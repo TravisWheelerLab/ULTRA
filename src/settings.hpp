@@ -14,7 +14,7 @@
 #include <cstring>
 #include <vector>
 //#include <string.h>
-#define ULTRA_VERSION_STRING       "0.99.2"
+#define ULTRA_VERSION_STRING       "0.99.17"
 
 
 typedef struct t_set_param{
@@ -41,17 +41,26 @@ public:
     double v_Cpctg = 0.2;
     double v_Gpctg = 0.2;
     
-    double v_matchProbability       = 0.75;
+    double v_matchProbability       = 0.80;
     
     double v_zeroToMatch            = 0.01;
     double v_matchToZero            = 0.05;
-    double v_repeatPeriodDecay      = 0.9;
+    double v_repeatPeriodDecay      = 0.85;
     
     double v_matchToInsertion       = 0.02;
     double v_matchToDeletion        = 0.02;
     
     double v_consecutiveInsertion   = 0.02;
     double v_consecutiveDeletion    = 0.02;
+    
+    bool   v_calculateLogPVal       = true;
+    
+    double v_exponLocM              = -0.13;
+    double v_exponLocB              = 2.82;
+    
+    double v_exponScaleM            = 0.081;
+    double v_exponScaleB            = 1.28;
+    
     
     int v_numberOfThreads   = 1;
     int v_maxPeriod         = 15;
@@ -76,7 +85,14 @@ public:
     bool v_showWindowID         = false;
     
     bool v_outputRepeatSequence = true;
+    bool v_correctOverlap = false;
     bool v_debugOverlapCorrection = false;
+    
+    
+    bool v_splitRepeats         = false;
+    int  v_splitDepth           = 5;
+    int  v_splitCutoff          = 2;
+    int  v_maxSplitPeriod       = 6;
     
     
     //***************************
@@ -85,7 +101,33 @@ public:
     
     // Model parameters
     
+    setting_param splitRepeats = {
+        "Split Divergent Repeats",
+        "Split repeats such as ATATATGCGCGCGC into subrepeats",
+        "sr",
+        0
+    };
     
+    setting_param maxSplitPeriod = {
+        "Split Max Period",
+        "Maximum repeat period that will be considered for splitting",
+        "msp",
+        1
+    };
+    
+    setting_param splitCutoff = {
+        "Split Cutoff",
+        "Cutoff value used during splitting (smaller is more conservative)",
+        "sc",
+        1
+    };
+    
+    setting_param splitDepth = {
+        "Split Depth",
+        "Number of repeat units to consider when splitting repeat",
+        "sd",
+        1
+    };
     
     setting_param scoreThreshold = {
         "Score Threshold",

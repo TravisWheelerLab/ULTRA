@@ -60,6 +60,7 @@ public:
     bool firstRepeat = true;
     unsigned long repeatBuffer = 2000;
     
+    bool storeTraceAndSequence = false;
     
     
     std::vector<RepeatRegion *>outRepeats{};
@@ -74,11 +75,13 @@ public:
     void AnalyzeFileWithThread(void *tid);
     void AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *thrd);
     void OutputRepeats(bool flush = false);
-    void OutputRepeat(RepeatRegion *r);
+    void OutputRepeat(RepeatRegion *r, bool isSubRep = false);
     void OutputJSONRepeats();
     void OutputJSONKey(std::string key);
     void OutputJSONStart();
     bool FixRepeatOverlap();
+    
+    double Log2PvalForScore(double score, double period);
     
     SequenceWindow *GetSequenceWindow(SequenceWindow *seq);
     

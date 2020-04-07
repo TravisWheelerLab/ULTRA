@@ -52,6 +52,12 @@ public:
     int*                logoMemory;
     int**               logo;
     symbol*             consensus;
+    
+    
+    int *               lookBack;
+    int *               lookForward;
+    char*               forwardCounts;
+    char*               backCounts;
         
     int                 mismatches;
     int                 insertions;
@@ -59,13 +65,28 @@ public:
         
     int                 overlapCorrection;
     
+    double              logPVal;
     
-    std::string GetConsensus();
+    
+    
     void CreateLogo(SequenceWindow *window, UMatrix *matrix);
+    void CreateLogoWithoutMatrix(); // Requires traceback + sequence + lookBack
+    
     void CreateConsensusFromLogo();
+    std::string GetConsensus();
+    
     void StoreSequence(SequenceWindow *window);
     void StoreTraceback(UMatrix *matrix);
     
+    void LookBackDistance();
+    void LookForwardDistance();
+    
+    void CountFromDistance(int *look, char *counts, const int dir, const int depth);
+    
+    void CountForwardBackwardConsensus(const int depth);
+    std::vector<RepeatRegion *> *SplitRepeats(const int depth, const int cutoff);
+    
+    RepeatRegion *SubRepeat(int start, int length);
     
     RepeatRegion();
     ~RepeatRegion();

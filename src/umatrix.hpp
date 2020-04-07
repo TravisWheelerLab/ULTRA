@@ -86,7 +86,7 @@ public:
     void        AdjustColumn        (int    column,
                                      double adjustment);    // row value = value + adjustment
     
-    double       PreviousScore       (int    row,
+    double      PreviousScore       (int    row,
                                      int    d);             // How far back we look
     int         PreviousTraceback   (int    row,
                                      int    d);

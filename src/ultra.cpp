@@ -5,6 +5,8 @@
 
 
 #include "ultra.hpp"
+#include <cmath>
+
 
 void *UltraThreadLaunch(void *dat) {
     uthread *uth = (uthread *)dat;
@@ -116,6 +118,17 @@ void Ultra::AnalyzeFileWithThread(void *dat) {
     }
 }
 
+double Ultra::Log2PvalForScore(double score, double period) {
+    double loc = (settings->v_exponLocM * period) + settings->v_exponLocB;
+    double scale = (settings->v_exponScaleM * period) + settings->v_exponScaleB;
+    
+    // Cap location
+    if (loc < 0.2)
+        loc = 0.2;
+    
+    return (-1.0 * (score - loc) / scale) / log2(2.71828);
+}
+
 void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     
     int sleng = (int)sequence->length + (int)sequence->overlap;
@@ -137,6 +150,8 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     
     while (r != NULL) {
         
+        // Calculate P val
+        r->logPVal = Log2PvalForScore(r->regionScore, r->repeatPeriod);
         
         if (sequence->jrepeat) {
             JSONRepeat *jrep = new JSONRepeat();
@@ -146,12 +161,12 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
             jrep->length = r->repeatLength;
             jrep->consensus = r->GetConsensus();
             
-            if (settings->v_outputRepeatSequence) {
+            if (settings->v_outputRepeatSequence || storeTraceAndSequence) {
                 r->StoreSequence(sequence);
                 jrep->sequence = r->sequence;
             }
             
-            if (settings->v_showTraceback) {
+            if (settings->v_showTraceback || storeTraceAndSequence) {
                 r->StoreTraceback(model->matrix);
                 jrep->traceback = r->traceback;
             }
@@ -171,15 +186,14 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
             r->StoreSequence(sequence);
         }
         
-        if (settings->v_showTraceback) {
+        if (settings->v_showTraceback || storeTraceAndSequence) {
             r->StoreTraceback(model->matrix);
         }
         
         uth->repeats.push_back(r);
         
-        
         r = GetNextRepeat(sequence, model->matrix, &i);
-        
+
     }
     
     if (primaryThread == uth->id) {
@@ -381,10 +395,11 @@ void Ultra::OutputRepeats(bool flush) {
     
     while (outRepeats.size() > min) {
         
-        
-        while (FixRepeatOverlap() && outRepeats.size() > min);
+        if (settings->v_correctOverlap)
+            while (FixRepeatOverlap() && outRepeats.size() > min);
         
         RepeatRegion *r = outRepeats.back();
+        
         outRepeats.pop_back();
         
         
@@ -446,8 +461,8 @@ void Ultra::OutputJSONKey(std::string key) {
     fprintf(out, "\"%s\": ", key.c_str());
 }
 
-void Ultra::OutputRepeat(RepeatRegion *r) {
-    if (!firstRepeat) {
+void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
+    if (!firstRepeat && !isSubRep) {
         fprintf(out, ",\n\n");
     }
     
@@ -479,6 +494,12 @@ void Ultra::OutputRepeat(RepeatRegion *r) {
     fprintf(out, ",\n");
     OutputJSONKey("Score");
     fprintf(out, "%f", r->regionScore);
+    
+    if (settings->v_calculateLogPVal) {
+        fprintf(out, ",\n");
+        OutputJSONKey("Log2 Pval");
+        fprintf(out, "%f", r->logPVal);
+    }
     
     fprintf(out, ",\n");
     OutputJSONKey("Substitutions");
@@ -524,6 +545,29 @@ void Ultra::OutputRepeat(RepeatRegion *r) {
         fprintf(out, ",\n");
         OutputJSONKey("OC");
         fprintf(out, "\"%i\"", r->overlapCorrection);
+    }
+    
+    if (!isSubRep && settings->v_splitRepeats && r->repeatPeriod < settings->v_maxSplitPeriod) {
+        std::vector<RepeatRegion *> *subReps = r->SplitRepeats(settings->v_splitDepth,
+                                                               settings->v_splitCutoff);
+        
+        if (subReps != NULL) {
+            fprintf(out, ",\n");
+            OutputJSONKey("Subrepeats");
+            fprintf(out, "[");
+            for (int i = 0; i < subReps->size(); ++i) {
+                if (i > 0)
+                    fprintf(out, ",\n");
+                subReps->at(i)->logPVal = Log2PvalForScore(subReps->at(i)->regionScore,
+                                                           subReps->at(i)->repeatPeriod);
+                OutputRepeat(subReps->at(i), true);
+                delete subReps->at(i);
+            }
+            fprintf(out, "]");
+            
+            subReps->clear();
+            delete subReps;
+        }
         
     }
     
@@ -590,6 +634,11 @@ Ultra::Ultra(Settings* s, int n) {
    
     int leng = settings->v_windowSize + settings->v_overlapSize + 2;
     
+    if (settings->v_splitRepeats) {
+        storeTraceAndSequence = true;
+        printf("STORE TRACE AND SEQUENCE\n");
+    }
+    
     //printf("Creating threads.\n");
     for (int i = 0; i < numberOfThreads; ++i) {
         UModel *mod = new UModel(settings->v_maxPeriod,
@@ -600,6 +649,12 @@ Ultra::Ultra(Settings* s, int n) {
         mod->periodDecay = settings->v_repeatPeriodDecay;
         
         mod->SetMatchProbabilities(settings->v_matchProbability);
+        mod->SetATCGProbabilities(settings->v_Apctg,
+                                  settings->v_Tpctg,
+                                  settings->v_Cpctg,
+                                  settings->v_Gpctg);
+        
+       // printf(mod->backgroundProbabilties)
         
         mod->tp_zeroToMatch = settings->v_zeroToMatch;
         mod->tp_matchToZero = settings->v_matchToZero;
