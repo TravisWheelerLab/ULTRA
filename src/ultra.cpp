@@ -171,6 +171,11 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
                 jrep->traceback = r->traceback;
             }
             
+            if (settings->v_showScores) {
+                r->StoreScores(model->matrix);
+                
+            }
+            
             jrep->insertions = r->insertions;
             jrep->deletions = r->deletions;
             jrep->substitutions = r->mismatches;
@@ -188,6 +193,11 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
         
         if (settings->v_showTraceback || storeTraceAndSequence) {
             r->StoreTraceback(model->matrix);
+        }
+        
+        if (settings->v_showScores) {
+            r->StoreScores(model->matrix);
+            
         }
         
         uth->repeats.push_back(r);
@@ -539,6 +549,21 @@ void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
         OutputJSONKey("Traceback");
         fprintf(out, "\"%s\"", r->traceback.c_str());
         
+    }
+    
+    if (settings->v_showScores) {
+        fprintf(out, ",\n");
+        OutputJSONKey("PositionScoreDelta");
+      //  fprintf(out, "\"%s\"", r->traceback.c_str());
+        std::string scores = "";
+        
+        for (unsigned long i = 0; i < r->repeatLength; ++i) {
+            if (i > 0)
+                scores += ":";
+            scores += std::to_string(r->scores[i]);
+        }
+        
+        fprintf(out, "\"%s\"", scores.c_str());
     }
     
     if (settings->v_debugOverlapCorrection) {

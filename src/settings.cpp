@@ -231,6 +231,10 @@ std::string Settings::DefaultParam(setting_param param) {
         defaultValue = std::to_string(v_maxSplitPeriod);
     }
     
+    else if (param == showScores) {
+        defaultValue = "False";
+    }
+    
     return defaultValue;
 }
 
@@ -456,6 +460,10 @@ int Settings::InterpretArgument(setting_param   arg,
             v_maxSplitPeriod = std::stoi(arguments[0]);
         }
         
+        else if (arg == showScores) {
+            v_showScores = true;
+        }
+        
         else {
             printf("Unhandled argument. Exiting\n");
             exit(0);
@@ -640,6 +648,13 @@ std::string Settings::JSONStringForArgument(setting_param arg) {
         json += std::to_string(v_debugOverlapCorrection);
     }
     
+    else if (arg == showScores) {
+        if (!v_showScores)
+            json += "false";
+        else
+            json += "true";
+    }
+    
     else if (arg == showVersion) {
         return "";
     }
@@ -718,6 +733,7 @@ Settings::Settings(int argc, const char * argv[]) {
     settings.push_back(NULL);
     
     settings.push_back(&hideRepeatSequence);
+    settings.push_back(&showScores);
     settings.push_back(&showTraceback);
     settings.push_back(&showWindowID);
     

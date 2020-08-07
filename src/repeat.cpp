@@ -216,6 +216,7 @@ RepeatRegion::RepeatRegion() {
     winOverlapSize = 0;
     overlapCorrection = OC_NONE;
     
+    scores = NULL;
     logoMemory = NULL;
     logo = NULL;
     consensus = NULL;
@@ -266,6 +267,11 @@ RepeatRegion::~RepeatRegion() {
         free(backCounts);
         backCounts = NULL;
     }
+    
+    if (scores != NULL) {
+        free(scores);
+        scores = NULL;
+    }
 }
 
 std::string RepeatRegion::GetConsensus() {
@@ -312,6 +318,23 @@ void RepeatRegion::StoreTraceback(UMatrix *matrix) {
         else  {
             traceback.push_back('.');
         }
+    }
+}
+
+void RepeatRegion::StoreScores(UMatrix *matrix) {
+    
+    scores = (double *)malloc(sizeof(double) * repeatLength);
+    
+    for (unsigned long i = 1; i <= repeatLength; ++i) {
+        
+        unsigned long p = i + windowStart;
+        int cell = matrix->traceback[p];
+        double s = matrix->scoreColumns[p][cell];
+        
+        int prevCell = matrix->traceback[p - 1];
+        double ps = matrix->scoreColumns[p - 1][prevCell];
+        
+        scores[i - 1] = s - ps;
     }
 }
 

@@ -80,6 +80,7 @@ public:
     int  v_windowSize           = 8192;
     int  v_overlapSize          = 100;
     
+    bool v_showScores           = false;
     bool v_showTraceback        = false;
     
     bool v_showWindowID         = false;
@@ -93,6 +94,7 @@ public:
     int  v_splitDepth           = 5;
     int  v_splitCutoff          = 2;
     int  v_maxSplitPeriod       = 6;
+    
     
     
     //***************************
@@ -269,6 +271,12 @@ public:
         "Display the windowID corresponding to a repeat in the results CSV",
         "wid",
         0
+    };
+    
+    setting_param showScores = {
+        "Show scores",
+        "Output the score change per residue",
+        "ss",
     };
     
     setting_param showTraceback = {

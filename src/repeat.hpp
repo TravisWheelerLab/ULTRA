@@ -48,6 +48,7 @@ public:
     double              startScore;
     double              endScore;
     double              regionScore;
+    double*             scores;
     
     int*                logoMemory;
     int**               logo;
@@ -77,6 +78,7 @@ public:
     
     void StoreSequence(SequenceWindow *window);
     void StoreTraceback(UMatrix *matrix);
+    void StoreScores(UMatrix *matrix);
     
     void LookBackDistance();
     void LookForwardDistance();

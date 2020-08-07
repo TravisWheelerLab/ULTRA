@@ -34,7 +34,7 @@ public:
     std::string     consensus;
     std::string     sequence;
     std::string     traceback;
-    
+    std::string     scores;
     std::string     sequenceName;
     
     int             overlap_code;
