@@ -9,7 +9,7 @@ bindir = ${exec_prefix}/bin
 
 install: all
 	mkdir -p ${bindir}
-	cp src/ ${bindir}
+	cp src/ultra ${bindir}
 
 profile:
 	@cd src && ${MAKE} profile CXXFLAGS="${CXXFLAGS}"
