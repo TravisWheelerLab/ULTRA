@@ -9,10 +9,11 @@ bindir = ${exec_prefix}/bin
 
 install: all
 	mkdir -p ${bindir}
-	cp src/ultra ${bindir}
+	cp ultra ${bindir}
 
 profile:
 	@cd src && ${MAKE} profile CXXFLAGS="${CXXFLAGS}"
 
 clean:
 	@cd src && ${MAKE} clean
+
