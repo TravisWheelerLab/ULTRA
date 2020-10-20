@@ -1,4 +1,4 @@
-CXXFLAGS = -O3 -lpthread
+CXXFLAGS = -O3 -pthread
 
 all:
 	@cd src && ${MAKE} CXXFLAGS="${CXXFLAGS}"
