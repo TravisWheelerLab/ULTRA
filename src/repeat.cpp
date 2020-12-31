@@ -329,13 +329,20 @@ void RepeatRegion::StoreScores(UMatrix *matrix) {
         
         unsigned long p = i + windowStart;
         int cell = matrix->traceback[p];
+        if (matrix->cellDescriptions[cell].type != CT_MATCH)
+            cell = matrix->cellDescriptions[cell].parentIndex;
         double s = matrix->scoreColumns[p][cell];
         
         int prevCell = matrix->traceback[p - 1];
+        if (matrix->cellDescriptions[prevCell].type != CT_MATCH)
+            prevCell = matrix->cellDescriptions[cell].parentIndex;
         double ps = matrix->scoreColumns[p - 1][prevCell];
         
         scores[i - 1] = s - ps;
+        
+    //    printf("[%i %i]: (%f, %f) %i %f %i %f \n", i, p, matrix->scoreColumns[p - 1][27], matrix->scoreColumns[p][27], cell, s, prevCell, ps);
     }
+   // exit(0);
 }
 
 void RepeatRegion::LookBackDistance() {
