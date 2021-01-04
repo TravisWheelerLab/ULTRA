@@ -56,3 +56,23 @@ add_custom_target(
         COMMAND clang-format -i ${CPP_FILES} ${HPP_FILES}
         VERBATIM
 )
+
+# Checks whether clang-format needs to be run and sets a non-zero
+# exit code if so
+add_custom_target(
+        check-format
+        COMMAND clang-format --dry-run --Werror ${CPP_FILES} ${HPP_FILES}
+        VERBATIM
+)
+
+add_custom_target(
+        container-build
+        COMMAND docker build -t traviswheelerlab/ultra-build:${CONTAINER_VERSION} .
+        VERBATIM
+)
+
+add_custom_target(
+        container-push
+        COMMAND docker push traviswheelerlab/ultra-build:${CONTAINER_VERSION}
+        VERBATIM
+)
