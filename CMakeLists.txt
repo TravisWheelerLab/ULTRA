@@ -1,0 +1,58 @@
+cmake_minimum_required(VERSION 3.17)
+project(ULTRA)
+
+set(CMAKE_CXX_STANDARD 17)
+set(
+        LIB_CPP_FILES
+
+        lib/json11.cpp
+)
+set(
+        HPP_FILES
+
+        src/FASTAReader.hpp
+        src/FileReader.hpp
+        src/JSONPass.hpp
+        src/JSONReader.hpp
+        src/JSONRepeat.hpp
+        src/SequenceWindow.hpp
+        src/Symbol.hpp
+        src/repeat.hpp
+        src/settings.hpp
+        src/ultra.hpp
+        src/umatrix.hpp
+        src/umodel.hpp
+        src/umodeldriver.hpp
+)
+set(
+        CPP_FILES
+
+        src/FASTAReader.cpp
+        src/FileReader.cpp
+        src/JSONPass.cpp
+        src/JSONReader.cpp
+        src/JSONRepeat.cpp
+        src/SequenceWindow.cpp
+        src/Symbol.cpp
+        src/main.cpp
+        src/repeat.cpp
+        src/settings.cpp
+        src/ultra.cpp
+        src/umatrix.cpp
+        src/umodel.cpp
+        src/umodeldriver.cpp
+)
+
+add_executable(
+        ultra
+
+        ${LIB_CPP_FILES}
+        ${CPP_FILES}
+)
+
+# Runs clang-format on the code
+add_custom_target(
+        format
+        COMMAND clang-format -i ${CPP_FILES} ${HPP_FILES}
+        VERBATIM
+)
