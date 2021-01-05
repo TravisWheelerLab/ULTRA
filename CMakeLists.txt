@@ -43,6 +43,10 @@ set(
         src/umodeldriver.cpp
 )
 
+if (NOT ULTRA_VERSION)
+    set(ULTRA_VERSION latest)
+endif()
+
 find_package(Threads REQUIRED)
 
 add_executable(
@@ -70,12 +74,13 @@ add_custom_target(
 
 add_custom_target(
         container-build
-        COMMAND docker build -t traviswheelerlab/ultra-build:${CONTAINER_VERSION} .
+        COMMAND docker build -t traviswheelerlab/ultra-build:${ULTRA_VERSION} .
         VERBATIM
 )
 
 add_custom_target(
         container-push
-        COMMAND docker push traviswheelerlab/ultra-build:${CONTAINER_VERSION}
+        COMMAND docker push traviswheelerlab/ultra-build:${ULTRA_VERSION}
         VERBATIM
 )
+add_dependencies(container-push container-build)
