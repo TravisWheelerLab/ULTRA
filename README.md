@@ -6,11 +6,14 @@
 
 ## Install
 
-ULTRA uses the CMake build system. This makes building the application pretty
-straightforward.
+ULTRA uses the CMake build system (version 3.0 or greater). This makes building
+the application pretty straightforward.
 
   1. Generate the Makefile: `cmake .`
   2. Build the `ultra` executable: `make`
+
+Note that on some systems you may need to install CMake 3 as a separate package
+and run `cmake3` specifically.
 
 ## Run
 
