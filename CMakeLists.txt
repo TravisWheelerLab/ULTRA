@@ -43,12 +43,15 @@ set(
         src/umodeldriver.cpp
 )
 
+find_package(Threads REQUIRED)
+
 add_executable(
         ultra
 
         ${LIB_CPP_FILES}
         ${CPP_FILES}
 )
+target_link_libraries(ultra PRIVATE Threads::Threads)
 
 # Runs clang-format on the code
 add_custom_target(
