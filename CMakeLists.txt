@@ -74,7 +74,7 @@ add_custom_target(
 
 add_custom_target(
         container-build
-        COMMAND docker build -t traviswheelerlab/ultra-build:${ULTRA_VERSION} .
+        COMMAND docker build -f Dockerfile_build -t traviswheelerlab/ultra-build:${ULTRA_VERSION} .
         VERBATIM
 )
 
