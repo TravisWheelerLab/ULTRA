@@ -56,6 +56,7 @@ add_executable(
         ${CPP_FILES}
 )
 target_link_libraries(ultra PRIVATE Threads::Threads)
+install(TARGETS ultra RUNTIME)
 
 # Runs clang-format on the code
 add_custom_target(
