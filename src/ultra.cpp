@@ -277,15 +277,16 @@ bool Ultra::FixRepeatOverlap() {
 
       unsigned long overlap = (cSeqEnd - n->sequenceStart);
 
-      // If C starts in the window overlap we can always let n take care of it
+      // If C starts in the window overlap we can always let n take care
+      // of it
       if (c->windowStart >= reader->maxSeqLength - n->winOverlapSize) {
         delete c;
         n->overlapCorrection = OC_OVERLAP_RIGHT;
         return true;
       }
 
-      // If C starts before window overlap and n ends before window overlap, we
-      // can let c take care of it
+      // If C starts before window overlap and n ends before window
+      // overlap, we can let c take care of it
       else if (n->windowStart + n->repeatLength < n->winOverlapSize) {
         outRepeats.pop_back();
         delete n;

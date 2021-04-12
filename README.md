@@ -67,6 +67,27 @@ Usage: ultra <arguments> <input sequence path>
 -doc	Debug overlap correction:           Report overlap correction in repeat information. [0]
 ```
 
+### Examples
+
+There are some example data files in the `examples/` directory. See below for
+some example invocations of the `ultra` command.
+
+It is also possible to run all of the examples in this directory at once (which
+happens in CI as a smoke test) using `make examples`.
+
+## Development
+
+ULTRA is written in C++ 17. Source files can be found in `src/`.
+
+Run `cmake .` to generate the Makefile, then there are a couple custom targets
+beyond what is necessary to build the software.
+
+  * `make format` - format the code using clang-format
+  * `make check-format` - verify that formatting is correct
+  * `make container-build` - build the Docker container used in CI
+  * `make container-push` - push the container to Docker Hub
+  * `make examples` - run all examples
+
 ## License
 
 BSD 3-clause license. See LICENSE file.
@@ -78,3 +99,4 @@ See `AUTHORS` file for up-to-date authors list.
   - Daniel Olson <daniel.olson@umontana.edu>
   - Travis Wheeler <travis.wheeler@umontana.edu>
   - George Lesica <george.lesica@umontana.edu>
+

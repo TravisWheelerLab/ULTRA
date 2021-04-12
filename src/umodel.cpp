@@ -110,7 +110,8 @@ void UModel::CalculateScores() {
           backgroundScores[i][N_G] = g;
 
           //  printf("%f %f %f %f\n", backgroundScores[i][N_A],
-  backgroundScores[i][N_T], backgroundScores[i][N_C], backgroundScores[i][N_G]);
+  backgroundScores[i][N_T], backgroundScores[i][N_C],
+  backgroundScores[i][N_G]);
 
           for (int x = 0; x < 5; ++x) {
               double s = 0.0;
@@ -156,7 +157,8 @@ void UModel::CalculateScores() {
           backgroundScores[i][N_G] = g;
 
           //  printf("%f %f %f %f\n", backgroundScores[i][N_A],
-  backgroundScores[i][N_T], backgroundScores[i][N_C], backgroundScores[i][N_G]);
+  backgroundScores[i][N_T], backgroundScores[i][N_C],
+  backgroundScores[i][N_G]);
 
           for (int x = 0; x < 5; ++x) {
               for (int y = 0; y < 5; ++y) {
@@ -268,10 +270,10 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
     }
 
       // ****NTH ORDER CELL****
-      // Can be transfered to from: zeroth order, nth order, insertion, deletion
-      // This will also check to see if it C_NONE inherits from C_MATCH
-      // This does not check insertion->match or deletion->match - those are
-      // done in
+      // Can be transfered to from: zeroth order, nth order, insertion,
+      // deletion This will also check to see if it C_NONE inherits from
+      // C_MATCH This does not check insertion->match or deletion->match -
+      // those are done in
       //      insertion and deletion cells
     case CT_MATCH: {
 
@@ -289,8 +291,8 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
         bestToZero = order;
       }
 
-      // Before we calculate normal match scores we need to check to see if we
-      // have had enough characters pass
+      // Before we calculate normal match scores we need to check to see
+      // if we have had enough characters pass
       if (matind < order) {
         c[row] = NEG_INF;
         ct[desc[row].order] = 0;
@@ -327,7 +329,8 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
         ct[desc[row].order] = row;
       }
 
-      // Check to see if this is the best chance of being a m->0 transition
+      // Check to see if this is the best chance of being a m->0
+      // transition
       if (c[row] > bestRepeatScore)
         bestRepeatScore = c[row];
 
@@ -350,15 +353,17 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
         double score = p[row] + tscore[CT_INSERTION][CT_MATCH] +
                        EmissionScore(sequence, nucIndex, order);
         if (score > c[parentIndex]) {
-          // printf("%i %i %f %f\n", order, indelNum, score, c[parentIndex]);
+          // printf("%i %i %f %f\n", order, indelNum, score,
+          // c[parentIndex]);
           c[parentIndex] = score;
           ct[desc[row].order] = row;
 
-          //  printf("in[%i for %i:%i,%i,%i,%i] :%f vs %f to p %f (%f, %f= (%f
-          //  with %f)\n", row, nucIndex, minIndex, parentIndex, order,
-          //  indelNum, p[row], score, c[parentIndex], d, f,
-          //  matrix->PreviousScore(parentIndex, peridocity),
-          //  matrix->PreviousScore(parentIndex, peridocity + 1));
+          //  printf("in[%i for %i:%i,%i,%i,%i] :%f vs %f to p %f (%f,
+          //  %f= (%f with %f)\n", row, nucIndex, minIndex,
+          //  parentIndex, order, indelNum, p[row], score,
+          //  c[parentIndex], d, f, matrix->PreviousScore(parentIndex,
+          //  peridocity), matrix->PreviousScore(parentIndex,
+          //  peridocity + 1));
         }
 
         // Calculate new score based off of previous score
@@ -385,8 +390,8 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
         double score = matrix->PreviousScore(
             parentIndex,
             peridocity); // The match score this insertion comes from
-        score += 0.0;    // The emission score of the actual insertion = 0 =
-                         // bscore[n] - bscore[n]
+        score += 0.0;    // The emission score of the actual insertion = 0
+                         // = bscore[n] - bscore[n]
 
         // Transition cost
         score += tscore[CT_MATCH][CT_INSERTION];
@@ -394,9 +399,9 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
                  (double)(desc[row].indelNumber - 1);
         score += log2(1.0 - tp_matchToZero) * (double)order;
 
-        // We don not need to consider the insertion cost at this point because
-        // the insertion state is 0th order, and will have emission score = 1 =
-        // bscore/bscore = e^0
+        // We don not need to consider the insertion cost at this point
+        // because the insertion state is 0th order, and will have
+        // emission score = 1 = bscore/bscore = e^0
 
         // Calculate emission scores from j states
         for (int j = 0; j < desc[row].order; ++j) {
@@ -427,18 +432,19 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
       // Proceed normally
       if (matind > minIndex) {
 
-        // Check to see if the match state can transition from the del state
+        // Check to see if the match state can transition from the del
+        // state
         double score = p[row] + tscore[CT_DELETION][CT_MATCH] +
                        EmissionScore(sequence, nucIndex, order);
         if (score > c[parentIndex]) {
           c[parentIndex] = score;
           ct[desc[row].order] = row;
 
-          // printf("del[%i for %i:%i,%i,%i,%i] :%f vs %f to p %f (%f, %f= (%f
-          // with %f)\n", row, nucIndex, minIndex, parentIndex, order, indelNum,
-          // p[row], score, c[parentIndex], d, f,
-          // matrix->PreviousScore(parentIndex, order),
-          // matrix->PreviousScore(parentIndex, order + 1));
+          // printf("del[%i for %i:%i,%i,%i,%i] :%f vs %f to p %f (%f,
+          // %f= (%f with %f)\n", row, nucIndex, minIndex,
+          // parentIndex, order, indelNum, p[row], score,
+          // c[parentIndex], d, f, matrix->PreviousScore(parentIndex,
+          // order), matrix->PreviousScore(parentIndex, order + 1));
         }
 
         score = p[row];

@@ -46,7 +46,8 @@ bool FASTAReader::FillWindows() {
     return true;
   }
 
-  // If readWholeFile is set to true, then this function is only called once....
+  // If readWholeFile is set to true, then this function is only called
+  // once....
   if (readWholeFile) {
 
     SequenceWindow *win;

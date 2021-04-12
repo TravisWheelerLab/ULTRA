@@ -1,5 +1,9 @@
-cmake_minimum_required(VERSION 3.0)
-project(ULTRA)
+cmake_minimum_required(VERSION 3.12)
+project(
+        ULTRA
+        VERSION 1.0.0
+        HOMEPAGE_URL https://github.com/TravisWheelerLab/ULTRA
+)
 
 set(CMAKE_CXX_STANDARD 17)
 set(
@@ -43,10 +47,6 @@ set(
         src/umodeldriver.cpp
 )
 
-if (NOT ULTRA_VERSION)
-    set(ULTRA_VERSION latest)
-endif()
-
 find_package(Threads REQUIRED)
 
 add_executable(
@@ -57,6 +57,11 @@ add_executable(
 )
 target_link_libraries(ultra PRIVATE Threads::Threads)
 install(TARGETS ultra RUNTIME)
+
+if (NOT ULTRA_CONTAINER_VERSION)
+    set(ULTRA_CONTAINER_VERSION latest)
+endif ()
+set(ULTRA_CONTAINER_TAG traviswheelerlab/ultra-build)
 
 # Runs clang-format on the code
 add_custom_target(
@@ -75,13 +80,20 @@ add_custom_target(
 
 add_custom_target(
         container-build
-        COMMAND docker build -f Dockerfile_build -t traviswheelerlab/ultra-build:${ULTRA_VERSION} .
+        COMMAND docker build -f Dockerfile_build -t ${ULTRA_CONTAINER_TAG}:${ULTRA_CONTAINER_VERSION} .
         VERBATIM
 )
 
 add_custom_target(
         container-push
-        COMMAND docker push traviswheelerlab/ultra-build:${ULTRA_VERSION}
+        COMMAND docker push ${ULTRA_CONTAINER_TAG}:${ULTRA_CONTAINER_VERSION}
         VERBATIM
 )
 add_dependencies(container-push container-build)
+
+add_custom_target(
+        examples
+        COMMAND examples/run-all.sh
+        VERBATIM
+)
+add_dependencies(examples ultra)

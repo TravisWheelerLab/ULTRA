@@ -134,8 +134,8 @@ int UMatrix::PreviousColumn(int d) {
 
  */
 int *UMatrix::ForwardTraceback(int *traceArray, int windowLength, int row) {
-  // The traceArray is forward oriented, and has correct insertion and deletion
-  // positions
+  // The traceArray is forward oriented, and has correct insertion and
+  // deletion positions
   if (windowLength > length) {
     printf("(ForwardTraceback) Length greater than matrix length, ret NULL\n");
     return NULL;
@@ -147,13 +147,13 @@ int *UMatrix::ForwardTraceback(int *traceArray, int windowLength, int row) {
     traceArray = (int *)malloc(sizeof(int) * (windowLength + 1));
   }
 
-  int pos =
-      previousColumnIndex; // pos is where in the tracebackMatrix we are looking
+  int pos = previousColumnIndex; // pos is where in the tracebackMatrix we are
+                                 // looking
 
   for (int i = 0; i <= windowLength; ++i) {
 
-    // Get some info on the current cell - for each tracebackColumn there are
-    // only N rows, where N is the maximum peridoicity
+    // Get some info on the current cell - for each tracebackColumn there
+    // are only N rows, where N is the maximum peridoicity
     cell desc = cellDescriptions[row];
     int rowOrder = desc.order;
 
@@ -164,10 +164,10 @@ int *UMatrix::ForwardTraceback(int *traceArray, int windowLength, int row) {
     }
 
     // In case of C_INSERTION we need to set the next (order + indelnum)
-    // characters to be the cell of the insertions parent cell and then set the
-    // last character to the insertion. We do things in this order because
-    // insertions are detected (order + indelnum) after they occur, and we are
-    // reading the traceback matrix in reverse order.
+    // characters to be the cell of the insertions parent cell and then set
+    // the last character to the insertion. We do things in this order
+    // because insertions are detected (order + indelnum) after they occur,
+    // and we are reading the traceback matrix in reverse order.
     else if (desc.type == CT_INSERTION) {
 
       int charactersBack = desc.order + desc.indelNumber;
@@ -215,8 +215,9 @@ int *UMatrix::ForwardTraceback(int *traceArray, int windowLength, int row) {
       row = desc.parentIndex;
     }
 
-    // Whenever we decrease pos we need to check and make sure we haven't gone
-    // past the matrix bounds if we have then we need to adjust for that
+    // Whenever we decrease pos we need to check and make sure we haven't
+    // gone past the matrix bounds if we have then we need to adjust for
+    // that
     pos = pos - 1;
     if (pos < 0) {
       pos = length - 1;

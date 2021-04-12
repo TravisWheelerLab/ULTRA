@@ -324,8 +324,8 @@ void RepeatRegion::StoreScores(UMatrix *matrix) {
     scores[i - 1] = s - ps;
 
     //    printf("[%i %i]: (%f, %f) %i %f %i %f \n", i, p,
-    //    matrix->scoreColumns[p - 1][27], matrix->scoreColumns[p][27], cell, s,
-    //    prevCell, ps);
+    //    matrix->scoreColumns[p - 1][27], matrix->scoreColumns[p][27],
+    //    cell, s, prevCell, ps);
   }
   // exit(0);
 }
