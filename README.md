@@ -88,6 +88,25 @@ beyond what is necessary to build the software.
   * `make container-push` - push the container to Docker Hub
   * `make examples` - run all examples
 
+### Packaging
+
+It is possible to create Debian and RPM packages using the local operating
+system or a Docker container.
+
+```
+# Build the Debian builder image
+make deb-container-image
+
+# Build the Debian package in the builder container
+make deb-container
+
+# Build the Debian package with the local operating system
+make deb
+```
+
+Substitute `deb` for `rpm` in the commands above to create an RPM package
+instead.
+
 ## License
 
 BSD 3-clause license. See LICENSE file.
