@@ -1,0 +1,12 @@
+FROM fedora:34
+RUN dnf update -y && \
+    dnf install -y \
+        cmake \
+        fedora-packager \
+        g++ \
+        gcc \
+        rpmdevtools
+VOLUME /code
+WORKDIR /code
+CMD rm -f CMakeCache.txt && cmake . && make rpm && rm -f CMakeCache.txt
+

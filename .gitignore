@@ -1,7 +1,17 @@
 ultra
+build/
 
 # Artifact of CMake generation from CLion
 *.cbp
+
+# CPack files (for package creation)
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_CPack_Packages/
+
+# Packages
+*.deb
+*.rpm
 
 # -----------------------------------------------------------------------------
 # C++

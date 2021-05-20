@@ -6,6 +6,8 @@ project(
 )
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY build)
+
 set(
         LIB_CPP_FILES
 
@@ -97,3 +99,67 @@ add_custom_target(
         VERBATIM
 )
 add_dependencies(examples ultra)
+
+# -----------------------
+# Packaging Configuration
+# -----------------------
+
+SET(ULTRA_PACKAGE_VENDOR "Travis Wheeler Lab")
+
+# DEB (Debian / Ubuntu)
+
+add_custom_target(
+    deb-container-image
+    COMMAND docker build -f Dockerfile_deb -t ultra_deb .
+    VERBATIM
+)
+
+add_custom_target(
+    deb-container
+    COMMAND docker run --mount src=${CMAKE_SOURCE_DIR},target=/code,type=bind ultra_deb
+    VERBATIM
+)
+
+add_custom_target(
+    deb
+    COMMAND cpack -G DEB .
+    VERBATIM
+)
+
+SET(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+SET(CPACK_DEBIAN_PACKAGE_MAINTAINER ${ULTRA_PACKAGE_VENDOR})
+SET(CPACK_DEBIAN_PACKAGE_SECTION "science")
+
+# RPM
+
+add_custom_target(
+    rpm-container-image
+    COMMAND docker build -f Dockerfile_rpm -t ultra_rpm .
+    VERBATIM
+)
+
+add_custom_target(
+    rpm-container
+    COMMAND docker run --mount src=${CMAKE_SOURCE_DIR},target=/code,type=bind ultra_rpm
+    VERBATIM
+)
+
+add_custom_target(
+    rpm
+    COMMAND cpack -G RPM .
+    VERBATIM
+)
+
+SET(CPACK_RPM_FILE_NAME RPM-DEFAULT)
+SET(CPACK_RPM_PACKAGE_VENDOR ${ULTRA_PACKAGE_VENDOR})
+
+# General
+
+SET(CPACK_PACKAGE_NAME "ultra")
+SET(CPACK_PACKAGE_VENDOR "Travis Wheeler Lab")
+SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README.md")
+SET(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/TravisWheelerLab/ULTRA")
+
+SET(CPACK_GENERATOR "DEB")
+INCLUDE(CPack)
+
