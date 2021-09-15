@@ -203,7 +203,7 @@ public:
       "wid", 0};
 
   setting_param showScores = {
-      "Show scores",
+      "Show score Deltas",
       "Output the score change per residue",
       "ss",
   };
