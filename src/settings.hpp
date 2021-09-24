@@ -76,6 +76,7 @@ public:
   int v_windowSize = 8192;
   int v_overlapSize = 100;
 
+  bool v_showLogoNumbers = false;
   bool v_showScores = false;
   bool v_showTraceback = false;
 
@@ -211,6 +212,14 @@ public:
   setting_param showTraceback = {
       "Show traceback", "Output the Viterbi traceback in the results CSV", "st",
       0};
+
+  setting_param showLogoNumbers = {
+      "Show logo numbers",
+      "Output the corresponding logo annotation for a given repeat",
+      "sl",
+      0
+  };
+
 
   setting_param JSONInput = {"Read JSON file",
                              "Process all passes in JSON file", "json", 0};

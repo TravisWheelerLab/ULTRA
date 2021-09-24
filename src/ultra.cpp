@@ -187,6 +187,12 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     if (settings->v_showScores) {
       r->StoreScores(model->matrix);
     }
+    
+    if (settings->v_showLogoNumbers) {
+      //   printf("Getting logo numbers...\n");
+      r->GetLogoNumbers();
+      // printf("Got logo numbers...\n");
+    }
 
     uth->repeats.push_back(r);
 
@@ -534,6 +540,21 @@ void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
     fprintf(out, "\"%s\"", r->traceback.c_str());
   }
 
+  if (settings->v_showLogoNumbers) {
+    fprintf(out, ",\n");
+    OutputJSONKey("Logo Numbers");
+
+
+    fprintf(out, "\"");
+
+    fprintf(out, "%i", r->logoNumbers[0]);
+    for (int i = 1; i < r->repeatLength; ++i) {
+      fprintf(out, ",%i", r->logoNumbers[i]);
+    }
+
+    fprintf(out, "\"");
+  }
+
   if (settings->v_showScores) {
     fprintf(out, ",\n");
     OutputJSONKey("PositionScoreDelta");
@@ -640,6 +661,10 @@ Ultra::Ultra(Settings *s, int n) {
   if (settings->v_splitRepeats) {
     storeTraceAndSequence = true;
     printf("STORE TRACE AND SEQUENCE\n");
+  }
+
+  if (settings->v_showLogoNumbers) {
+    storeTraceAndSequence = true;
   }
 
   // printf("Creating threads.\n");

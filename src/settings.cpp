@@ -166,6 +166,10 @@ std::string Settings::DefaultParam(setting_param param) {
     defaultValue = "Hide Window ID";
   }
 
+  else if (param == showLogoNumbers) {
+    defaultValue = "Hide logo numbers";
+  }
+
   else if (param == randomSeq) {
     defaultValue = "Do not generate random windows";
   }
@@ -381,6 +385,10 @@ int Settings::InterpretArgument(setting_param arg, int argc, const char **argv,
       v_showWindowID = true;
     }
 
+    else if (arg == showLogoNumbers) {
+      v_showLogoNumbers = true;
+    }
+
     else if (arg == randomSeq) {
       v_randomWindows = std::stoi(arguments[0]);
     }
@@ -575,6 +583,11 @@ std::string Settings::JSONStringForArgument(setting_param arg) {
     json += std::to_string(v_showWindowID);
   }
 
+  else if (arg == showLogoNumbers) {
+    json += std::to_string(v_showLogoNumbers);
+  }
+
+
   else if (arg == randomSeq) {
     return "";
   }
@@ -719,6 +732,7 @@ Settings::Settings(int argc, const char *argv[]) {
   settings.push_back(&showScores);
   settings.push_back(&showTraceback);
   settings.push_back(&showWindowID);
+  settings.push_back(&showLogoNumbers);
 
   // settings.push_back(&randomSeq);
   settings.push_back(&JSONInput);

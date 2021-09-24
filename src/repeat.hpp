@@ -53,6 +53,8 @@ public:
   int **logo;
   symbol *consensus;
 
+  int *logoNumbers;
+
   int *lookBack;
   int *lookForward;
   char *forwardCounts;
@@ -84,6 +86,7 @@ public:
 
   void CountForwardBackwardConsensus(const int depth);
   std::vector<RepeatRegion *> *SplitRepeats(const int depth, const int cutoff);
+  void GetLogoNumbers();
 
   RepeatRegion *SubRepeat(int start, int length);
 

@@ -793,3 +793,49 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos) {
 
   return region;
 }
+
+void RepeatRegion::GetLogoNumbers()
+{
+
+  unsigned long start = this->windowStart;
+  unsigned long length = this->repeatLength;
+  logoNumbers = (int *)malloc(sizeof(int) * (length + 1));
+
+  //for (int i = 0; i < )
+  //printf("\n\n\n\n");
+  //printf("Get logo numbers for %i %i\n", start, length);
+  int num = 0;
+  for (unsigned long i = 0; i < length; ++i) {
+
+
+    if (traceback[i] == '.') {
+      logoNumbers[i] = num % repeatPeriod;
+      ++num;
+    }
+
+    if (traceback[i] == 'I') {
+      logoNumbers[i] = -1;
+    }
+
+    int delCount = 0;
+    for (int j = 0; traceback[i + j] == 'D'; ++ j) {
+      ++num;
+      ++delCount;
+    }
+
+    for (int j = 0; j < delCount; ++j) {
+      logoNumbers[i] = num % repeatPeriod;
+
+      /*printf("D:%i %i %c %c %i %i\n", i, desc.type, sequence[i], traceback[i], matrix->traceback[p], logoNumbers[i]);*/
+      ++num;
+      ++i;
+    }
+    if (delCount > 0)
+      --i;
+    /*
+     if (delCount == 0)
+     printf("%i %i %c %c %i %i\n", i, desc.type, sequence[i], traceback[i], matrix->traceback[p], logoNumbers[i]);*/
+
+  }
+}
+
