@@ -187,7 +187,7 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     if (settings->v_showScores) {
       r->StoreScores(model->matrix);
     }
-    
+
     if (settings->v_showLogoNumbers) {
       //   printf("Getting logo numbers...\n");
       r->GetLogoNumbers();
