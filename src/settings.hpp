@@ -98,8 +98,8 @@ public:
   // Model parameters
 
   setting_param splitRepeats = {
-      "Split Divergent Repeats",
-      "Split repeats such as ATATATGCGCGCGC into subrepeats", "sr", 0};
+      "***NOT FUNCTIONAL, DON'T USE***",
+      "Split repeats such as ATATATGCGCGCGC into subrepeats ATATAT and GCGCGCGC", "sr", 0};
 
   setting_param maxSplitPeriod = {
       "Split Max Period",
