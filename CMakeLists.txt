@@ -22,11 +22,13 @@ set(
         src/SequenceWindow.hpp
         src/Symbol.hpp
         src/repeat.hpp
+        src/repeatSplitter.hpp
         src/settings.hpp
         src/ultra.hpp
         src/umatrix.hpp
         src/umodel.hpp
         src/umodeldriver.hpp
+
 )
 set(
         CPP_FILES
@@ -40,6 +42,7 @@ set(
         src/Symbol.cpp
         src/main.cpp
         src/repeat.cpp
+        src/repeatSplitter.cpp
         src/settings.cpp
         src/ultra.cpp
         src/umatrix.cpp
