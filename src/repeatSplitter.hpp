@@ -12,6 +12,13 @@
 #include "Symbol.hpp"
 #include "umatrix.hpp"
 #include <cmath>
+
+typedef struct {
+  int pos;
+  std::string leftConsensus;
+  std::string rightConsensus;
+} RepeatSplit;
+
 class RepeatRegion;
 
 class PairWindow {
@@ -27,6 +34,8 @@ public:
 
   int period;
 
+
+
   PairWindow *pair;
 
   PairWindow(int period, float pseudo_count = 1.0);
@@ -34,6 +43,7 @@ public:
   void fillWithPseudoCount(float pseudo_count);
   void calculateTerms();
 
+  std::string consensus();
 
   float KLD();
   float slowKLD();
@@ -54,7 +64,7 @@ public:
   // size is-
 };
 
-std::vector<int> *SplitRepeat(RepeatRegion *r,
+std::vector<RepeatSplit> *SplitRepeat(RepeatRegion *r,
                               float threshold,
                               int windowUnits,
                               int minSize,

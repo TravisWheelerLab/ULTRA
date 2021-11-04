@@ -238,7 +238,7 @@ void PairWindow::fillWindow(RepeatRegion *r, int start, int end) {
 }
 
 
-std::vector<int> *SplitRepeat(RepeatRegion *r,
+std::vector<RepeatSplit> *SplitRepeat(RepeatRegion *r,
                               float threshold,
                               int windowUnits,
                               int minSize,
@@ -260,7 +260,7 @@ std::vector<int> *SplitRepeat(RepeatRegion *r,
   assert(r->sequence.size() > 0);
 
 
-  std::vector <int> *splits = new std::vector<int>();
+  std::vector <RepeatSplit> *splits = new std::vector<RepeatSplit>();
 
   PairWindow *leftWindow = new PairWindow(r->repeatPeriod);
   PairWindow *rightWindow = new PairWindow(r->repeatPeriod);
@@ -301,8 +301,10 @@ std::vector<int> *SplitRepeat(RepeatRegion *r,
 
     if (splitPos >= 0) {
       if (leftWindow->end - splitPos > lagtime) {
-        // TODO CHANGE SPLITS SO THAT IT ALSO RECORDS THE CONSENSUS
-        splits->push_back(splitPos);
+        RepeatSplit split = {splitPos,
+                             leftWindow->consensus(),
+                             rightWindow->consensus()};
+        splits->push_back(split);
         splitPos = -1;
         splitValue = 0;
         // Move windows forward
@@ -323,7 +325,7 @@ std::vector<int> *SplitRepeat(RepeatRegion *r,
 
           leftWindow->calculateTerms();
           rightWindow->calculateTerms();
-          
+
           tmp = leftWindow->splitValue();
           if (tmp > threshold) {
             if (tmp > splitValue) {
@@ -339,7 +341,10 @@ std::vector<int> *SplitRepeat(RepeatRegion *r,
   }
 
   if (splitPos >= 0) {
-    splits->push_back(splitPos);
+    RepeatSplit split = {splitPos,
+                         leftWindow->consensus(),
+                         rightWindow->consensus()};
+    splits->push_back(split);
   }
 
   return splits;
