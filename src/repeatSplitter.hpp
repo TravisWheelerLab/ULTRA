@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <cassert>
 
 #include "SequenceWindow.hpp"
 #include "Symbol.hpp"
