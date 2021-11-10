@@ -27,7 +27,6 @@ PairWindow::PairWindow(int period, float pseudo_count) {
   this->logo = (float *)malloc(((period * NUMSYM) + 1) * sizeof(float));
 
   this->fillWithPseudoCount(pseudo_count);
-
 }
 
 void PairWindow::fillWithPseudoCount(float pseudo_count) {
@@ -231,14 +230,12 @@ void PairWindow::fillWindow(RepeatRegion *r, int start, int end) {
       this->sum += 1.0;
     }
   }
-
   this->start = start;
   this->end = end;
-
 }
 
 
-std::vector<RepeatSplit> *SplitRepeat(RepeatRegion *r,
+std::vector<int> *SplitRepeat(RepeatRegion *r,
                               float threshold,
                               int windowUnits,
                               int minSize,
@@ -260,7 +257,7 @@ std::vector<RepeatSplit> *SplitRepeat(RepeatRegion *r,
   assert(r->sequence.size() > 0);
 
 
-  std::vector <RepeatSplit> *splits = new std::vector<RepeatSplit>();
+  std::vector <int> *splits = new std::vector<int>();
 
   PairWindow *leftWindow = new PairWindow(r->repeatPeriod);
   PairWindow *rightWindow = new PairWindow(r->repeatPeriod);
@@ -301,10 +298,8 @@ std::vector<RepeatSplit> *SplitRepeat(RepeatRegion *r,
 
     if (splitPos >= 0) {
       if (leftWindow->end - splitPos > lagtime) {
-        RepeatSplit split = {splitPos,
-                             leftWindow->consensus(),
-                             rightWindow->consensus()};
-        splits->push_back(split);
+
+        splits->push_back(splitPos);
         splitPos = -1;
         splitValue = 0;
         // Move windows forward
@@ -341,12 +336,24 @@ std::vector<RepeatSplit> *SplitRepeat(RepeatRegion *r,
   }
 
   if (splitPos >= 0) {
-    RepeatSplit split = {splitPos,
-                         leftWindow->consensus(),
-                         rightWindow->consensus()};
-    splits->push_back(split);
+    splits->push_back(splitPos);
   }
 
   return splits;
 }
 
+std::vector<std::string> *ConsensusForSplits(RepeatRegion *r,
+                                             std::vector<int> *splits,
+                                             float consensusThreshold) {
+
+  std::vector<std::string> *consensi = new std::vector<std::string>();
+
+  return consensi;
+}
+
+void FilterSplits(std::vector<int> *splits,
+                  std::vector<std::string> *consensus,
+                  float threshold,
+                  float wildstar_weight) {
+
+}

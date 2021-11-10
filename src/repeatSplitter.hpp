@@ -13,11 +13,6 @@
 #include "umatrix.hpp"
 #include <cmath>
 
-typedef struct {
-  int pos;
-  std::string leftConsensus;
-  std::string rightConsensus;
-} RepeatSplit;
 
 class RepeatRegion;
 
@@ -43,8 +38,6 @@ public:
   void fillWithPseudoCount(float pseudo_count);
   void calculateTerms();
 
-  std::string consensus();
-
   float KLD();
   float slowKLD();
   float splitValue();
@@ -64,49 +57,23 @@ public:
   // size is-
 };
 
-std::vector<RepeatSplit> *SplitRepeat(RepeatRegion *r,
+std::vector<int> *SplitRepeat(RepeatRegion *r,
                               float threshold,
                               int windowUnits,
                               int minSize,
                               int minLagtime);
 
-class RepeatSplitter {
-public:
-  PairWindow *left;
-  PairWindow *right;
+std::vector<std::string> *ConsensusForSplits(RepeatRegion *r,
+                                             std::vector<int> *splits,
+                                             float consensusThreshold=0.6);
 
-  RepeatRegion *repeat;
-
-
-};
-
-class SplitWindow {
-public:
-  int start1, start2;
-  int end1, end2;
-
-  int minWindowSize;
-  int maxWindowSize;
-
-  int minWindowUnits;
-  int maxWindowUnits;
-
-  float *window1;
-  float *window2;
-
-  float *window1Counts;
-  float *window2Counts;
+// This will set all invalid splits to -1
+void FilterSplits(std::vector<int> *splits,
+                  std::vector<std::string> *consensus,
+                  float threshold=0.1,
+                  float wildstar_weight=0.25);
 
 
-  RepeatRegion *repeat;
-
-  SplitWindow(RepeatRegion *r, int minUnits, int maxUnits, float backgroundCount);
-  ~SplitWindow();
-  double JSDivergence();
-  double FillWindows(int start);
-  double ConvolveWindow(bool &notDone);
-
-};
 
 
 
