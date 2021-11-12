@@ -61,21 +61,6 @@ add_executable(
 target_link_libraries(ultra PRIVATE Threads::Threads)
 install(TARGETS ultra RUNTIME)
 
-# Runs clang-format on the code
-add_custom_target(
-        format
-        COMMAND clang-format -i ${CPP_FILES} ${HPP_FILES}
-        VERBATIM
-)
-
-# Checks whether clang-format needs to be run and sets a non-zero
-# exit code if so
-add_custom_target(
-        check-format
-        COMMAND clang-format --dry-run --Werror ${CPP_FILES} ${HPP_FILES}
-        VERBATIM
-)
-
 add_custom_target(
         examples
         COMMAND examples/run-all.sh

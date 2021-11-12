@@ -31,4 +31,4 @@ jobs:
         - ${{ github.workspace }}:/code
     steps:
       - uses: actions/checkout@v1
-      - run: cmake . && make check-format
+      - run: ./tool/check-format.sh
