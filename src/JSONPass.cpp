@@ -2,9 +2,6 @@
 //  JSONPass.cpp
 //  ultrax
 //
-//  Created by Daniel Olson on 10/2/19.
-//  Copyright © 2019 Daniel Olson. All rights reserved.
-//
 
 #include "JSONPass.hpp"
 

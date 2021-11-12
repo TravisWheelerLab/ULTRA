@@ -2,9 +2,6 @@
 //  FileReader.cpp
 //  ultrax
 //
-//  Created by Daniel Olson on 10/16/19.
-//  Copyright © 2019 Daniel Olson. All rights reserved.
-//
 
 #include "FileReader.hpp"
 

@@ -2,9 +2,6 @@
 //  FileReader.hpp
 //  ultrax
 //
-//  Created by Daniel Olson on 10/16/19.
-//  Copyright © 2019 Daniel Olson. All rights reserved.
-//
 
 #ifndef FileReader_hpp
 #define FileReader_hpp

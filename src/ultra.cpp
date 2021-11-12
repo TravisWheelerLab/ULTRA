@@ -3,8 +3,9 @@
 //  ultraP
 //
 
-#include "ultra.hpp"
 #include <cmath>
+
+#include "ultra.hpp"
 
 void *UltraThreadLaunch(void *dat) {
   uthread *uth = (uthread *)dat;
@@ -454,7 +455,7 @@ void Ultra::OutputJSONStart() {
 
   fprintf(out, "{");
   fprintf(out, "\"Pass ID\": %i,\n", passID);
-  fprintf(out, "\"Version\": \"%s\",\n", ULTRA_VERSION_STRING);
+  fprintf(out, "\"Version\": \"%s\",\n", settings->StringVersion().c_str());
   fprintf(out, "\"Parameters\": {\n");
   fprintf(out, "%s\n}\n}],\n", settings->JSONString().c_str());
 

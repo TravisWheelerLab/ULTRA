@@ -2,9 +2,6 @@
 //  JSONPass.hpp
 //  ultrax
 //
-//  Created by Daniel Olson on 10/2/19.
-//  Copyright © 2019 Daniel Olson. All rights reserved.
-//
 
 #ifndef JSONPass_hpp
 #define JSONPass_hpp
