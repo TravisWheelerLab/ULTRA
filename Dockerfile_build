@@ -2,6 +2,7 @@ FROM debian:bullseye-slim
 
 RUN apt-get update && apt-get -y install \
         build-essential \
+        clang-format \
         cmake \
         git \
     && rm -rf /var/lib/apt/lists/*
