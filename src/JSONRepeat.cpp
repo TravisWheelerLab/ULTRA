@@ -2,9 +2,6 @@
 //  JSONRepeat.cpp
 //  ultrax
 //
-//  Created by Daniel Olson on 9/25/19.
-//  Copyright © 2019 Daniel Olson. All rights reserved.
-//
 
 #include "JSONRepeat.hpp"
 

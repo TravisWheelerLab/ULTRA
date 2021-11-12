@@ -2,9 +2,6 @@
 //  JSONRepeat.hpp
 //  ultrax
 //
-//  Created by Daniel Olson on 9/25/19.
-//  Copyright © 2019 Daniel Olson. All rights reserved.
-//
 
 #ifndef JSONRepeat_hpp
 #define JSONRepeat_hpp

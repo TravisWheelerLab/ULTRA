@@ -2,9 +2,6 @@
 //  settings.hpp
 //  ultraP
 //
-//  Created by Daniel Olson on 7/3/19.
-//  Copyright © 2019 Daniel Olson. All rights reserved.
-//
 
 #ifndef settings_hpp
 #define settings_hpp
@@ -13,7 +10,7 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
-//#include <string.h>
+
 #define ULTRA_VERSION_STRING "0.99.17"
 
 typedef struct t_set_param {
@@ -192,16 +189,16 @@ public:
       "deletion state",
       "dd", 1};
 
-  setting_param outFilePath = {"Output File Path", "Path to output csv", "f",
-                               1};
+  setting_param outFilePath = {"Output File Path", "Path to output JSON data",
+                               "f", 1};
 
   setting_param hideRepeatSequence = {
       "Hide Repeat Sequence",
-      "Don't show the repetitive sequences in the results CSV", "hs", 0};
+      "Don't show the repetitive sequences in the results JSON", "hs", 0};
 
   setting_param showWindowID = {
       "Show Window ID",
-      "Display the windowID corresponding to a repeat in the results CSV",
+      "Display the windowID corresponding to a repeat in the results JSON",
       "wid", 0};
 
   setting_param showScores = {
@@ -211,8 +208,8 @@ public:
   };
 
   setting_param showTraceback = {
-      "Show traceback", "Output the Viterbi traceback in the results CSV", "st",
-      0};
+      "Show traceback", "Output the Viterbi traceback in the results JSON",
+      "st", 0};
 
   setting_param showLogoNumbers = {
       "Show logo numbers",

@@ -6,21 +6,18 @@
 #ifndef ultra_hpp
 #define ultra_hpp
 
+#include <algorithm>
+#include <pthread.h>
 #include <stdio.h>
 #include <vector>
 
 #include "FASTAReader.hpp"
 #include "FileReader.hpp"
 #include "JSONReader.hpp"
+#include "repeat.hpp"
+#include "settings.hpp"
 #include "umatrix.hpp"
 #include "umodel.hpp"
-
-#include "repeat.hpp"
-#include <algorithm>
-#include <stdio.h>
-//#include <omp.h>
-#include "settings.hpp"
-#include <pthread.h>
 
 class Ultra;
 
@@ -37,7 +34,6 @@ public:
   Settings *settings = NULL;
 
   FileReader *reader = NULL;
-  // FASTAReader*    reader  = NULL;
 
   int numberOfThreads = 1;
   int minReaderSize = 100;
@@ -51,7 +47,6 @@ public:
   bool outputReadID = false;
   bool multithreading = false;
   bool AnalyzingJSON = false;
-  // bool outputSequenceSummary  = true;
 
   bool canOutput = false;
   bool firstRepeat = true;

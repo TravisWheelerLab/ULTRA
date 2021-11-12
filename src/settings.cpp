@@ -2,9 +2,6 @@
 //  settings.cpp
 //  ultraP
 //
-//  Created by Daniel Olson on 7/3/19.
-//  Copyright © 2019 Daniel Olson. All rights reserved.
-//
 
 #include "settings.hpp"
 
@@ -13,19 +10,14 @@ bool setting_param::operator==(const t_set_param &p) const {
 }
 
 std::string Settings::StringUsage() {
-
-  return "ultra <arguments> <input sequence path>\n";
+  return "usage: ultra [options] <input file>";
 }
 
 std::string Settings::StringVersion() { return ULTRA_VERSION_STRING; }
 
 std::string Settings::StringHelp() {
-  std::string helpString = "------------------\n";
-  helpString += StringVersion();
-  helpString += StringUsage();
-  helpString += "------------------\n";
-  helpString += "-flag\tname\tdescription [default value / behavior]\n";
-  helpString += "------------------\n";
+  std::string helpString = StringUsage();
+  helpString += "\n\navailable options:\n";
 
   long long longestName = 0;
   for (int i = 0; i < settings.size(); ++i) {
@@ -398,7 +390,7 @@ int Settings::InterpretArgument(setting_param arg, int argc, const char **argv,
     }
 
     else if (arg == showVersion) {
-      printf("%s\n", ULTRA_VERSION_STRING);
+      printf("%s\n", StringVersion().c_str());
       exit(0);
     }
 
