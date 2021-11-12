@@ -56,6 +56,13 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
+.cmake
+_CPack_Packages
+CPackConfig.cmake
+CPackSourceConfig.cmake
+*.deb
+*.rpm
+
 # -----------------------------------------------------------------------------
 # macOS
 # -----------------------------------------------------------------------------
