@@ -61,11 +61,6 @@ add_executable(
 target_link_libraries(ultra PRIVATE Threads::Threads)
 install(TARGETS ultra RUNTIME)
 
-if (NOT ULTRA_CONTAINER_VERSION)
-    set(ULTRA_CONTAINER_VERSION latest)
-endif ()
-set(ULTRA_CONTAINER_TAG traviswheelerlab/ultra-build)
-
 # Runs clang-format on the code
 add_custom_target(
         format
@@ -80,19 +75,6 @@ add_custom_target(
         COMMAND clang-format --dry-run --Werror ${CPP_FILES} ${HPP_FILES}
         VERBATIM
 )
-
-add_custom_target(
-        container-build
-        COMMAND docker build -f Dockerfile_build -t ${ULTRA_CONTAINER_TAG}:${ULTRA_CONTAINER_VERSION} .
-        VERBATIM
-)
-
-add_custom_target(
-        container-push
-        COMMAND docker push ${ULTRA_CONTAINER_TAG}:${ULTRA_CONTAINER_VERSION}
-        VERBATIM
-)
-add_dependencies(container-push container-build)
 
 add_custom_target(
         examples
