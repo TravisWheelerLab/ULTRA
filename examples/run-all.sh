@@ -10,7 +10,7 @@ run_one() {
   echo "| $EX_PATH |"
   echo "+-$EX_LINE-+"
   echo ""
-  ./ultra examples/ex1.fa
+  ./ultra "$EX_PATH"
   echo ""
 }
 
