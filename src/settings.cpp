@@ -587,7 +587,6 @@ std::string Settings::JSONStringForArgument(setting_param arg) {
     json += std::to_string(v_showLogoNumbers);
   }
 
-
   else if (arg == randomSeq) {
     return "";
   }

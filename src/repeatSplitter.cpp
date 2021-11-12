@@ -2,13 +2,10 @@
 // Created by Daniel Olson on 10/20/21.
 //
 
-
-
 #include "repeatSplitter.hpp"
 #include "repeat.hpp"
 
-#define NUMSYM        (4)
-
+#define NUMSYM (4)
 
 // Note, it is necessary to give each PairWindow a partner,
 // and it is also necessary to call calculateTerms() on each window
@@ -38,7 +35,6 @@ void PairWindow::fillWithPseudoCount(float pseudo_count) {
     }
     this->sum += pseudo_count;
   }
-
 }
 
 void PairWindow::calculateTerms() {
@@ -56,7 +52,6 @@ void PairWindow::calculateTerms() {
   }
 }
 
-
 float PairWindow::KLD() {
   float kld = (this->plogp - this->plogq) / this->sum;
   kld += log2(this->pair->sum) - log2(this->sum);
@@ -71,14 +66,14 @@ float PairWindow::slowKLD() {
   for (int i = 0; i < this->period; ++i) {
     for (int j = 0; j < NUMSYM; ++j) {
       self_sum += logo[(i * NUMSYM) + j];
-      partner_sum += this->pair->logo[(i*NUMSYM) + j];
+      partner_sum += this->pair->logo[(i * NUMSYM) + j];
     }
   }
 
   float kld = 0.0;
 
   // Calculate KLD
-  for (int i = 0 ; i < this->period; ++i) {
+  for (int i = 0; i < this->period; ++i) {
     for (int j = 0; j < NUMSYM; ++j) {
       float p = logo[(i * NUMSYM) + j] / self_sum;
       float q = this->pair->logo[(i * NUMSYM) + j] / partner_sum;
@@ -104,7 +99,6 @@ void PairWindow::editCell(int i, int j, float delta) {
   exit(-1);
 }
 
-
 // There is some room to squeeze a few cycles of performance
 // Not worth it right now...
 // Maybe in the future?
@@ -127,7 +121,7 @@ void PairWindow::selfishEditCell(int i, int j, float delta) {
   this->plogq += newP * log2(q);
 }
 
-void PairWindow::dumbEditCell(int i , int j, float delta) {
+void PairWindow::dumbEditCell(int i, int j, float delta) {
   this->logo[(i * NUMSYM) + j] += delta;
   this->sum += delta;
 }
@@ -142,8 +136,7 @@ void PairWindow::dumbMoveWindowForward(RepeatRegion *r) {
     this->logo[(p * NUMSYM) + 2] -= 0.25;
     this->logo[(p * NUMSYM) + 3] -= 0.25;
     this->sum -= 1.0;
-  }
-  else {
+  } else {
     assert(s == N_A || s == N_T || s == N_C || s == N_G);
     s = s - 1; // N_A starts at 1, but we want indexing starting at 0
 
@@ -161,8 +154,7 @@ void PairWindow::dumbMoveWindowForward(RepeatRegion *r) {
     this->logo[(p * NUMSYM) + 2] -= 0.25;
     this->logo[(p * NUMSYM) + 3] -= 0.25;
     this->sum -= 1.0;
-  }
-  else {
+  } else {
     assert(s == N_A || s == N_T || s == N_C || s == N_G);
     s = s - 1; // N_A starts at 1, but we want indexing starting at 0
 
@@ -182,8 +174,7 @@ void PairWindow::moveWindowForward(RepeatRegion *r) {
     this->editCell(p, 1, -0.25);
     this->editCell(p, 2, -0.25);
     this->editCell(p, 3, -0.25);
-  }
-  else {
+  } else {
     assert(s == N_A || s == N_T || s == N_C || s == N_G);
     s = s - 1; // N_A starts at 1, but we want indexing starting at 0
     this->editCell(p, s, -1.0);
@@ -197,8 +188,7 @@ void PairWindow::moveWindowForward(RepeatRegion *r) {
     this->editCell(p, 1, -0.25);
     this->editCell(p, 2, -0.25);
     this->editCell(p, 3, -0.25);
-  }
-  else {
+  } else {
     assert(s == N_A || s == N_T || s == N_C || s == N_G);
     s = s - 1; // N_A starts at 1, but we want indexing starting at 0
     this->editCell(p, s, -1.0);
@@ -234,12 +224,8 @@ void PairWindow::fillWindow(RepeatRegion *r, int start, int end) {
   this->end = end;
 }
 
-
-std::vector<int> *SplitRepeat(RepeatRegion *r,
-                              float threshold,
-                              int windowUnits,
-                              int minSize,
-                              int minLagtime) {
+std::vector<int> *SplitRepeat(RepeatRegion *r, float threshold, int windowUnits,
+                              int minSize, int minLagtime) {
 
   int windowSize = windowUnits * r->repeatPeriod;
   if (windowSize < minSize) {
@@ -251,13 +237,11 @@ std::vector<int> *SplitRepeat(RepeatRegion *r,
     lagtime = minLagtime;
   }
 
-
   assert(windowSize * 2 < r->repeatLength);
   assert(r->logoNumbers == nullptr);
   assert(r->sequence.size() > 0);
 
-
-  std::vector <int> *splits = new std::vector<int>();
+  std::vector<int> *splits = new std::vector<int>();
 
   PairWindow *leftWindow = new PairWindow(r->repeatPeriod);
   PairWindow *rightWindow = new PairWindow(r->repeatPeriod);
@@ -329,9 +313,7 @@ std::vector<int> *SplitRepeat(RepeatRegion *r,
             }
           }
         }
-
       }
-
     }
   }
 
@@ -351,9 +333,5 @@ std::vector<std::string> *ConsensusForSplits(RepeatRegion *r,
   return consensi;
 }
 
-void FilterSplits(std::vector<int> *splits,
-                  std::vector<std::string> *consensus,
-                  float threshold,
-                  float wildstar_weight) {
-
-}
+void FilterSplits(std::vector<int> *splits, std::vector<std::string> *consensus,
+                  float threshold, float wildstar_weight) {}

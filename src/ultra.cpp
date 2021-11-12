@@ -544,7 +544,6 @@ void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
     fprintf(out, ",\n");
     OutputJSONKey("Logo Numbers");
 
-
     fprintf(out, "\"");
 
     fprintf(out, "%i", r->logoNumbers[0]);
@@ -669,10 +668,11 @@ Ultra::Ultra(Settings *s, int n) {
 
   // printf("Creating threads.\n");
   for (int i = 0; i < numberOfThreads; ++i) {
-    // We now are making the v_maxPeriod setting more intuitive, by adding 1 to it.
-    // This makes a v_maxPeriod of 10 able to detect repeats of length 10.
-    UModel *mod = new UModel(settings->v_maxPeriod + 1, settings->v_maxInsertion,
-                             settings->v_maxDeletion, leng);
+    // We now are making the v_maxPeriod setting more intuitive, by adding 1 to
+    // it. This makes a v_maxPeriod of 10 able to detect repeats of length 10.
+    UModel *mod =
+        new UModel(settings->v_maxPeriod + 1, settings->v_maxInsertion,
+                   settings->v_maxDeletion, leng);
 
     mod->periodDecay = settings->v_repeatPeriodDecay;
 
