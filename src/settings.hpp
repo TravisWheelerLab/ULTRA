@@ -97,9 +97,10 @@ public:
 
   // Model parameters
 
-  setting_param splitRepeats = {
-      "***NOT FUNCTIONAL, DON'T USE***",
-      "Split repeats such as ATATATGCGCGCGC into subrepeats ATATAT and GCGCGCGC", "sr", 0};
+  setting_param splitRepeats = {"***NOT FUNCTIONAL, DON'T USE***",
+                                "Split repeats such as ATATATGCGCGCGC into "
+                                "subrepeats ATATAT and GCGCGCGC",
+                                "sr", 0};
 
   setting_param maxSplitPeriod = {
       "Split Max Period",
@@ -215,11 +216,7 @@ public:
 
   setting_param showLogoNumbers = {
       "Show logo numbers",
-      "Output the corresponding logo annotation for a given repeat",
-      "sl",
-      0
-  };
-
+      "Output the corresponding logo annotation for a given repeat", "sl", 0};
 
   setting_param JSONInput = {"Read JSON file",
                              "Process all passes in JSON file", "json", 0};
