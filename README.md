@@ -28,6 +28,15 @@ After building ULTRA you can use it by running:
 ./ultra [options] <input file>
 ```
 
+### Docker Container
+
+ULTRA also ships as a Docker container image, see the
+[repo](https://hub.docker.com/repository/docker/traviswheelerlab/ultra) on
+Docker Hub for details. This is the preferred way to run ULTRA as it is
+significantly more convenient.
+
+### Usage
+
 ULTRA will produce high quality annotations out of the box, and so we can
 analyze one of our example files by simply running.
  
