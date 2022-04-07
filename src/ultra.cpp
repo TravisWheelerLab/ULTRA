@@ -11,7 +11,7 @@ void *UltraThreadLaunch(void *dat) {
   uthread *uth = (uthread *)dat;
 
   uth->ultra->AnalyzeFileWithThread(dat);
-  return NULL;
+  return nullptr;
 }
 
 void Ultra::AnalyzeFile() {
@@ -23,17 +23,17 @@ void Ultra::AnalyzeFile() {
 
   reader->FillWindows();
 
-  if (pthread_mutex_init(&outerLock, NULL) != 0) {
+  if (pthread_mutex_init(&outerLock, nullptr) != 0) {
     printf("Failed to create outer mutex lock. Exiting.\n");
     exit(-1);
   }
 
-  if (pthread_mutex_init(&innerLock, NULL) != 0) {
+  if (pthread_mutex_init(&innerLock, nullptr) != 0) {
     printf("Failed to create inner mutex lock. Exiting.\n");
     exit(-1);
   }
 
-  if (pthread_mutex_init(&repeatLock, NULL) != 0) {
+  if (pthread_mutex_init(&repeatLock, nullptr) != 0) {
     printf("Failed to create repeat lock. Exiting.\n");
     exit(-1);
   }
@@ -42,7 +42,7 @@ void Ultra::AnalyzeFile() {
   OutputULTRASettings();
   InitializeWriter();
 
-  double Log2PvalForScore(double score, double period);
+ // double Log2PvalForScore(double score, double period);
 
 
   for (int i = 1; i < numberOfThreads; ++i) {
@@ -348,7 +348,19 @@ bool Ultra::FixRepeatOverlap() {
 }
 
 void Ultra::OutputRepeats(bool flush) {
+  printf("output repeats\n");
+  while (outRepeats.size() > 0) {
+    printf("%llu\n", outRepeats.size());
+    RepeatRegion *r = outRepeats.back();
+    outRepeats.pop_back();
 
+    continue;
+    OutputRepeat(r);
+    delete r;
+    r = NULL;
+  }
+  fflush(out);
+  return;
   /*if (AnalyzingJSON) {
     if (!flush)
       return;
@@ -376,7 +388,7 @@ void Ultra::OutputRepeats(bool flush) {
 
   SortRepeatRegions();
 
-  while (outRepeats.size() > min || flush) {
+  while (outRepeats.size() > min) {
 
    // if (settings->v_correctOverlap)
    //   while (FixRepeatOverlap() && outRepeats.size() > min)
@@ -390,8 +402,8 @@ void Ultra::OutputRepeats(bool flush) {
         r->repeatLength < (r->repeatPeriod * settings->v_repeatThreshold) ||
         r->repeatLength < settings->v_lengthThreshold) {
 
-      delete r;
-      r = NULL;
+      //delete r;
+      //r = NULL;
       continue;
     }
 
@@ -409,6 +421,7 @@ void Ultra::OutputRepeats(bool flush) {
 
 void Ultra::OutputJSONRepeats() {
   for (int i = 0; i < reader->jsonReader->repeats.size(); ++i) {
+
     reader->jsonReader->repeats[i]->OutputRepeat(out, scoreThreshold, i == 0);
   }
 
@@ -419,7 +432,8 @@ void Ultra::OutputULTRASettings() {
   fprintf(settings_out, "{\"Version\": \"%s\", \n", settings->StringVersion().c_str());
   fprintf(settings_out, "\"Parameters\": {\n");
   fprintf(settings_out, "%s}}\n", settings->JSONString().c_str());
-  fclose(settings_out);
+  if (settings_out != stdout)
+    fclose(settings_out);
 }
 
 void Ultra::OutputJSONStart() {

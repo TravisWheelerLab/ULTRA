@@ -10,13 +10,11 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include "FileReader.hpp"
 
 #define ULTRA_VERSION_STRING "0.99.17"
 
-typedef enum e_output_type {
-  JSON,
-  BED
-} output_type;
+typedef file_type output_type;
 
 typedef struct t_set_param {
   std::string name;
@@ -93,7 +91,7 @@ public:
   int v_splitCutoff = 2;
   int v_maxSplitPeriod = 6;
 
-  output_type v_outputFormat = JSON;
+  output_type v_outputFormat = BED;
 
   //***************************
   //*****PARAMS/INTERFACE******

@@ -15,6 +15,6 @@ public:
   void InitializeWriter(Ultra *ultra);
   void WriteRepeat(RepeatRegion *repeat);
   void EndWriter();
-}
+};
 
 #endif // ULTRA_BEDFILEWRITER_HPP

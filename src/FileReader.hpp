@@ -6,11 +6,12 @@
 #ifndef FileReader_hpp
 #define FileReader_hpp
 
+
 #include "FASTAReader.hpp"
 #include "JSONReader.hpp"
 #include <stdio.h>
 
-typedef enum { UNKNOWN, FASTA, JSON } file_type;
+typedef enum { UNKNOWN, FASTA, JSON, BED } file_type;
 
 class FileReader {
 public:
