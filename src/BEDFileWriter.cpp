@@ -15,23 +15,23 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
   // We need a better behavior here - check with Travis
   std::string name = repeat->sequenceName;
-  int j = 0;
   for (int i = 0; i < name.size(); ++i) {
     if ((name[i] >= 'a' && name[i] <= 'z') ||
         (name[i] >= 'A' && name[i] <= 'Z') ||
-        (name[i] >= '0' && name[i] <= '9') ||
-        name[i] == '_') {
-        name[j] = name[i];
-        ++j;
+        (name[i] >= '0' && name[i] <= '9')) {
+      continue;
+    }
+
+    else if (name[i] == ' ') {
+      name[i] = '\0';
     }
 
     else {
-      name[j] = '\0';
+      name[i] = '_';
     }
   }
-  name[j] = '\0';
 
-  fprintf(owner->out,"%s", name.c_str(),
+  fprintf(owner->out,"%s %lu %lu", name.c_str(),
                             repeat->sequenceStart,
     repeat->sequenceStart + repeat->repeatLength);
   fprintf(owner->out, " incomplete %f", repeat->regionScore);
@@ -45,5 +45,5 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
 }
 
 void BEDFileWriter::EndWriter() {
-
+  return;
 }
