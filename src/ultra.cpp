@@ -348,19 +348,7 @@ bool Ultra::FixRepeatOverlap() {
 }
 
 void Ultra::OutputRepeats(bool flush) {
-  printf("output repeats\n");
-  while (outRepeats.size() > 0) {
-    printf("%llu\n", outRepeats.size());
-    RepeatRegion *r = outRepeats.back();
-    outRepeats.pop_back();
 
-    continue;
-    OutputRepeat(r);
-    delete r;
-    r = NULL;
-  }
-  fflush(out);
-  return;
   /*if (AnalyzingJSON) {
     if (!flush)
       return;
@@ -372,6 +360,7 @@ void Ultra::OutputRepeats(bool flush) {
   }*/
   // unsigned long symbolsMasked = 0;
   // unsigned long lastSeq = 0;
+
 
   int min = numberOfThreads * numberOfThreads;
 
@@ -402,8 +391,8 @@ void Ultra::OutputRepeats(bool flush) {
         r->repeatLength < (r->repeatPeriod * settings->v_repeatThreshold) ||
         r->repeatLength < settings->v_lengthThreshold) {
 
-      //delete r;
-      //r = NULL;
+      delete r;
+      r = NULL;
       continue;
     }
 
@@ -413,7 +402,8 @@ void Ultra::OutputRepeats(bool flush) {
   }
 
   if (flush) {
-    fprintf(out, "]\n}\n");
+    writer->EndWriter();
+    //fprintf(out, "]\n}\n");
   }
 
   fflush(out);
