@@ -18,6 +18,9 @@
 #include "settings.hpp"
 #include "umatrix.hpp"
 #include "umodel.hpp"
+#include "RepeatFileWriter.hpp"
+#include "BEDFileWriter.hpp"
+#include "JSONFileWriter.hpp"
 
 class Ultra;
 
@@ -34,12 +37,14 @@ public:
   Settings *settings = NULL;
 
   FileReader *reader = NULL;
+  RepeatFileWriter *writer = NULL;
 
   int numberOfThreads = 1;
   int minReaderSize = 100;
   int primaryThread = 0;
 
   FILE *out;
+  FILE *settings_out;
 
   double scoreThreshold = 0.0;
 
@@ -47,6 +52,12 @@ public:
   bool outputReadID = false;
   bool multithreading = false;
   bool AnalyzingJSON = false;
+
+  bool storeSequence = false;
+  bool storeTraceback = false;
+  bool storeScores = false;
+  bool storeProfileNumbers = false;
+
 
   bool canOutput = false;
   bool firstRepeat = true;
@@ -70,7 +81,10 @@ public:
   void OutputJSONRepeats();
   void OutputJSONKey(std::string key);
   void OutputJSONStart();
+  void OutputULTRASettings();
   bool FixRepeatOverlap();
+
+  void InitializeWriter();
 
   double Log2PvalForScore(double score, double period);
 

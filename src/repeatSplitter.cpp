@@ -324,14 +324,148 @@ std::vector<int> *SplitRepeat(RepeatRegion *r, float threshold, int windowUnits,
   return splits;
 }
 
+std::string ConsensusForSplit(RepeatRegion *r,
+                              int start,
+                              int length,
+                              float consensusThreshold)
+{
+  std::string consensus = std::string(r->repeatPeriod, ' ');
+  // TODO
+  // Update the *4 constant to be based on the dynamic alphabet size
+
+  // Allocate and initialize profile memory
+  float *profileMemory = (float *)calloc(r->repeatPeriod * 4, sizeof(float));
+
+  float profileSum = 0.0;
+  for (int i = 0; i < r->repeatPeriod * 4; ++i) {
+    profileMemory[i] = 0.25;
+    profileSum += 0.25;
+  }
+
+  // Add symbols into profile
+  for (int i = start; i < start + length; ++i) {
+    if (r->logoNumbers[i] < 0) {
+      continue;
+    }
+
+    else {
+      int symbol_pos = 0;
+
+      if (r->sequence[i] == 'A') {
+        symbol_pos = N_A - 1;
+      }
+      else if (r->sequence[i] == 'C') {
+        symbol_pos = N_C - 1;
+      }
+      else if (r->sequence[i] == 'G') {
+        symbol_pos = N_G - 1;
+      }
+      else if (r->sequence[i] == 'T') {
+        symbol_pos = N_T - 1;
+      }
+
+      profileMemory[(i*4) + symbol_pos] += 1.0;
+
+    }
+  }
+
+  // Build the string
+  for (int i = 0; i < r->repeatPeriod; ++i) {
+    float columnSum = 0.0;
+    consensus[i] = '*'; // assume the column has no good consensus
+
+    for (int c = 0; c < 4; ++c) {
+      columnSum += profileMemory[(i*4) + c];
+    }
+
+    for (int c = 0; c < 4; ++c) {
+      columnSum += profileMemory[(i*4) + c];
+    }
+
+    // Check to see if any character in the column passes our threshold
+    for (int c = 0; c < 4; ++c) {
+      if ((profileMemory[(i * 4) + c] / columnSum) > consensusThreshold) {
+        consensus[i] = CharForSymbol(c + 1);
+      }
+    }
+  }
+
+  return consensus;
+}
+
 std::vector<std::string> *ConsensusForSplits(RepeatRegion *r,
                                              std::vector<int> *splits,
-                                             float consensusThreshold) {
-
+                                             float consensusThreshold)
+{
   std::vector<std::string> *consensi = new std::vector<std::string>();
+
+  if (splits == nullptr || splits->empty()) {
+    consensi->push_back(ConsensusForSplit(r, 0, r->repeatLength, consensusThreshold));
+  }
+
+  else {
+    int start = 0;
+    for (int i = 0; i < splits->size(); ++i) {
+      int end = splits->at(i);
+      std::string consensus = ConsensusForSplit(r, start, end, consensusThreshold);
+      consensi->push_back(consensus);
+      start = end;
+    }
+
+    int end = r->repeatLength - end;
+
+    std::string consensus = ConsensusForSplit(r, start, end, consensusThreshold);
+    consensi->push_back(consensus);
+  }
 
   return consensi;
 }
 
-void FilterSplits(std::vector<int> *splits, std::vector<std::string> *consensus,
-                  float threshold, float wildstar_weight) {}
+// Adjust to consider cyclic string comparisons
+bool IsSplitValid(std::string &split1,
+                  std::string &split2,
+                  float threshold, float wildstart_weight)
+{
+
+
+  float biggestScore = 0.0;
+  for (int cycle = 0; cycle < split2.size(); ++cycle) {
+    float scoreSum = 0.0;
+
+    for (int i = 0; i < split1.size(); ++i) {
+      int p = (cycle + i) % split2.size();
+      if (split1[i] == split2[p]) {
+        scoreSum += 1.0;
+      }
+
+      else if (split1[i] == '*' || split2[p] == '*') {
+        scoreSum += 0.25;
+      }
+    }
+
+    if (scoreSum > biggestScore) {
+      biggestScore = scoreSum;
+    }
+  }
+
+  return (biggestScore / (float)split1.size()) > threshold;
+
+}
+
+void FilterSplits(std::vector<int> *splits,
+                  std::vector<std::string> *consensi,
+                  float threshold,
+                  float wildstar_weight)
+{
+  if (splits == nullptr || splits->empty()) {
+    return;
+  }
+
+  else {
+    for (int i = 0; i < consensi->size(); ++i) {
+      if (!IsSplitValid(consensi->at(i), consensi->at(i + 1), threshold, wildstar_weight)) {
+        splits->at(i) = -1;
+      }
+    }
+  }
+}

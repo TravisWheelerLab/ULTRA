@@ -58,12 +58,23 @@ public:
 std::vector<int> *SplitRepeat(RepeatRegion *r, float threshold, int windowUnits,
                               int minSize, int minLagtime);
 
+
+std::string ConsensusForSplit(RepeatRegion *r,
+                              int start,
+                              int length,
+                              float consensusThreshold=0.6);
+
 std::vector<std::string> *ConsensusForSplits(RepeatRegion *r,
                                              std::vector<int> *splits,
                                              float consensusThreshold = 0.6);
 
+bool IsSplitValid(std::string &split1,
+                  std::string &split2,
+                  float threshold, float wildstart_weight);
+
 // This will set all invalid splits to -1
-void FilterSplits(std::vector<int> *splits, std::vector<std::string> *consensus,
-                  float threshold = 0.1, float wildstar_weight = 0.25);
+void FilterSplits(std::vector<int> *splits,
+                  std::vector<std::string> *consensi,
+                  float threshold = 0.9, float wildstar_weight = 0.25);
 
 #endif // ULTRA_REPEATSPLITTER_H

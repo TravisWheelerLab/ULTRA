@@ -13,6 +13,11 @@
 
 #define ULTRA_VERSION_STRING "0.99.17"
 
+typedef enum e_output_type {
+  JSON,
+  BED
+} output_type;
+
 typedef struct t_set_param {
   std::string name;
   std::string description;
@@ -87,6 +92,8 @@ public:
   int v_splitDepth = 5;
   int v_splitCutoff = 2;
   int v_maxSplitPeriod = 6;
+
+  output_type v_outputFormat = JSON;
 
   //***************************
   //*****PARAMS/INTERFACE******
@@ -255,6 +262,11 @@ public:
 
   setting_param showVersion = {"Ultra Version", "Shows Ultra's version", "v",
                                0};
+
+  setting_param useBED = {
+      "BED output",
+      "Output BED", "bed", 0};
+
 
   std::vector<setting_param *> settings;
 

@@ -209,6 +209,9 @@ RepeatRegion::RepeatRegion() {
   logo = NULL;
   consensus = NULL;
 
+  consensi = nullptr;
+  splits = nullptr;
+
   lookForward = NULL;
   lookBack = NULL;
 

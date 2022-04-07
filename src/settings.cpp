@@ -226,6 +226,10 @@ std::string Settings::DefaultParam(setting_param param) {
     defaultValue = "False";
   }
 
+  else if (param == useBED) {
+    defaultValue = "False";
+  }
+
   return defaultValue;
 }
 
@@ -450,6 +454,10 @@ int Settings::InterpretArgument(setting_param arg, int argc, const char **argv,
       v_showScores = true;
     }
 
+    else if (arg == useBED) {
+      v_outputFormat = BED;
+    }
+
     else {
       printf("Unhandled argument. Exiting\n");
       exit(0);
@@ -644,9 +652,16 @@ std::string Settings::JSONStringForArgument(setting_param arg) {
       json += "true";
   }
 
+
   else if (arg == showVersion) {
     return "";
   }
+
+  else if (arg == useBED) {
+    return "";
+  }
+
+
 
   else {
     printf("Unhandled setting_param for JSON output. Exiting\n");
@@ -687,6 +702,7 @@ Settings::Settings(int argc, const char *argv[]) {
   o_argv = argv;
 
   settings.push_back(&outFilePath);
+  settings.push_back(&useBED);
   settings.push_back(&scoreThreshold);
   settings.push_back(&lengthThreshold);
   settings.push_back(&repeatUnits);

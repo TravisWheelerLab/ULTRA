@@ -60,6 +60,9 @@ public:
   char *forwardCounts;
   char *backCounts;
 
+  std::vector<int> *splits;
+  std::vector<std::string> *consensi;
+
   int mismatches;
   int insertions;
   int deletions;

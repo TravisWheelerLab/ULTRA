@@ -47,7 +47,7 @@ set(
         src/umatrix.cpp
         src/umodel.cpp
         src/umodeldriver.cpp
-)
+        src/BEDFileWriter.cpp src/BEDFileWriter.hpp src/RepeatFileWriter.hpp src/JSONFileWriter.cpp src/JSONFileWriter.hpp)
 
 find_package(Threads REQUIRED)
 

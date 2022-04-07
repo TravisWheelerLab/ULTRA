@@ -29,7 +29,7 @@ void Ultra::AnalyzeFile() {
   }
 
   if (pthread_mutex_init(&innerLock, NULL) != 0) {
-    printf("Failed to create outer mutex lock. Exiting.\n");
+    printf("Failed to create inner mutex lock. Exiting.\n");
     exit(-1);
   }
 
@@ -38,13 +38,22 @@ void Ultra::AnalyzeFile() {
     exit(-1);
   }
 
-  OutputJSONStart();
+
+  OutputULTRASettings();
+  InitializeWriter();
+
+  double Log2PvalForScore(double score, double period);
+
 
   for (int i = 1; i < numberOfThreads; ++i) {
     pthread_create(&threads[i]->p_thread, NULL, UltraThreadLaunch, threads[i]);
   }
 
   UltraThreadLaunch(threads[0]);
+}
+
+void Ultra::InitializeWriter() {
+  writer->InitializeWriter(this);
 }
 
 SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq) {
@@ -145,54 +154,20 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     // Calculate P val
     r->logPVal = Log2PvalForScore(r->regionScore, r->repeatPeriod);
 
-    if (sequence->jrepeat) {
-      JSONRepeat *jrep = new JSONRepeat();
-
-      jrep->passID = passID;
-      jrep->start = r->sequenceStart;
-      jrep->length = r->repeatLength;
-      jrep->consensus = r->GetConsensus();
-
-      if (settings->v_outputRepeatSequence || storeTraceAndSequence) {
-        r->StoreSequence(sequence);
-        jrep->sequence = r->sequence;
-      }
-
-      if (settings->v_showTraceback || storeTraceAndSequence) {
-        r->StoreTraceback(model->matrix);
-        jrep->traceback = r->traceback;
-      }
-
-      if (settings->v_showScores) {
-        r->StoreScores(model->matrix);
-      }
-
-      jrep->insertions = r->insertions;
-      jrep->deletions = r->deletions;
-      jrep->substitutions = r->mismatches;
-      jrep->score = r->regionScore;
-
-      jrep->period = r->repeatPeriod;
-
-      sequence->jrepeat->subrepeats.push_back(jrep);
-    }
-
-    if (outputRepeatSequence) {
+    if (storeSequence) {
       r->StoreSequence(sequence);
     }
 
-    if (settings->v_showTraceback || storeTraceAndSequence) {
-      r->StoreTraceback(model->matrix);
-    }
+    //if (storeTraceback) {
+    //  r->storeTraceback(uth->model->matrix);
+    //}
 
-    if (settings->v_showScores) {
+    if (storeScores) {
       r->StoreScores(model->matrix);
     }
 
-    if (settings->v_showLogoNumbers) {
-      //   printf("Getting logo numbers...\n");
+    if (storeProfileNumbers) {
       r->GetLogoNumbers();
-      // printf("Got logo numbers...\n");
     }
 
     uth->repeats.push_back(r);
@@ -374,7 +349,7 @@ bool Ultra::FixRepeatOverlap() {
 
 void Ultra::OutputRepeats(bool flush) {
 
-  if (AnalyzingJSON) {
+  /*if (AnalyzingJSON) {
     if (!flush)
       return;
 
@@ -382,11 +357,11 @@ void Ultra::OutputRepeats(bool flush) {
       OutputJSONRepeats();
       return;
     }
-  }
+  }*/
   // unsigned long symbolsMasked = 0;
   // unsigned long lastSeq = 0;
 
-  int min = 10 * numberOfThreads;
+  int min = numberOfThreads * numberOfThreads;
 
   if (flush) {
     for (int i = 0; i < numberOfThreads; ++i) {
@@ -401,15 +376,15 @@ void Ultra::OutputRepeats(bool flush) {
 
   SortRepeatRegions();
 
-  while (outRepeats.size() > min) {
+  while (outRepeats.size() > min || flush) {
 
-    if (settings->v_correctOverlap)
-      while (FixRepeatOverlap() && outRepeats.size() > min)
-        ;
+   // if (settings->v_correctOverlap)
+   //   while (FixRepeatOverlap() && outRepeats.size() > min)
+   //     ;
 
     RepeatRegion *r = outRepeats.back();
-
     outRepeats.pop_back();
+
 
     if (r->regionScore < scoreThreshold ||
         r->repeatLength < (r->repeatPeriod * settings->v_repeatThreshold) ||
@@ -440,7 +415,15 @@ void Ultra::OutputJSONRepeats() {
   fprintf(out, "]\n}\n");
 }
 
+void Ultra::OutputULTRASettings() {
+  fprintf(settings_out, "{\"Version\": \"%s\", \n", settings->StringVersion().c_str());
+  fprintf(settings_out, "\"Parameters\": {\n");
+  fprintf(settings_out, "%s}}\n", settings->JSONString().c_str());
+  fclose(settings_out);
+}
+
 void Ultra::OutputJSONStart() {
+  /*
   fprintf(out, "{\"Passes\":[\n");
 
   if (reader->format == JSON) {
@@ -458,8 +441,8 @@ void Ultra::OutputJSONStart() {
   fprintf(out, "\"Version\": \"%s\",\n", settings->StringVersion().c_str());
   fprintf(out, "\"Parameters\": {\n");
   fprintf(out, "%s\n}\n}],\n", settings->JSONString().c_str());
-
-  fprintf(out, "\"Repeats\": [");
+*/
+  fprintf(out, "{\"Repeats\": [");
 }
 
 void Ultra::OutputJSONKey(std::string key) {
@@ -467,6 +450,8 @@ void Ultra::OutputJSONKey(std::string key) {
 }
 
 void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
+  writer->WriteRepeat(r);
+  /*
   if (!firstRepeat && !isSubRep) {
     fprintf(out, ",\n\n");
   }
@@ -600,7 +585,8 @@ void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
     }
   }
 
-  fprintf(out, "}");
+  fprintf(out, "}");*/
+
 }
 
 void Ultra::SortRepeatRegions() {
@@ -610,11 +596,25 @@ void Ultra::SortRepeatRegions() {
 Ultra::Ultra(Settings *s, int n) {
   settings = s;
 
-  if (settings->v_outFilePath == "")
+  if (settings->v_outFilePath == "") {
     out = stdout;
+    settings_out = stdout;
+  }
 
-  else
+  else {
     out = fopen(settings->v_outFilePath.c_str(), "w");
+    std::string settings_file_path = settings->v_outFilePath + ".settings";
+    settings_out = fopen(settings_file_path.c_str(), "w");
+  }
+
+  if (settings->v_outputFormat == JSON) {
+    writer = new JSONFileWriter();
+  }
+
+  else if (settings->v_outputFormat == BED) {
+    writer = new BEDFileWriter();
+  }
+
 
   numberOfThreads = settings->v_numberOfThreads;
 
