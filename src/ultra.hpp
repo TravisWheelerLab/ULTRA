@@ -11,16 +11,16 @@
 #include <stdio.h>
 #include <vector>
 
+#include "BEDFileWriter.hpp"
 #include "FASTAReader.hpp"
 #include "FileReader.hpp"
+#include "JSONFileWriter.hpp"
 #include "JSONReader.hpp"
+#include "RepeatFileWriter.hpp"
 #include "repeat.hpp"
 #include "settings.hpp"
 #include "umatrix.hpp"
 #include "umodel.hpp"
-#include "RepeatFileWriter.hpp"
-#include "BEDFileWriter.hpp"
-#include "JSONFileWriter.hpp"
 
 class Ultra;
 
@@ -58,7 +58,6 @@ public:
   bool storeScores = false;
   bool storeProfileNumbers = false;
 
-
   bool canOutput = false;
   bool firstRepeat = true;
   unsigned long repeatBuffer = 2000;
@@ -86,7 +85,7 @@ public:
 
   void InitializeWriter();
 
-  double Log2PvalForScore(double score, double period);
+  double Log2PvalForScore(double score, double period) const;
 
   SequenceWindow *GetSequenceWindow(SequenceWindow *seq);
 

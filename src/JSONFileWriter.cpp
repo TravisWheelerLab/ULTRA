@@ -6,15 +6,10 @@
 #include "repeat.hpp"
 #include "ultra.hpp"
 
-void JSONFileWriter::InitializeWriter(Ultra *ultra) {
-  owner = ultra;
-}
+void JSONFileWriter::InitializeWriter(Ultra *ultra) { owner = ultra; }
 
 void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
   // This is incomplete
-
 }
 
-void JSONFileWriter::EndWriter() {
-
-}
+void JSONFileWriter::EndWriter() {}

@@ -8,10 +8,12 @@
 
 class RepeatRegion;
 class Ultra;
-class BEDFileWriter : virtual public RepeatFileWriter
-{
+class BEDFileWriter : virtual public RepeatFileWriter {
 public:
   Ultra *owner;
+
+  bool outputMultilineSplitRepeats = false;
+
   void InitializeWriter(Ultra *ultra);
   void WriteRepeat(RepeatRegion *repeat);
   void EndWriter();

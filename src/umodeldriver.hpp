@@ -9,7 +9,7 @@
 #include "umodel.hpp"
 #include <vector>
 
-typedef struct {
+typedef struct t_str_region {
   // Where in the sequence this occurs
   int sequenceStart = 0;
   int sequenceEnd = 0;

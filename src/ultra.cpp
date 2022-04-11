@@ -38,30 +38,27 @@ void Ultra::AnalyzeFile() {
     exit(-1);
   }
 
-
   OutputULTRASettings();
   InitializeWriter();
 
- // double Log2PvalForScore(double score, double period);
-
+  // double Log2PvalForScore(double score, double period);
 
   for (int i = 1; i < numberOfThreads; ++i) {
-    pthread_create(&threads[i]->p_thread, NULL, UltraThreadLaunch, threads[i]);
+    pthread_create(&threads[i]->p_thread, nullptr, UltraThreadLaunch,
+                   threads[i]);
   }
 
   UltraThreadLaunch(threads[0]);
 }
 
-void Ultra::InitializeWriter() {
-  writer->InitializeWriter(this);
-}
+void Ultra::InitializeWriter() { writer->InitializeWriter(this); }
 
 SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq) {
 
-  SequenceWindow *retval = NULL;
+  SequenceWindow *retval = nullptr;
   bool shouldRead = false;
 
-  if (seq != NULL)
+  if (seq != nullptr)
     reader->AddWaitingWindow(seq);
 
   if (multithreading)
@@ -102,9 +99,9 @@ void Ultra::AnalyzeFileWithThread(void *dat) {
   uthread *uth = (uthread *)dat;
   int tid = uth->id;
 
-  SequenceWindow *currentWindow = GetSequenceWindow(NULL);
-  while (currentWindow != NULL || !reader->DoneReadingFile()) {
-    if (currentWindow != NULL)
+  SequenceWindow *currentWindow = GetSequenceWindow(nullptr);
+  while (currentWindow != nullptr || !reader->DoneReadingFile()) {
+    if (currentWindow != nullptr)
       AnalyzeSequenceWindow(currentWindow, uth);
 
     currentWindow = GetSequenceWindow(currentWindow);
@@ -113,17 +110,17 @@ void Ultra::AnalyzeFileWithThread(void *dat) {
   if (multithreading) {
     if (tid == 0) {
       for (int i = 1; i < numberOfThreads; ++i) {
-        pthread_join(threads[i]->p_thread, NULL);
+        pthread_join(threads[i]->p_thread, nullptr);
       }
     }
 
     else {
-      pthread_exit(NULL);
+      pthread_exit(nullptr);
     }
   }
 }
 
-double Ultra::Log2PvalForScore(double score, double period) {
+double Ultra::Log2PvalForScore(double score, double period) const {
   double loc = (settings->v_exponLocM * period) + settings->v_exponLocB;
   double scale = (settings->v_exponScaleM * period) + settings->v_exponScaleB;
 
@@ -149,7 +146,7 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   int i = 0;
   RepeatRegion *r = GetNextRepeat(sequence, model->matrix, &i);
 
-  while (r != NULL) {
+  while (r != nullptr) {
 
     // Calculate P val
     r->logPVal = Log2PvalForScore(r->regionScore, r->repeatPeriod);
@@ -158,9 +155,9 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
       r->StoreSequence(sequence);
     }
 
-    //if (storeTraceback) {
-    //  r->storeTraceback(uth->model->matrix);
-    //}
+    // if (storeTraceback) {
+    //   r->storeTraceback(uth->model->matrix);
+    // }
 
     if (storeScores) {
       r->StoreScores(model->matrix);
@@ -361,7 +358,6 @@ void Ultra::OutputRepeats(bool flush) {
   // unsigned long symbolsMasked = 0;
   // unsigned long lastSeq = 0;
 
-
   int min = numberOfThreads * numberOfThreads;
 
   if (flush) {
@@ -379,31 +375,30 @@ void Ultra::OutputRepeats(bool flush) {
 
   while (outRepeats.size() > min) {
 
-   // if (settings->v_correctOverlap)
-   //   while (FixRepeatOverlap() && outRepeats.size() > min)
-   //     ;
+    // if (settings->v_correctOverlap)
+    //   while (FixRepeatOverlap() && outRepeats.size() > min)
+    //     ;
 
     RepeatRegion *r = outRepeats.back();
     outRepeats.pop_back();
-
 
     if (r->regionScore < scoreThreshold ||
         r->repeatLength < (r->repeatPeriod * settings->v_repeatThreshold) ||
         r->repeatLength < settings->v_lengthThreshold) {
 
       delete r;
-      r = NULL;
+      r = nullptr;
       continue;
     }
 
     OutputRepeat(r);
     delete r;
-    r = NULL;
+    r = nullptr;
   }
 
   if (flush) {
     writer->EndWriter();
-    //fprintf(out, "]\n}\n");
+    // fprintf(out, "]\n}\n");
   }
 
   fflush(out);
@@ -419,7 +414,8 @@ void Ultra::OutputJSONRepeats() {
 }
 
 void Ultra::OutputULTRASettings() {
-  fprintf(settings_out, "{\"Version\": \"%s\", \n", settings->StringVersion().c_str());
+  fprintf(settings_out, "{\"Version\": \"%s\", \n",
+          settings->StringVersion().c_str());
   fprintf(settings_out, "\"Parameters\": {\n");
   fprintf(settings_out, "%s}}\n", settings->JSONString().c_str());
   if (settings_out != stdout)
@@ -590,7 +586,6 @@ void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
   }
 
   fprintf(out, "}");*/
-
 }
 
 void Ultra::SortRepeatRegions() {
@@ -618,7 +613,6 @@ Ultra::Ultra(Settings *s, int n) {
   else if (settings->v_outputFormat == BED) {
     writer = new BEDFileWriter();
   }
-
 
   numberOfThreads = settings->v_numberOfThreads;
 

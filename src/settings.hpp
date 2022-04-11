@@ -6,11 +6,11 @@
 #ifndef settings_hpp
 #define settings_hpp
 
+#include "FileReader.hpp"
 #include <cstring>
 #include <stdio.h>
 #include <string>
 #include <vector>
-#include "FileReader.hpp"
 
 #define ULTRA_VERSION_STRING "0.99.17"
 
@@ -261,10 +261,7 @@ public:
   setting_param showVersion = {"Ultra Version", "Shows Ultra's version", "v",
                                0};
 
-  setting_param useBED = {
-      "BED output",
-      "Output BED", "bed", 0};
-
+  setting_param useBED = {"BED output", "Output BED", "bed", 0};
 
   std::vector<setting_param *> settings;
 

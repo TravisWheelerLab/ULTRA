@@ -7,9 +7,7 @@
 #include "ultra.hpp"
 #include <algorithm>
 
-void BEDFileWriter::InitializeWriter(Ultra *ultra) {
-  owner = ultra;
-}
+void BEDFileWriter::InitializeWriter(Ultra *ultra) { owner = ultra; }
 
 void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
@@ -31,19 +29,23 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
     }
   }
 
-  fprintf(owner->out,"%s %lu %lu", name.c_str(),
-                            repeat->sequenceStart,
-    repeat->sequenceStart + repeat->repeatLength);
+  fprintf(owner->out, "%s %lu %lu", name.c_str(), repeat->sequenceStart,
+          repeat->sequenceStart + repeat->repeatLength);
+  // We need to decide what to do with the overall sequence
   fprintf(owner->out, " incomplete %f", repeat->regionScore);
 
-  // In the future only print this section if we are doing repeat
-  //    splititng
   fprintf(owner->out, " . %lu %lu 0", repeat->sequenceStart,
-              repeat->sequenceStart + repeat->repeatLength);
+          repeat->sequenceStart + repeat->repeatLength);
   fprintf(owner->out, "\n");
 
+  if (repeat->splits->size() > 0) {
+    fprintf(owner->out, "%lu", repeat->splits->size());
+    int prevSplit = 0;
+    /*
+    for (int i = 0; i < repeat->splits->size()) {
+
+    }*/
+  }
 }
 
-void BEDFileWriter::EndWriter() {
-  return;
-}
+void BEDFileWriter::EndWriter() { return; }

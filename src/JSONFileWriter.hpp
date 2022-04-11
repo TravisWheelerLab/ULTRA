@@ -8,8 +8,7 @@
 
 class RepeatRegion;
 class Ultra;
-class JSONFileWriter : virtual public RepeatFileWriter
-{
+class JSONFileWriter : virtual public RepeatFileWriter {
 public:
   Ultra *owner;
   void InitializeWriter(Ultra *ultra);

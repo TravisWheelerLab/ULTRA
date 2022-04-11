@@ -652,7 +652,6 @@ std::string Settings::JSONStringForArgument(setting_param arg) {
       json += "true";
   }
 
-
   else if (arg == showVersion) {
     return "";
   }
@@ -660,8 +659,6 @@ std::string Settings::JSONStringForArgument(setting_param arg) {
   else if (arg == useBED) {
     return "";
   }
-
-
 
   else {
     printf("Unhandled setting_param for JSON output. Exiting\n");
