@@ -358,7 +358,7 @@ void Ultra::OutputRepeats(bool flush) {
   // unsigned long symbolsMasked = 0;
   // unsigned long lastSeq = 0;
 
-  int min = numberOfThreads * numberOfThreads;
+  int min = 0;//numberOfThreads * numberOfThreads;
 
   if (flush) {
     for (int i = 0; i < numberOfThreads; ++i) {
@@ -371,7 +371,7 @@ void Ultra::OutputRepeats(bool flush) {
     min = 0;
   }
 
-  SortRepeatRegions();
+  //SortRepeatRegions();
 
   while (outRepeats.size() > min) {
 
@@ -381,6 +381,17 @@ void Ultra::OutputRepeats(bool flush) {
 
     RepeatRegion *r = outRepeats.back();
     outRepeats.pop_back();
+
+    //printf("%llu\n", (unsigned long long)r);
+    OutputRepeat(r);
+
+    delete r;
+    r = nullptr;
+    //printf("Bout size: %i\n", outRepeats.size());
+
+
+    continue;
+
 
     if (r->regionScore < scoreThreshold ||
         r->repeatLength < (r->repeatPeriod * settings->v_repeatThreshold) ||

@@ -91,7 +91,10 @@ public:
   int v_splitCutoff = 2;
   int v_maxSplitPeriod = 6;
 
-  output_type v_outputFormat = BED;
+  //TODO
+  // Plug in the settings for -json
+  // with BED as default
+  output_type v_outputFormat = JSON;
 
   //***************************
   //*****PARAMS/INTERFACE******
