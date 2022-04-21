@@ -27,6 +27,7 @@ public:
   std::string line;
   long long linePlace;
 
+  // change to queues
   std::vector<SequenceWindow *> windows;
   std::vector<SequenceWindow *> readyWindows;
   std::vector<SequenceWindow *> waitingWindows;

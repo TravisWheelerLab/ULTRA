@@ -8,7 +8,7 @@
 #include <algorithm>
 
 void BEDFileWriter::InitializeWriter(Ultra *ultra) { owner = ultra;
-  fprintf(owner->out, "{repeats = [\n");
+
 }
 
 void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
@@ -51,9 +51,8 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
     }
   }*/
-  fprintf(owner->out, "}");
 }
 
 void BEDFileWriter::EndWriter() {
-  fprintf(owner->out, "]}");
+
 }

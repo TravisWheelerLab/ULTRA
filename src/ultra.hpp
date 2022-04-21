@@ -30,6 +30,7 @@ typedef struct s_uthread {
   Ultra *ultra;
   UModel *model;
   std::vector<RepeatRegion *> repeats{};
+  int activeReadID=0;
 } uthread;
 
 class Ultra {
@@ -64,10 +65,12 @@ public:
 
   bool storeTraceAndSequence = false;
 
+
   std::vector<RepeatRegion *> outRepeats{};
   std::vector<JSONRepeat *> outJRepeats{};
 
   std::vector<UModel *> models{};
+
   int count = 0;
   int passID = 0;
   std::vector<uthread *> threads{};
@@ -77,9 +80,7 @@ public:
   void AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *thrd);
   void OutputRepeats(bool flush = false);
   void OutputRepeat(RepeatRegion *r, bool isSubRep = false);
-  void OutputJSONRepeats();
-  void OutputJSONKey(std::string key);
-  void OutputJSONStart();
+
   void OutputULTRASettings();
   bool FixRepeatOverlap();
 
@@ -87,7 +88,9 @@ public:
 
   double Log2PvalForScore(double score, double period) const;
 
+
   SequenceWindow *GetSequenceWindow(SequenceWindow *seq);
+  int SmallestReadID();
 
   void SortRepeatRegions();
 

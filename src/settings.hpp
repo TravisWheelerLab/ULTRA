@@ -94,7 +94,7 @@ public:
   //TODO
   // Plug in the settings for -json
   // with BED as default
-  output_type v_outputFormat = JSON;
+  output_type v_outputFormat = BED;
 
   //***************************
   //*****PARAMS/INTERFACE******

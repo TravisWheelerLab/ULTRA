@@ -94,6 +94,22 @@ SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq) {
   return retval;
 }
 
+// NOTE:
+// THIS IS NOT THREAD SAFE
+// WE ASSUME THATS OK (FOR NOW)
+int Ultra::SmallestReadID() {
+  int smallest = 100000000;
+
+  for (int i = 0; i < threads.size(); ++i) {
+    if (threads[i]->activeReadID < smallest) {
+      smallest = threads[i]->activeReadID;
+    }
+  }
+
+  return smallest;
+}
+
+
 void Ultra::AnalyzeFileWithThread(void *dat) {
 
   uthread *uth = (uthread *)dat;
@@ -135,6 +151,13 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
   int sleng = (int)sequence->length + (int)sequence->overlap;
 
+
+
+  if (uth->repeats.size() == 0) {
+    uth->activeReadID = sequence->readID;
+  }
+
+
   UModel *model = uth->model;
   model->matrix->RestartMatrix();
 
@@ -155,9 +178,6 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
       r->StoreSequence(sequence);
     }
 
-    // if (storeTraceback) {
-    //   r->storeTraceback(uth->model->matrix);
-    // }
 
     if (storeScores) {
       r->StoreScores(model->matrix);
@@ -174,6 +194,7 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
   if (primaryThread == uth->id) {
 
+    uth->activeReadID = sequence->readID;
     outRepeats.insert(outRepeats.end(), uth->repeats.begin(),
                       uth->repeats.end());
     uth->repeats.clear();
@@ -184,6 +205,8 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
     primaryThread = (primaryThread + 1) % numberOfThreads;
     // printf("%i\n", primaryThread);
+
+
   }
 }
 
@@ -346,19 +369,7 @@ bool Ultra::FixRepeatOverlap() {
 
 void Ultra::OutputRepeats(bool flush) {
 
-  /*if (AnalyzingJSON) {
-    if (!flush)
-      return;
-
-    else {
-      OutputJSONRepeats();
-      return;
-    }
-  }*/
-  // unsigned long symbolsMasked = 0;
-  // unsigned long lastSeq = 0;
-
-  int min = 0;//numberOfThreads * numberOfThreads;
+  int maxReadID = SmallestReadID() - 20;
 
   if (flush) {
     for (int i = 0; i < numberOfThreads; ++i) {
@@ -368,43 +379,25 @@ void Ultra::OutputRepeats(bool flush) {
       }
     }
 
-    min = 0;
+    maxReadID = 100000000;
   }
 
-  //SortRepeatRegions();
+  SortRepeatRegions();
 
-  while (outRepeats.size() > min) {
+  while (outRepeats.size() > 0) {
 
-    // if (settings->v_correctOverlap)
-    //   while (FixRepeatOverlap() && outRepeats.size() > min)
-    //     ;
 
     RepeatRegion *r = outRepeats.back();
-    outRepeats.pop_back();
 
-    //printf("%llu\n", (unsigned long long)r);
-    OutputRepeat(r);
-
-    delete r;
-    r = nullptr;
-    //printf("Bout size: %i\n", outRepeats.size());
-
-
-    continue;
-
-
-    if (r->regionScore < scoreThreshold ||
-        r->repeatLength < (r->repeatPeriod * settings->v_repeatThreshold) ||
-        r->repeatLength < settings->v_lengthThreshold) {
-
-      delete r;
-      r = nullptr;
-      continue;
+    if (r->readID >= maxReadID) {
+      break;
     }
 
+    outRepeats.pop_back();
     OutputRepeat(r);
     delete r;
     r = nullptr;
+
   }
 
   if (flush) {
@@ -415,14 +408,6 @@ void Ultra::OutputRepeats(bool flush) {
   fflush(out);
 }
 
-void Ultra::OutputJSONRepeats() {
-  for (int i = 0; i < reader->jsonReader->repeats.size(); ++i) {
-
-    reader->jsonReader->repeats[i]->OutputRepeat(out, scoreThreshold, i == 0);
-  }
-
-  fprintf(out, "]\n}\n");
-}
 
 void Ultra::OutputULTRASettings() {
   fprintf(settings_out, "{\"Version\": \"%s\", \n",
@@ -433,170 +418,10 @@ void Ultra::OutputULTRASettings() {
     fclose(settings_out);
 }
 
-void Ultra::OutputJSONStart() {
-  /*
-  fprintf(out, "{\"Passes\":[\n");
 
-  if (reader->format == JSON) {
-    if (reader->jsonReader->passes.size() > 0) {
-
-      for (int i = 0; i < reader->jsonReader->passes.size(); ++i) {
-        reader->jsonReader->passes[i]->OutputPass(out);
-        fprintf(out, ",\n");
-      }
-    }
-  }
-
-  fprintf(out, "{");
-  fprintf(out, "\"Pass ID\": %i,\n", passID);
-  fprintf(out, "\"Version\": \"%s\",\n", settings->StringVersion().c_str());
-  fprintf(out, "\"Parameters\": {\n");
-  fprintf(out, "%s\n}\n}],\n", settings->JSONString().c_str());
-*/
-  fprintf(out, "{\"Repeats\": [");
-}
-
-void Ultra::OutputJSONKey(std::string key) {
-  fprintf(out, "\"%s\": ", key.c_str());
-}
 
 void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
   writer->WriteRepeat(r);
-  /*
-  if (!firstRepeat && !isSubRep) {
-    fprintf(out, ",\n\n");
-  }
-
-  else {
-    firstRepeat = false;
-  }
-
-  fprintf(out, "{");
-
-  OutputJSONKey("PassID");
-  fprintf(out, "%i", passID);
-
-  fprintf(out, ",\n");
-  OutputJSONKey("SequenceName");
-  fprintf(out, "\"%s\"", r->sequenceName.c_str());
-
-  fprintf(out, ",\n");
-  OutputJSONKey("Start");
-  fprintf(out, "%lu", r->sequenceStart);
-
-  fprintf(out, ",\n");
-  OutputJSONKey("Length");
-  fprintf(out, "%lu", r->repeatLength);
-
-  fprintf(out, ",\n");
-  OutputJSONKey("Period");
-  fprintf(out, "%i", r->repeatPeriod);
-
-  fprintf(out, ",\n");
-  OutputJSONKey("Score");
-  fprintf(out, "%f", r->regionScore);
-
-  if (settings->v_calculateLogPVal) {
-    fprintf(out, ",\n");
-    OutputJSONKey("Log2 Pval");
-    fprintf(out, "%f", r->logPVal);
-  }
-
-  fprintf(out, ",\n");
-  OutputJSONKey("Substitutions");
-  fprintf(out, "%i", r->mismatches);
-
-  fprintf(out, ",\n");
-  OutputJSONKey("Insertions");
-  fprintf(out, "%i", r->insertions);
-
-  fprintf(out, ",\n");
-  OutputJSONKey("Deletions");
-  fprintf(out, "%i", r->deletions);
-
-  fprintf(out, ",\n");
-  OutputJSONKey("Consensus");
-  fprintf(out, "\"%s\"", r->GetConsensus().c_str());
-
-  if (outputReadID) {
-    fprintf(out, ",\n");
-    OutputJSONKey("ReadID");
-    fprintf(out, "\"%lu\"", r->readID);
-  }
-
-  if (outputRepeatSequence) {
-
-    fprintf(out, ",\n");
-    OutputJSONKey("Sequence");
-    fprintf(out, "\"%s\"", r->sequence.c_str());
-  }
-
-  if (settings->v_showTraceback) {
-    fprintf(out, ",\n");
-    OutputJSONKey("Traceback");
-    fprintf(out, "\"%s\"", r->traceback.c_str());
-  }
-
-  if (settings->v_showLogoNumbers) {
-    fprintf(out, ",\n");
-    OutputJSONKey("Logo Numbers");
-
-    fprintf(out, "\"");
-
-    fprintf(out, "%i", r->logoNumbers[0]);
-    for (int i = 1; i < r->repeatLength; ++i) {
-      fprintf(out, ",%i", r->logoNumbers[i]);
-    }
-
-    fprintf(out, "\"");
-  }
-
-  if (settings->v_showScores) {
-    fprintf(out, ",\n");
-    OutputJSONKey("PositionScoreDelta");
-    //  fprintf(out, "\"%s\"", r->traceback.c_str());
-    std::string scores = "";
-
-    for (unsigned long i = 0; i < r->repeatLength; ++i) {
-      if (i > 0)
-        scores += ":";
-      scores += std::to_string(r->scores[i]);
-    }
-
-    fprintf(out, "\"%s\"", scores.c_str());
-  }
-
-  if (settings->v_debugOverlapCorrection) {
-    fprintf(out, ",\n");
-    OutputJSONKey("OC");
-    fprintf(out, "\"%i\"", r->overlapCorrection);
-  }
-
-  if (!isSubRep && settings->v_splitRepeats &&
-      r->repeatPeriod < settings->v_maxSplitPeriod) {
-    std::vector<RepeatRegion *> *subReps =
-        r->SplitRepeats(settings->v_splitDepth, settings->v_splitCutoff);
-
-    if (subReps != NULL) {
-      fprintf(out, ",\n");
-      OutputJSONKey("Subrepeats");
-      fprintf(out, "[");
-      for (int i = 0; i < subReps->size(); ++i) {
-        if (i > 0)
-          fprintf(out, ",\n");
-        subReps->at(i)->logPVal = Log2PvalForScore(
-            subReps->at(i)->regionScore, subReps->at(i)->repeatPeriod);
-        OutputRepeat(subReps->at(i), true);
-        delete subReps->at(i);
-      }
-      fprintf(out, "]");
-
-      subReps->clear();
-      delete subReps;
-    }
-  }
-
-  fprintf(out, "}");*/
 }
 
 void Ultra::SortRepeatRegions() {
