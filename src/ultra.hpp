@@ -30,7 +30,7 @@ typedef struct s_uthread {
   Ultra *ultra;
   UModel *model;
   std::vector<RepeatRegion *> repeats{};
-  int activeReadID=0;
+  int activeReadID = 0;
 } uthread;
 
 class Ultra {
@@ -65,7 +65,6 @@ public:
 
   bool storeTraceAndSequence = false;
 
-
   std::vector<RepeatRegion *> outRepeats{};
   std::vector<JSONRepeat *> outJRepeats{};
 
@@ -87,7 +86,6 @@ public:
   void InitializeWriter();
 
   double Log2PvalForScore(double score, double period) const;
-
 
   SequenceWindow *GetSequenceWindow(SequenceWindow *seq);
   int SmallestReadID();

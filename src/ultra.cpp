@@ -109,7 +109,6 @@ int Ultra::SmallestReadID() {
   return smallest;
 }
 
-
 void Ultra::AnalyzeFileWithThread(void *dat) {
 
   uthread *uth = (uthread *)dat;
@@ -151,12 +150,9 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
   int sleng = (int)sequence->length + (int)sequence->overlap;
 
-
-
   if (uth->repeats.size() == 0) {
     uth->activeReadID = sequence->readID;
   }
-
 
   UModel *model = uth->model;
   model->matrix->RestartMatrix();
@@ -177,7 +173,6 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     if (storeSequence) {
       r->StoreSequence(sequence);
     }
-
 
     if (storeScores) {
       r->StoreScores(model->matrix);
@@ -205,8 +200,6 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
     primaryThread = (primaryThread + 1) % numberOfThreads;
     // printf("%i\n", primaryThread);
-
-
   }
 }
 
@@ -386,7 +379,6 @@ void Ultra::OutputRepeats(bool flush) {
 
   while (outRepeats.size() > 0) {
 
-
     RepeatRegion *r = outRepeats.back();
 
     if (r->readID >= maxReadID) {
@@ -397,7 +389,6 @@ void Ultra::OutputRepeats(bool flush) {
     OutputRepeat(r);
     delete r;
     r = nullptr;
-
   }
 
   if (flush) {
@@ -408,7 +399,6 @@ void Ultra::OutputRepeats(bool flush) {
   fflush(out);
 }
 
-
 void Ultra::OutputULTRASettings() {
   fprintf(settings_out, "{\"Version\": \"%s\", \n",
           settings->StringVersion().c_str());
@@ -417,8 +407,6 @@ void Ultra::OutputULTRASettings() {
   if (settings_out != stdout)
     fclose(settings_out);
 }
-
-
 
 void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
   writer->WriteRepeat(r);

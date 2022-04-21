@@ -7,9 +7,7 @@
 #include "ultra.hpp"
 #include <algorithm>
 
-void BEDFileWriter::InitializeWriter(Ultra *ultra) { owner = ultra;
-
-}
+void BEDFileWriter::InitializeWriter(Ultra *ultra) { owner = ultra; }
 
 void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
@@ -40,8 +38,8 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
           repeat->sequenceStart + repeat->repeatLength);
   fprintf(owner->out, "\n");
 
-  //TODO
-  // Complete repeat split report
+  // TODO
+  //  Complete repeat split report
   /*
   if (repeat->splits->size() > 0) {
     fprintf(owner->out, "%lu", repeat->splits->size());
@@ -53,6 +51,4 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
   }*/
 }
 
-void BEDFileWriter::EndWriter() {
-
-}
+void BEDFileWriter::EndWriter() {}

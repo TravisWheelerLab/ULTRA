@@ -91,9 +91,9 @@ public:
   int v_splitCutoff = 2;
   int v_maxSplitPeriod = 6;
 
-  //TODO
-  // Plug in the settings for -json
-  // with BED as default
+  // TODO
+  //  Plug in the settings for -json
+  //  with BED as default
   output_type v_outputFormat = BED;
 
   //***************************
