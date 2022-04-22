@@ -161,6 +161,9 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     model->CalculateCurrentColumn(sequence, i);
   }
 
+  // WE'RE RIGHT HERE
+  // GOING TO TRY TO PUSH ALL THE CODE IN !!!
+
   model->matrix->CalculateTraceback(model->matrix->previousColumnIndex);
   int i = 0;
   RepeatRegion *r = GetNextRepeat(sequence, model->matrix, &i);
@@ -170,17 +173,22 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     // Calculate P val
     r->logPVal = Log2PvalForScore(r->regionScore, r->repeatPeriod);
 
+    /*
     if (storeSequence) {
       r->StoreSequence(sequence);
     }
-
     if (storeScores) {
       r->StoreScores(model->matrix);
     }
-
     if (storeProfileNumbers) {
       r->GetLogoNumbers();
-    }
+    }*/
+
+    r->StoreSequence(sequence);
+    r->StoreScores(model->matrix);
+    r->GetLogoNumbers();
+
+    // REPEAT SPLITTING HERE?
 
     uth->repeats.push_back(r);
 
