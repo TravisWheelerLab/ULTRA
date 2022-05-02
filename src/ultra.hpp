@@ -21,6 +21,7 @@
 #include "settings.hpp"
 #include "umatrix.hpp"
 #include "umodel.hpp"
+#include "repeatSplitter.hpp"
 
 class Ultra;
 

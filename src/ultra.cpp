@@ -188,8 +188,6 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     r->StoreScores(model->matrix);
     r->GetLogoNumbers();
 
-    // REPEAT SPLITTING HERE?
-
     uth->repeats.push_back(r);
 
     r = GetNextRepeat(sequence, model->matrix, &i);
@@ -395,6 +393,13 @@ void Ultra::OutputRepeats(bool flush) {
 
     outRepeats.pop_back();
     OutputRepeat(r);
+    std::vector<int> *splits = SplitRepeat(r, 0.2, 5, 5, 3);
+    if (splits != nullptr) {
+      printf("Splits!=null\n");
+      for (int i = 0; i < splits->size(); ++i) {
+          printf("split %i\n", splits->at(i));
+        }
+    }
     delete r;
     r = nullptr;
   }

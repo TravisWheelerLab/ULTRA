@@ -21,7 +21,6 @@ set(
         src/SequenceWindow.hpp
         src/Symbol.hpp
         src/repeat.hpp
-        src/repeatSplitter.hpp
         src/settings.hpp
         src/ultra.hpp
         src/umatrix.hpp
@@ -41,13 +40,12 @@ set(
         src/Symbol.cpp
         src/main.cpp
         src/repeat.cpp
-        src/repeatSplitter.cpp
         src/settings.cpp
         src/ultra.cpp
         src/umatrix.cpp
         src/umodel.cpp
         src/umodeldriver.cpp
-        src/BEDFileWriter.cpp src/BEDFileWriter.hpp src/RepeatFileWriter.hpp src/JSONFileWriter.cpp src/JSONFileWriter.hpp)
+        src/BEDFileWriter.cpp src/BEDFileWriter.hpp src/RepeatFileWriter.hpp src/JSONFileWriter.cpp src/JSONFileWriter.hpp src/RepeatSplitter.cpp src/RepeatSplitter.h)
 
 find_package(Threads REQUIRED)
 
