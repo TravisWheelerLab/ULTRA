@@ -19,6 +19,8 @@ public:
   void InitializeWriter(Ultra *ultra);
   void WriteRepeat(RepeatRegion *repeat);
   void EndWriter();
+  std::string StringForSubRepeat(RepeatRegion *r, int split_index, int start_pos);
+  std::string SubRepeatsString(RepeatRegion *r);
 };
 
 #endif // ULTRA_JSONFILEWRITER_HPP

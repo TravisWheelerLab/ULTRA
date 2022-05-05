@@ -15,6 +15,61 @@ void JSONFileWriter::InitializeWriter(Ultra *ultra) {
   fprintf(owner->out, "{\"Repeats\": [");
 }
 
+std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index, int start_pos) {
+  std::string repeatString = "{";
+
+  int start = start_pos + r->sequenceStart;
+  int end = r->repeatLength;
+
+  int consensusPosition = split_index;
+
+  if (split_index >= 0) {
+    end = r->splits->at(split_index);
+    consensusPosition = r->splits->size();
+  }
+
+  float subScore = r->regionScore / (float)(end - start);
+
+  repeatString += "Start: ";
+  repeatString += std::to_string(start);
+  repeatString += ",\nEnd: ";
+  repeatString += std::to_string(end);
+  repeatString += ",\nScore: ";
+  repeatString += std::to_string(subScore);
+  repeatString += "Consensus: \"";
+  repeatString += r->consensi->at(consensusPosition);
+
+
+  repeatString += "\"}";
+
+
+  return repeatString;
+}
+
+std::string JSONFileWriter::SubRepeatsString(RepeatRegion *r) {
+  std::string subRepeats = "[";
+
+  int start = 0;
+  for (int s = 0; s < r->splits->size(); ++s) {
+    int split_i = r->splits->at(s);
+    if (split_i >= 0) {
+
+      if (start > 0)
+        subRepeats += ",\n";
+      subRepeats += StringForSubRepeat(r, split_i, start);
+
+      start = split_i;
+    }
+  }
+
+  if (start > 0)
+    subRepeats += ",\n";
+  subRepeats += StringForSubRepeat(r, -1, start);
+
+  subRepeats.push_back(']');
+  return subRepeats;
+}
+
 void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
   if (this->repeatsOutput > 0) {
@@ -62,14 +117,33 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
     this->OutputJSONKeyValue("LogoNumbers", logoNumbers);
   }
 
-  // TODO
-  // POSITION SCORE DELTAS HERE
 
-  // TODO
-  // split repeats here
+  if (owner->settings->v_showScores) {
+    std::string positionScoreDeltas = "[";
 
-  if (owner->settings->v_maxSplitPeriod > 0) {
+    for (int i = 0; i < repeat->repeatLength; ++i) {
+      if (i > 0)
+        positionScoreDeltas += ",";
+      positionScoreDeltas += std::to_string(repeat->scores[i]);
+    }
+
+    this->OutputJSONKeyValue("LogoNumbers", positionScoreDeltas);
+    positionScoreDeltas.push_back(']');
   }
+
+
+  int numberOfValidSplits = 0;
+  if (repeat->splits != nullptr)
+    for (int i = 0; i < repeat->splits->size(); ++i) {
+      if (repeat->splits->at(i) > 0)
+        ++numberOfValidSplits;
+    }
+
+  if (numberOfValidSplits > 0) {
+    std::string subRepeats = SubRepeatsString(repeat);
+    this->OutputJSONKeyValue("SubRepeats", subRepeats);
+  }
+
 }
 
 void JSONFileWriter::EndWriter() { fprintf(owner->out, "]\n}"); }
