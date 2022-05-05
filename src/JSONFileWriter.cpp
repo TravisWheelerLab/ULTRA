@@ -68,7 +68,8 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
   // TODO
   // split repeats here
 
-  if (owner->settings->v_splitRepeats) {
+  if (owner->settings->v_maxSplitPeriod > 0) {
+
   }
 }
 

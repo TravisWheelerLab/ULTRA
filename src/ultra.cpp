@@ -173,20 +173,32 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     // Calculate P val
     r->logPVal = Log2PvalForScore(r->regionScore, r->repeatPeriod);
 
-    /*
-    if (storeSequence) {
-      r->StoreSequence(sequence);
-    }
-    if (storeScores) {
-      r->StoreScores(model->matrix);
-    }
-    if (storeProfileNumbers) {
-      r->GetLogoNumbers();
-    }*/
 
-    r->StoreSequence(sequence);
-    r->StoreScores(model->matrix);
-    r->GetLogoNumbers();
+    if (storeTraceAndSequence) {
+      r->StoreSequence(sequence);
+      r->StoreScores(model->matrix);
+      r->GetLogoNumbers();
+    }
+
+    if (r->repeatPeriod <= settings->v_maxSplitPeriod) {
+      int splitWindow = std::max(r->repeatPeriod * settings->v_splitDepth,
+                                 settings->v_minSplitWindow);
+      // This almost feels right.
+      // Probably want to change it later though.
+      float  join_threshold = 1.0 - (1.0 / settings->v_splitThreshold);
+      // ugh this line is ugly
+      r->splits = uth->splitter->SplitsForRegion(r,
+                                                 splitWindow,
+                                                 settings->v_splitThreshold);
+
+      r->consensi = uth->splitter->ConsensiForSplit(r,
+                                                    r->splits,
+                                                    0.65);
+      ValidateSplits(r->consensi,
+                     r->splits,
+                     join_threshold);
+
+    }
 
     uth->repeats.push_back(r);
 
@@ -393,13 +405,7 @@ void Ultra::OutputRepeats(bool flush) {
 
     outRepeats.pop_back();
     OutputRepeat(r);
-    std::vector<int> *splits = SplitRepeat(r, 0.2, 5, 5, 3);
-    if (splits != nullptr) {
-      printf("Splits!=null\n");
-      for (int i = 0; i < splits->size(); ++i) {
-          printf("split %i\n", splits->at(i));
-        }
-    }
+
     delete r;
     r = nullptr;
   }
@@ -493,7 +499,7 @@ Ultra::Ultra(Settings *s, int n) {
 
   int leng = settings->v_windowSize + settings->v_overlapSize + 2;
 
-  if (settings->v_splitRepeats) {
+  if (settings->v_maxSplitPeriod > 0) {
     storeTraceAndSequence = true;
     printf("STORE TRACE AND SEQUENCE\n");
   }
