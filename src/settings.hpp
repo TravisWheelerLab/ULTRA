@@ -91,7 +91,6 @@ public:
   int v_splitDepth = 5;
   float v_splitThreshold = 3.6;
 
-
   // TODO
   //  Plug in the settings for -json
   //  with BED as default
@@ -109,16 +108,16 @@ public:
 
   setting_param splitThreshold = {
       "Repeat Split Threshold",
-      "Threshold value used during splitting (larger is more conservative)", "sc",
-      1};
+      "Threshold value used during splitting (larger is more conservative)",
+      "sc", 1};
 
   setting_param splitDepth = {
       "Split Depth", "Number of repeat units to consider when splitting repeat",
       "sd", 1};
 
   setting_param minSplitWindow = {
-      "Min Repeat Splitting Window", "Minimum value a repeat splitting window can be",
-      "sw", 1};
+      "Min Repeat Splitting Window",
+      "Minimum value a repeat splitting window can be", "sw", 1};
 
   setting_param scoreThreshold = {
       "Score Threshold", "Minimum score necessary for a repeat to be recorded",

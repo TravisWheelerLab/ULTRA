@@ -17,11 +17,11 @@
 #include "JSONFileWriter.hpp"
 #include "JSONReader.hpp"
 #include "RepeatFileWriter.hpp"
+#include "RepeatSplitter.h"
 #include "repeat.hpp"
 #include "settings.hpp"
 #include "umatrix.hpp"
 #include "umodel.hpp"
-#include "RepeatSplitter.h"
 
 class Ultra;
 

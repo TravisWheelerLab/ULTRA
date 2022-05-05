@@ -6,8 +6,7 @@
 
 #define score_func() (KLD_pq() + KLD_qp())
 
-void SplitWindow::AllocateSplitWindow(int alphabet, int max_period)
-{
+void SplitWindow::AllocateSplitWindow(int alphabet, int max_period) {
   alphabetSize = alphabet;
   maxPeriod = max_period;
 
@@ -25,11 +24,9 @@ void SplitWindow::AllocateSplitWindow(int alphabet, int max_period)
     cp[i] = &p_mat[i * maxPeriod];
     cq[i] = &q_mat[i * maxPeriod];
   }
-
 }
 
-void SplitWindow::DeallocSplitWindow()
-{
+void SplitWindow::DeallocSplitWindow() {
   free(cp);
   cp = nullptr;
   free(cq);
@@ -45,12 +42,9 @@ void SplitWindow::DeallocSplitWindow()
   q_mat = nullptr;
   free(logo_mat);
   logo_mat = nullptr;
-
-
 }
 
-void SplitWindow::StartSplitWindow(int p, float startingScore)
-{
+void SplitWindow::StartSplitWindow(int p, float startingScore) {
   period = p;
 
   float d = startingScore / ((float)alphabetSize * (float)period);
@@ -67,7 +61,7 @@ void SplitWindow::StartSplitWindow(int p, float startingScore)
   logNq = log2(Nq);
 
   for (int a = 0; a < alphabetSize; ++a) {
-    for(int i = 0; i < period; ++i) {
+    for (int i = 0; i < period; ++i) {
       cp[a][i] = d;
       cq[a][i] = d;
     }
@@ -75,7 +69,6 @@ void SplitWindow::StartSplitWindow(int p, float startingScore)
 
   place = 0;
 }
-
 
 float SplitWindow::slow_KLD_pq() {
   float sum = 0;
@@ -107,21 +100,14 @@ float SplitWindow::slow_KLD_qp() {
 }
 
 float SplitWindow::KLD_pq() {
-  return  (plogp / Np) -
-         (plogq / Np) +
-         logNq - logNp;
+  return (plogp / Np) - (plogq / Np) + logNq - logNp;
 }
 
 float SplitWindow::KLD_qp() {
-  return  (qlogq / Nq) -
-         (qlogp / Np) +
-         logNp - logNq;
+  return (qlogq / Nq) - (qlogp / Np) + logNp - logNq;
 }
 
-float SplitWindow::AdjustMatrix(bool is_p,
-                                int i,
-                                int symbol,
-                                float delta) {
+float SplitWindow::AdjustMatrix(bool is_p, int i, int symbol, float delta) {
   float *aloga;
   float *alogb;
   float *bloga;
@@ -243,20 +229,20 @@ void SplitWindow::FillWindow(RepeatRegion *r, int windowSize) {
 
   logNp = log2(Np);
   logNq = log2(Nq);
-
 }
 
 void SplitWindow::MoveWindowForward(RepeatRegion *r) {
 
   int old_left_symbol = SymbolForChar(r->sequence[place]) - 1;
-  int old_right_symbol = SymbolForChar(r->sequence[place+length]) - 1;
+  int old_right_symbol = SymbolForChar(r->sequence[place + length]) - 1;
   int new_left_symbol = old_right_symbol;
-  int new_right_symbol = SymbolForChar(r->sequence[place+length+length]) - 1;
+  int new_right_symbol =
+      SymbolForChar(r->sequence[place + length + length]) - 1;
 
   int old_left_indx = r->logoNumbers[place];
-  int old_right_indx = r->logoNumbers[place+length];
+  int old_right_indx = r->logoNumbers[place + length];
   int new_left_indx = old_right_indx;
-  int new_right_indx = r->logoNumbers[place+length+length];
+  int new_right_indx = r->logoNumbers[place + length + length];
 
   Np += AdjustMatrix(true, old_left_indx, old_left_symbol, -1.0);
   Nq += AdjustMatrix(false, old_right_indx, old_right_symbol, -1.0);
@@ -268,14 +254,11 @@ void SplitWindow::MoveWindowForward(RepeatRegion *r) {
   logNq = log2(Nq);
 
   place += 1;
-
 }
 
-std::vector<float> *SplitWindow::RegionScores(RepeatRegion *r,
-                                              int windowSize) {
+std::vector<float> *SplitWindow::RegionScores(RepeatRegion *r, int windowSize) {
 
   std::vector<float> *scores = new std::vector<float>();
-
 
   FillWindow(r, windowSize);
 
@@ -297,8 +280,7 @@ std::vector<float> *SplitWindow::RegionScores(RepeatRegion *r,
   return scores;
 }
 
-std::vector<int> *SplitWindow::SplitsForRegion(RepeatRegion *r,
-                                               int window_size,
+std::vector<int> *SplitWindow::SplitsForRegion(RepeatRegion *r, int window_size,
                                                float threshold) {
 
   std::vector<int> *splits = new std::vector<int>();
@@ -342,7 +324,6 @@ std::vector<int> *SplitWindow::SplitsForRegion(RepeatRegion *r,
 void SplitWindow::FillLogoForRegion(RepeatRegion *r, int start, int end) {
   float d = 1.0 / (float)alphabetSize;
 
-
   for (int i = 0; i < r->repeatPeriod; ++i) {
     for (int a = 0; a < alphabetSize; ++a) {
       logo[a][i] = d;
@@ -362,9 +343,7 @@ void SplitWindow::FillLogoForRegion(RepeatRegion *r, int start, int end) {
   }
 }
 
-std::string SplitWindow::ConsensusForRegion(RepeatRegion *r,
-                                            int start,
-                                            int end,
+std::string SplitWindow::ConsensusForRegion(RepeatRegion *r, int start, int end,
                                             float consensus_threshold) {
   std::string consensus = std::string(r->repeatPeriod, '*');
 
@@ -384,18 +363,20 @@ std::string SplitWindow::ConsensusForRegion(RepeatRegion *r,
   return consensus;
 }
 
-std::vector<std::string> *SplitWindow::ConsensiForSplit(RepeatRegion *r,
-                                                        std::vector<int> *splits,
-                                                        float consensus_threshold) {
+std::vector<std::string> *
+SplitWindow::ConsensiForSplit(RepeatRegion *r, std::vector<int> *splits,
+                              float consensus_threshold) {
   std::vector<std::string> *consensi = new std::vector<std::string>();
 
   int start = 0;
   for (int i = 0; i < splits->size(); ++i) {
-    consensi->push_back(ConsensusForRegion(r, start, splits->at(i), consensus_threshold));
+    consensi->push_back(
+        ConsensusForRegion(r, start, splits->at(i), consensus_threshold));
     start = splits->at(i);
   }
 
-  consensi->push_back(ConsensusForRegion(r, start, r->sequence.size(), consensus_threshold));
+  consensi->push_back(
+      ConsensusForRegion(r, start, r->sequence.size(), consensus_threshold));
 
   return consensi;
 }
@@ -411,7 +392,8 @@ float ConsensusSimilarity(std::string *c1, std::string *c2, int offset) {
   return similarity / c1->size();
 }
 
-bool ShouldJoinConsensus(std::string *c1, std::string *c2, float join_threshold) {
+bool ShouldJoinConsensus(std::string *c1, std::string *c2,
+                         float join_threshold) {
   for (int i = 0; i < c1->size(); ++i) {
     if (ConsensusSimilarity(c1, c2, i) > join_threshold)
       return true;
@@ -421,11 +403,11 @@ bool ShouldJoinConsensus(std::string *c1, std::string *c2, float join_threshold)
 }
 
 void ValidateSplits(std::vector<std::string> *consensi,
-                    std::vector<int> *splits,
-                    float join_threshold) {
+                    std::vector<int> *splits, float join_threshold) {
 
   for (int i = 1; i < consensi->size(); ++i) {
-    if (ShouldJoinConsensus(&consensi->at(i - 1), &consensi->at(i), join_threshold)) {
+    if (ShouldJoinConsensus(&consensi->at(i - 1), &consensi->at(i),
+                            join_threshold)) {
       consensi->at(i) = consensi->at(i - 1);
       splits->at(i - 1) = -1;
     }
