@@ -86,10 +86,11 @@ public:
   bool v_correctOverlap = false;
   bool v_debugOverlapCorrection = false;
 
-  bool v_splitRepeats = false;
+  int v_maxSplitPeriod = 20;
+  int v_minSplitWindow = 20;
   int v_splitDepth = 5;
-  int v_splitCutoff = 2;
-  int v_maxSplitPeriod = 6;
+  float v_splitThreshold = 3.6;
+
 
   // TODO
   //  Plug in the settings for -json
@@ -102,23 +103,22 @@ public:
 
   // Model parameters
 
-  setting_param splitRepeats = {"***NOT FUNCTIONAL, DON'T USE***",
-                                "Split repeats such as ATATATGCGCGCGC into "
-                                "subrepeats ATATAT and GCGCGCGC",
-                                "sr", 0};
-
   setting_param maxSplitPeriod = {
-      "Split Max Period",
-      "Maximum repeat period that will be considered for splitting", "msp", 1};
+      "Repeat Split Max Period",
+      "Maximum repeat period that will be considered for splitting", "sr", 1};
 
-  setting_param splitCutoff = {
-      "Split Cutoff",
-      "Cutoff value used during splitting (smaller is more conservative)", "sc",
+  setting_param splitThreshold = {
+      "Repeat Split Threshold",
+      "Threshold value used during splitting (larger is more conservative)", "sc",
       1};
 
   setting_param splitDepth = {
       "Split Depth", "Number of repeat units to consider when splitting repeat",
       "sd", 1};
+
+  setting_param minSplitWindow = {
+      "Min Repeat Splitting Window", "Minimum value a repeat splitting window can be",
+      "sw", 1};
 
   setting_param scoreThreshold = {
       "Score Threshold", "Minimum score necessary for a repeat to be recorded",

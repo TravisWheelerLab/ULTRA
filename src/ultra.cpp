@@ -538,6 +538,7 @@ Ultra::Ultra(Settings *s, int n) {
     newThread->ultra = this;
     newThread->model = models[i];
     newThread->repeats.reserve(64);
+    newThread->splitter->AllocateSplitWindow(4, settings->v_maxPeriod + 1);
     threads.push_back(newThread);
   }
 

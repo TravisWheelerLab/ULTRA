@@ -21,7 +21,7 @@
 #include "settings.hpp"
 #include "umatrix.hpp"
 #include "umodel.hpp"
-#include "repeatSplitter.hpp"
+#include "RepeatSplitter.h"
 
 class Ultra;
 
@@ -32,6 +32,7 @@ typedef struct s_uthread {
   UModel *model;
   std::vector<RepeatRegion *> repeats{};
   int activeReadID = 0;
+  SplitWindow *splitter;
 } uthread;
 
 class Ultra {

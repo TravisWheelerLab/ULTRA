@@ -206,20 +206,20 @@ std::string Settings::DefaultParam(setting_param param) {
     defaultValue = "";
   }
 
-  else if (param == splitRepeats) {
-    defaultValue = std::to_string(v_splitRepeats);
+  else if (param == maxSplitPeriod) {
+    defaultValue = std::to_string(v_maxSplitPeriod);
   }
 
   else if (param == splitDepth) {
     defaultValue = std::to_string(v_splitDepth);
   }
 
-  else if (param == splitCutoff) {
-    defaultValue = std::to_string(v_splitCutoff);
+  else if (param == minSplitWindow) {
+    defaultValue = std::to_string(v_minSplitWindow);
   }
 
-  else if (param == maxSplitPeriod) {
-    defaultValue = std::to_string(v_maxSplitPeriod);
+  else if (param == splitThreshold) {
+    defaultValue = std::to_string(v_splitThreshold);
   }
 
   else if (param == showScores) {
@@ -434,20 +434,20 @@ int Settings::InterpretArgument(setting_param arg, int argc, const char **argv,
       v_debugOverlapCorrection = true;
     }
 
-    else if (arg == splitRepeats) {
-      v_splitRepeats = true;
+    else if (arg == maxSplitPeriod) {
+      v_maxSplitPeriod = std::stoi(arguments[0]);
     }
 
     else if (arg == splitDepth) {
       v_splitDepth = std::stoi(arguments[0]);
     }
 
-    else if (arg == splitCutoff) {
-      v_splitCutoff = std::stoi(arguments[0]);
+    else if (arg == splitThreshold) {
+      v_splitThreshold = std::stoi(arguments[0]);
     }
 
-    else if (arg == maxSplitPeriod) {
-      v_maxSplitPeriod = std::stoi(arguments[0]);
+    else if (arg == minSplitWindow) {
+      v_minSplitWindow = std::stoi(arguments[0]);
     }
 
     else if (arg == showScores) {
@@ -477,23 +477,20 @@ std::string Settings::JSONStringForArgument(setting_param arg) {
     json += std::to_string(v_scoreThreshold);
   }
 
-  else if (arg == splitRepeats) {
-    if (!v_splitRepeats)
-      json += "false";
-    else
-      json += "true";
+  else if (arg == maxSplitPeriod) {
+    json += std::to_string(v_maxSplitPeriod);
   }
 
   else if (arg == splitDepth) {
     json += std::to_string(v_splitDepth);
   }
 
-  else if (arg == splitCutoff) {
-    json += std::to_string(v_splitCutoff);
+  else if (arg == minSplitWindow) {
+    json += std::to_string(v_minSplitWindow);
   }
 
-  else if (arg == maxSplitPeriod) {
-    json += std::to_string(v_maxSplitPeriod);
+  else if (arg == splitThreshold) {
+    json += std::to_string(v_splitThreshold);
   }
 
   else if (arg == repeatUnits) {
@@ -725,10 +722,11 @@ Settings::Settings(int argc, const char *argv[]) {
 
   settings.push_back(NULL);
 
-  settings.push_back(&splitRepeats);
-  settings.push_back(&splitDepth);
-  settings.push_back(&splitCutoff);
+  // Repeat splitting section
   settings.push_back(&maxSplitPeriod);
+  settings.push_back(&splitThreshold);
+  settings.push_back(&splitDepth);
+  settings.push_back(&minSplitWindow);
 
   settings.push_back(NULL);
 
