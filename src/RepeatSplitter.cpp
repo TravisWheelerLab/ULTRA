@@ -299,7 +299,6 @@ std::vector<int> *SplitWindow::SplitsForRegion(RepeatRegion *r, int window_size,
   for (int i = 0; i < r->sequence.size() - length - length; ++i) {
     MoveWindowForward(r);
     score = score_func();
-
     if (score > split_val) {
       split_val = score;
       split_pos = place + length;

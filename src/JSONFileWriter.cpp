@@ -6,8 +6,12 @@
 #include "repeat.hpp"
 #include "ultra.hpp"
 
-void JSONFileWriter::OutputJSONKeyValue(std::string key, std::string value) {
-  fprintf(owner->out, ",\n\"%s\": %s", key.c_str(), value.c_str());
+void JSONFileWriter::OutputJSONKeyValue(std::string key, std::string value, bool quotes) {
+  if (!quotes)
+    fprintf(owner->out, ",\n\"%s\": %s", key.c_str(), value.c_str());
+  else
+    fprintf(owner->out, ",\n\"%s\": \"%s\"", key.c_str(), value.c_str());
+
 }
 
 void JSONFileWriter::InitializeWriter(Ultra *ultra) {
@@ -21,11 +25,11 @@ std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index,
   int start = start_pos + r->sequenceStart;
   int end = r->repeatLength;
 
-  int consensusPosition = split_index;
+  int consensusPosition = r->splits->size();
 
   if (split_index >= 0) {
     end = r->splits->at(split_index);
-    consensusPosition = r->splits->size();
+    consensusPosition = split_index;
   }
 
   float subScore = r->regionScore / (float)(end - start);
@@ -36,7 +40,7 @@ std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index,
   repeatString += std::to_string(end);
   repeatString += ",\nScore: ";
   repeatString += std::to_string(subScore);
-  repeatString += "Consensus: \"";
+  repeatString += ",\nConsensus: \"";
   repeatString += r->consensi->at(consensusPosition);
 
 
@@ -56,8 +60,7 @@ std::string JSONFileWriter::SubRepeatsString(RepeatRegion *r) {
 
       if (start > 0)
         subRepeats += ",\n";
-      subRepeats += StringForSubRepeat(r, split_i, start);
-
+      subRepeats += StringForSubRepeat(r, s, start);
       start = split_i;
     }
   }
@@ -65,7 +68,6 @@ std::string JSONFileWriter::SubRepeatsString(RepeatRegion *r) {
   if (start > 0)
     subRepeats += ",\n";
   subRepeats += StringForSubRepeat(r, -1, start);
-
   subRepeats.push_back(']');
   return subRepeats;
 }
@@ -92,18 +94,18 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
   this->OutputJSONKeyValue("Substitutions", std::to_string(repeat->mismatches));
   this->OutputJSONKeyValue("Insertions", std::to_string(repeat->insertions));
   this->OutputJSONKeyValue("Deletions", std::to_string(repeat->deletions));
-  this->OutputJSONKeyValue("Consensus", repeat->GetConsensus());
+  this->OutputJSONKeyValue("Consensus", repeat->GetConsensus(), true);
 
   if (owner->outputReadID) {
     this->OutputJSONKeyValue("ReadID", std::to_string(repeat->readID));
   }
 
   if (owner->outputRepeatSequence) {
-    this->OutputJSONKeyValue("Sequence", repeat->sequence);
+    this->OutputJSONKeyValue("Sequence", repeat->sequence, true);
   }
 
   if (owner->settings->v_showTraceback) {
-    this->OutputJSONKeyValue("Traceback", "\"" + repeat->traceback + "\"");
+    this->OutputJSONKeyValue("Traceback", repeat->traceback, true);
   }
 
   if (owner->settings->v_showLogoNumbers) {

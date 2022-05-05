@@ -163,7 +163,7 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
   // WE'RE RIGHT HERE
   // GOING TO TRY TO PUSH ALL THE CODE IN !!!
-
+  printf("Calculating traceback\n");
   model->matrix->CalculateTraceback(model->matrix->previousColumnIndex);
   int i = 0;
   RepeatRegion *r = GetNextRepeat(sequence, model->matrix, &i);
@@ -171,11 +171,15 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   while (r != nullptr) {
 
     // Calculate P val
+
     r->logPVal = Log2PvalForScore(r->regionScore, r->repeatPeriod);
 
     if (storeTraceAndSequence) {
+      printf("Storing trace...\n");
       r->StoreSequence(sequence);
+      r->StoreTraceback(model->matrix);
       r->StoreScores(model->matrix);
+
       r->GetLogoNumbers();
     }
 
@@ -186,11 +190,20 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
       // Probably want to change it later though.
       float join_threshold = 1.0 - (1.0 / settings->v_splitThreshold);
       // ugh this line is ugly
+      printf("Splitting repeat...\n");
       r->splits = uth->splitter->SplitsForRegion(r, splitWindow,
                                                  settings->v_splitThreshold);
-
+      printf("Calculating consensi\n");
       r->consensi = uth->splitter->ConsensiForSplit(r, r->splits, 0.65);
+      printf("Validating repeats\n");
       ValidateSplits(r->consensi, r->splits, join_threshold);
+      printf("Validation successful\n");
+
+      printf("Splits: ");
+      for (int i = 0; i < r->splits->size(); ++i) {
+        printf("%i ", r->splits->at(i));
+      }
+      printf("\n");
     }
 
     uth->repeats.push_back(r);
@@ -494,7 +507,6 @@ Ultra::Ultra(Settings *s, int n) {
 
   if (settings->v_maxSplitPeriod > 0) {
     storeTraceAndSequence = true;
-    printf("STORE TRACE AND SEQUENCE\n");
   }
 
   if (settings->v_showLogoNumbers) {
@@ -537,6 +549,7 @@ Ultra::Ultra(Settings *s, int n) {
     newThread->ultra = this;
     newThread->model = models[i];
     newThread->repeats.reserve(64);
+    newThread->splitter = new SplitWindow();
     newThread->splitter->AllocateSplitWindow(4, settings->v_maxPeriod + 1);
     threads.push_back(newThread);
   }

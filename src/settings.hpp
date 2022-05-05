@@ -87,14 +87,15 @@ public:
   bool v_debugOverlapCorrection = false;
 
   int v_maxSplitPeriod = 20;
-  int v_minSplitWindow = 20;
+  int v_minSplitWindow = 30;
   int v_splitDepth = 5;
   float v_splitThreshold = 3.6;
 
   // TODO
   //  Plug in the settings for -json
   //  with BED as default
-  output_type v_outputFormat = BED;
+
+  output_type v_outputFormat = JSON;
 
   //***************************
   //*****PARAMS/INTERFACE******
