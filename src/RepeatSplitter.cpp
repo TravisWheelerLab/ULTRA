@@ -46,6 +46,7 @@ void SplitWindow::DeallocSplitWindow() {
 
 void SplitWindow::StartSplitWindow(int p, float startingScore) {
   period = p;
+  place = 0;
 
   float d = startingScore / ((float)alphabetSize * (float)period);
 
@@ -67,7 +68,7 @@ void SplitWindow::StartSplitWindow(int p, float startingScore) {
     }
   }
 
-  place = 0;
+
 }
 
 float SplitWindow::slow_KLD_pq() {
@@ -288,6 +289,7 @@ std::vector<int> *SplitWindow::SplitsForRegion(RepeatRegion *r, int window_size,
   int split_pos = -1;
   float split_val = threshold;
 
+ // printf("Filling window\n");
   FillWindow(r, window_size);
 
   float score = score_func();
@@ -296,7 +298,9 @@ std::vector<int> *SplitWindow::SplitsForRegion(RepeatRegion *r, int window_size,
     split_pos = place + length;
   }
 
+ // printf("Moving window forward\n");
   for (int i = 0; i < r->sequence.size() - length - length; ++i) {
+   // printf("%i %i %i\n", i, place, length);
     MoveWindowForward(r);
     score = score_func();
     if (score > split_val) {
@@ -310,6 +314,7 @@ std::vector<int> *SplitWindow::SplitsForRegion(RepeatRegion *r, int window_size,
       split_val = threshold;
     }
   }
+  //printf("finishing\n");
 
   if (split_pos >= 0 && place - split_pos > 0) {
     splits->push_back(split_pos);

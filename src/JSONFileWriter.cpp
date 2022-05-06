@@ -32,12 +32,13 @@ std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index,
     consensusPosition = split_index;
   }
 
-  float subScore = r->regionScore / (float)(end - start);
+  float frac_rep = (float)r->repeatLength / (float)(end - start_pos);
+  float subScore = r->regionScore / frac_rep;
 
   repeatString += "Start: ";
   repeatString += std::to_string(start);
   repeatString += ",\nEnd: ";
-  repeatString += std::to_string(end);
+  repeatString += std::to_string(end + start);
   repeatString += ",\nScore: ";
   repeatString += std::to_string(subScore);
   repeatString += ",\nConsensus: \"";
@@ -145,7 +146,7 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
     std::string subRepeats = SubRepeatsString(repeat);
     this->OutputJSONKeyValue("SubRepeats", subRepeats);
   }
-
+  fprintf(owner->out, "}");
 }
 
 void JSONFileWriter::EndWriter() { fprintf(owner->out, "]\n}"); }
