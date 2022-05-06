@@ -33,12 +33,11 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
           repeat->sequenceStart + repeat->repeatLength);
   // We need to decide what to do with the overall sequence
 
-
-  fprintf(owner->out, " %s %f", repeat->GetConsensus().c_str(), repeat->regionScore);
+  fprintf(owner->out, " %s %f", repeat->GetConsensus().c_str(),
+          repeat->regionScore);
 
   fprintf(owner->out, " . %lu %lu 0,0,0 ", repeat->sequenceStart,
           repeat->sequenceStart + repeat->repeatLength);
-
 
   if (owner->settings->v_maxSplitPeriod > 0) {
 
@@ -47,8 +46,7 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
     int numberOfValidSplits = 0;
 
     int cstart = 0;
-    if (repeat->splits != nullptr &&
-        !repeat->splits->empty()) {
+    if (repeat->splits != nullptr && !repeat->splits->empty()) {
       for (int i = 0; i < repeat->splits->size(); ++i) {
         int split_i = repeat->splits->at(i);
         if (split_i > 0) {
@@ -67,17 +65,14 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
         sizes.push_back(',');
       sizes += std::to_string(repeat->repeatLength - cstart);
 
-      fprintf(owner->out, "%i %s %s", numberOfValidSplits + 1,
-              sizes.c_str(),
+      fprintf(owner->out, "%i %s %s", numberOfValidSplits + 1, sizes.c_str(),
               starts.c_str());
 
     }
 
     else {
-      fprintf(owner->out, "1 %i 0",  repeat->repeatLength);
+      fprintf(owner->out, "1 %i 0", repeat->repeatLength);
     }
-
-
   }
 
   fprintf(owner->out, "\n");

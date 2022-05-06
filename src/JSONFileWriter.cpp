@@ -6,12 +6,12 @@
 #include "repeat.hpp"
 #include "ultra.hpp"
 
-void JSONFileWriter::OutputJSONKeyValue(std::string key, std::string value, bool quotes) {
+void JSONFileWriter::OutputJSONKeyValue(std::string key, std::string value,
+                                        bool quotes) {
   if (!quotes)
     fprintf(owner->out, ",\n\"%s\": %s", key.c_str(), value.c_str());
   else
     fprintf(owner->out, ",\n\"%s\": \"%s\"", key.c_str(), value.c_str());
-
 }
 
 void JSONFileWriter::InitializeWriter(Ultra *ultra) {
@@ -19,7 +19,8 @@ void JSONFileWriter::InitializeWriter(Ultra *ultra) {
   fprintf(owner->out, "{\"Repeats\": [");
 }
 
-std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index, int start_pos) {
+std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index,
+                                               int start_pos) {
   std::string repeatString = "{";
 
   int start = start_pos + r->sequenceStart;
@@ -44,9 +45,7 @@ std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index,
   repeatString += ",\nConsensus: \"";
   repeatString += r->consensi->at(consensusPosition);
 
-
   repeatString += "\"}";
-
 
   return repeatString;
 }
@@ -120,7 +119,6 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
     this->OutputJSONKeyValue("LogoNumbers", logoNumbers);
   }
 
-
   if (owner->settings->v_showScores) {
     std::string positionScoreDeltas = "[";
 
@@ -133,7 +131,6 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
     this->OutputJSONKeyValue("LogoNumbers", positionScoreDeltas);
     positionScoreDeltas.push_back(']');
   }
-
 
   int numberOfValidSplits = 0;
   if (repeat->splits != nullptr)
