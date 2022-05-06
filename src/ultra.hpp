@@ -83,7 +83,6 @@ public:
   void OutputRepeat(RepeatRegion *r, bool isSubRep = false);
 
   void OutputULTRASettings();
-  bool FixRepeatOverlap();
 
   void InitializeWriter();
 
