@@ -27,16 +27,18 @@ FileReader::FileReader(std::string JSONFilePath, unsigned long mSeqLength,
   multithread = mthread;
 
   format = JSON;
-  jsonReader = new JSONReader(JSONFilePath, maxSeqLength, maxOverlapLength);
-  jsonReader->multithread = multithread;
+  printf("JSON input no longer allowed.\n");
+  exit(-1);
 }
 
 SequenceWindow *FileReader::GetReadyWindow() {
   if (format == FASTA)
     return fastaReader->GetReadyWindow();
 
-  else if (format == JSON)
-    return jsonReader->GetReadyWindow();
+  else {
+    printf("SequenceWindow Error, invalid format type\n");
+    exit(-1);
+  }
 
   return NULL;
 }
@@ -45,9 +47,6 @@ bool FileReader::AddReadyWindow(SequenceWindow *window) {
   if (format == FASTA)
     return fastaReader->AddReadyWindow(window);
 
-  else if (format == JSON)
-    return jsonReader->AddReadyWindow(window);
-
   return false;
 }
 
@@ -55,18 +54,12 @@ SequenceWindow *FileReader::GetWaitingWindow() {
   if (format == FASTA)
     return fastaReader->GetWaitingWindow();
 
-  else if (format == JSON)
-    return jsonReader->GetWaitingWindow();
-
   return NULL;
 }
 
 bool FileReader::AddWaitingWindow(SequenceWindow *window) {
   if (format == FASTA)
     return fastaReader->AddWaitingWindow(window);
-
-  else if (format == JSON)
-    return jsonReader->AddWaitingWindow(window);
 
   return false;
 }
@@ -95,8 +88,6 @@ void FileReader::SetIsReading(bool value) {
 unsigned long FileReader::ReadyWindowsSize() {
   if (format == FASTA)
     return fastaReader->readyWindows.size();
-  else
-    return jsonReader->readyWindows.size();
 }
 
 bool FileReader::FillWindows() {

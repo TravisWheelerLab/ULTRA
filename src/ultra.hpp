@@ -15,7 +15,6 @@
 #include "FASTAReader.hpp"
 #include "FileReader.hpp"
 #include "JSONFileWriter.hpp"
-#include "JSONReader.hpp"
 #include "RepeatFileWriter.hpp"
 #include "RepeatSplitter.h"
 #include "repeat.hpp"
@@ -68,13 +67,13 @@ public:
   bool storeTraceAndSequence = false;
 
   std::vector<RepeatRegion *> outRepeats{};
-  std::vector<JSONRepeat *> outJRepeats{};
 
   std::vector<UModel *> models{};
 
   int count = 0;
   int passID = 0;
   std::vector<uthread *> threads{};
+  int correctedReadIDs = -1;
 
   void AnalyzeFile();
   void AnalyzeFileWithThread(void *tid);
@@ -85,6 +84,8 @@ public:
   void OutputULTRASettings();
 
   void InitializeWriter();
+
+  void CorrectOverlap(int maxReadID);
 
   double Log2PvalForScore(double score, double period) const;
 

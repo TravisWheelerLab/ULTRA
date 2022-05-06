@@ -229,6 +229,8 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   }
 }
 
+void Ultra::CorrectOverlap(int maxReadID) {}
+
 void Ultra::OutputRepeats(bool flush) {
 
   int maxReadID = SmallestReadID() - 20;
@@ -250,11 +252,16 @@ void Ultra::OutputRepeats(bool flush) {
 
     RepeatRegion *r = outRepeats.back();
 
+    if (settings->v_correctOverlap) {
+      CorrectOverlap(maxReadID);
+    }
+
     if (r->readID >= maxReadID) {
       break;
     }
 
     outRepeats.pop_back();
+
     OutputRepeat(r);
 
     delete r;
@@ -320,33 +327,9 @@ Ultra::Ultra(Settings *s, int n) {
   passID = settings->v_passID;
   AnalyzingJSON = settings->v_JSONInput;
 
-  if (settings->v_JSONInput) {
-    reader = new FileReader(settings->v_filePath, settings->v_windowSize,
-                            settings->v_overlapSize,
-                            settings->v_numberOfThreads > 1);
-
-    reader->jsonReader->ReadFile();
-
-    if (passID == -1) {
-      unsigned long largestPass = 1;
-      for (int i = 0; i < reader->jsonReader->passes.size(); ++i) {
-        int t = reader->jsonReader->passes[i]->passID;
-
-        if (t >= largestPass)
-          largestPass = t + 1;
-      }
-      passID = (int)largestPass;
-    }
-  }
-
-  else {
-    reader = new FileReader(settings->v_filePath, settings->v_numberOfWindows,
-                            settings->v_windowSize, settings->v_overlapSize,
-                            settings->v_numberOfThreads > 1);
-  }
-
-  if (passID < 0)
-    passID = 0;
+  reader = new FileReader(settings->v_filePath, settings->v_numberOfWindows,
+                          settings->v_windowSize, settings->v_overlapSize,
+                          settings->v_numberOfThreads > 1);
 
   int leng = settings->v_windowSize + settings->v_overlapSize + 2;
 

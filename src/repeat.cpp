@@ -4,6 +4,7 @@
 //
 
 #include "repeat.hpp"
+#include <vector>
 
 void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
   logoMemory = (int *)malloc(sizeof(int) * repeatPeriod * (NUM_SYMBOLS + 1));
@@ -656,7 +657,7 @@ std::vector<RepeatRegion *> *RepeatRegion::SplitRepeats(const int depth,
       // Split it!
       if (backCounts[f] < cutoff && forwardCounts[f] > invCutoff) {
         if (subReps == NULL)
-          subReps = new std::vector<RepeatRegion *>;
+          subReps = new std::vector<RepeatRegion *>();
 
         subReps->push_back(SubRepeat(repStart, f - repStart));
         repStart = f;
@@ -789,9 +790,6 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos) {
     region->readID = window->readID;
     region->CreateLogo(window, matrix);
     region->CreateConsensusFromLogo();
-  }
-
-  if (window->jrepeat != NULL) {
   }
 
   return region;

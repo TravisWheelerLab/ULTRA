@@ -15,9 +15,6 @@ set(
 
         src/FASTAReader.hpp
         src/FileReader.hpp
-        src/JSONPass.hpp
-        src/JSONReader.hpp
-        src/JSONRepeat.hpp
         src/SequenceWindow.hpp
         src/Symbol.hpp
         src/repeat.hpp
@@ -33,9 +30,6 @@ set(
 
         src/FASTAReader.cpp
         src/FileReader.cpp
-        src/JSONPass.cpp
-        src/JSONReader.cpp
-        src/JSONRepeat.cpp
         src/SequenceWindow.cpp
         src/Symbol.cpp
         src/main.cpp

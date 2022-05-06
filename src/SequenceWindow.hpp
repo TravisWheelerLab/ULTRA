@@ -6,7 +6,6 @@
 #ifndef SequenceWindow_hpp
 #define SequenceWindow_hpp
 
-#include "JSONRepeat.hpp"
 #include "Symbol.hpp"
 #include <stdio.h>
 #include <string>
@@ -14,8 +13,6 @@
 
 class SequenceWindow {
 public:
-  JSONRepeat *jrepeat = NULL;
-
   unsigned long windowID; // A unique number assigned to this window
   unsigned long seqID;    // A unique number representing the whole sequence
   unsigned long readID;   // A unique number representing this particular read

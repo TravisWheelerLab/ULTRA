@@ -7,7 +7,6 @@
 #define FileReader_hpp
 
 #include "FASTAReader.hpp"
-#include "JSONReader.hpp"
 #include <stdio.h>
 
 typedef enum { UNKNOWN, FASTA, JSON, BED } file_type;
@@ -22,7 +21,6 @@ public:
   file_type format = UNKNOWN;
 
   FASTAReader *fastaReader = NULL;
-  JSONReader *jsonReader = NULL;
 
   SequenceWindow *GetReadyWindow();
   bool AddReadyWindow(SequenceWindow *window);

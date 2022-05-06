@@ -170,18 +170,6 @@ std::string Settings::DefaultParam(setting_param param) {
     defaultValue = "Hide traceback";
   }
 
-  else if (param == JSONInput) {
-    defaultValue = "False";
-  }
-
-  else if (param == JPasses) {
-    defaultValue = "None";
-  }
-
-  else if (param == JSONPassID) {
-    defaultValue = "Smallest unused positive pass ID";
-  }
-
   else if (param == readWholeFile) {
     defaultValue = "Do not read whole file";
   }
@@ -226,7 +214,7 @@ std::string Settings::DefaultParam(setting_param param) {
     defaultValue = "False";
   }
 
-  else if (param == useBED) {
+  else if (param == JSONOutput) {
     defaultValue = "False";
   }
 
@@ -389,29 +377,9 @@ int Settings::InterpretArgument(setting_param arg, int argc, const char **argv,
       v_randomWindows = std::stoi(arguments[0]);
     }
 
-    else if (arg == JSONInput) {
-      v_JSONInput = true;
-    }
-
     else if (arg == showVersion) {
       printf("%s\n", StringVersion().c_str());
       exit(0);
-    }
-
-    else if (arg == JPasses) {
-      v_JSONInput = true;
-      char *passStr = (char *)malloc(sizeof(char) * arguments[0].size() + 1);
-      strcpy(passStr, arguments[0].c_str());
-      char delims[] = ",";
-      char *passID = strtok(passStr, delims);
-      while (passID != NULL) {
-        v_JSONPasses.push_back(atoi(passID));
-        passID = strtok(NULL, delims);
-      }
-    }
-
-    else if (arg == JSONPassID) {
-      v_passID = std::stoi(arguments[0]);
     }
 
     else if (arg == readWholeFile) {
@@ -454,8 +422,8 @@ int Settings::InterpretArgument(setting_param arg, int argc, const char **argv,
       v_showScores = true;
     }
 
-    else if (arg == useBED) {
-      v_outputFormat = BED;
+    else if (arg == JSONOutput) {
+      v_outputFormat = JSON;
     }
 
     else {
@@ -588,40 +556,6 @@ std::string Settings::JSONStringForArgument(setting_param arg) {
     return "";
   }
 
-  else if (arg == JSONInput) {
-    if (!v_JSONInput)
-      json += "false";
-    else
-      json += "true";
-
-  }
-
-  else if (arg == JPasses) {
-    if (!v_JSONInput) {
-      json += "none";
-    }
-
-    else if (v_JSONPasses.size() > 0) {
-      json += std::to_string(v_JSONPasses[0]);
-      for (int i = 1; i < v_JSONPasses.size(); ++i) {
-        json += ",";
-        json += std::to_string(v_JSONPasses[i]);
-      }
-    }
-
-    else {
-      json += "all";
-    }
-  }
-
-  else if (arg == JSONPassID) {
-    json += std::to_string(v_passID);
-  }
-
-  else if (arg == JSONPassID) {
-    json += v_passID;
-  }
-
   else if (arg == readWholeFile) {
     json += std::to_string(v_readWholeFile);
   }
@@ -653,7 +587,7 @@ std::string Settings::JSONStringForArgument(setting_param arg) {
     return "";
   }
 
-  else if (arg == useBED) {
+  else if (arg == JSONOutput) {
     return "";
   }
 
@@ -696,7 +630,7 @@ Settings::Settings(int argc, const char *argv[]) {
   o_argv = argv;
 
   settings.push_back(&outFilePath);
-  settings.push_back(&useBED);
+  settings.push_back(&JSONOutput);
   settings.push_back(&scoreThreshold);
   settings.push_back(&lengthThreshold);
   settings.push_back(&repeatUnits);
@@ -737,9 +671,6 @@ Settings::Settings(int argc, const char *argv[]) {
   settings.push_back(&showLogoNumbers);
 
   // settings.push_back(&randomSeq);
-  settings.push_back(&JSONInput);
-  settings.push_back(&JPasses);
-  settings.push_back(&JSONPassID);
   settings.push_back(&readWholeFile);
   settings.push_back(&windowSize);
   settings.push_back(&overlapSize);

@@ -223,14 +223,6 @@ public:
       "Show logo numbers",
       "Output the corresponding logo annotation for a given repeat", "sl", 0};
 
-  setting_param JSONInput = {"Read JSON file",
-                             "Process all passes in JSON file", "json", 0};
-
-  setting_param JPasses = {"Process passes in JSON file",
-                           "Process selected passes in JSON file", "jpass", 1};
-
-  setting_param JSONPassID = {"Pass ID", "Assigns a custom pass ID", "pid", 1};
-
   setting_param readWholeFile = {
       "Completely Read File",
       "Read the entire input file during initialization.", "R", 0};
@@ -264,7 +256,7 @@ public:
   setting_param showVersion = {"Ultra Version", "Shows Ultra's version", "v",
                                0};
 
-  setting_param useBED = {"BED output", "Output BED", "bed", 0};
+  setting_param JSONOutput = {"JSON output", "Output JSON", "json", 0};
 
   std::vector<setting_param *> settings;
 
