@@ -71,7 +71,7 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
     }
 
     else {
-      fprintf(owner->out, "1 %i 0", repeat->repeatLength);
+      fprintf(owner->out, "1 %lu 0", repeat->repeatLength);
     }
   }
 

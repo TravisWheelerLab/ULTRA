@@ -291,6 +291,9 @@ std::vector<int> *SplitWindow::SplitsForRegion(RepeatRegion *r, int window_size,
   FillWindow(r, window_size);
 
   float score = score_func();
+
+  // printf("Splitting region %i %f\n", window_size, threshold);
+
   if (score > split_val) {
     split_val = score;
     split_pos = place + length;
@@ -301,20 +304,25 @@ std::vector<int> *SplitWindow::SplitsForRegion(RepeatRegion *r, int window_size,
     // printf("%i %i %i\n", i, place, length);
     MoveWindowForward(r);
     score = score_func();
+    // printf("%i %f: ", place + length, score, threshold);
     if (score > split_val) {
+      //   printf("split");
       split_val = score;
       split_pos = place + length;
     }
 
     else if (split_pos >= 0 && place - split_pos > 0) {
+      // printf(" final %i", split_pos);
       splits->push_back(split_pos);
       split_pos = -1;
       split_val = threshold;
     }
+    //  printf("\n");
   }
   // printf("finishing\n");
 
-  if (split_pos >= 0 && place - split_pos > 0) {
+  if (split_pos >= 0) {
+    // printf("split terminal\n");
     splits->push_back(split_pos);
     split_pos = -1;
     split_val = threshold;
@@ -389,6 +397,9 @@ float ConsensusSimilarity(std::string *c1, std::string *c2, int offset) {
     int offi = (i + offset) % c2->size();
     if (c1->at(i) == c2->at(offi))
       similarity += 1.0;
+
+    else if (c1->at(i) == '*' || c1->at(offi) == '*')
+      similarity += 0.25;
   }
 
   return similarity / c1->size();

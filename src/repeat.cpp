@@ -223,44 +223,56 @@ RepeatRegion::RepeatRegion() {
 }
 
 RepeatRegion::~RepeatRegion() {
-  if (logo != NULL) {
+  if (logo != nullptr) {
     free(logo);
-    logo = NULL;
+    logo = nullptr;
   }
 
-  if (consensus != NULL) {
+  if (consensus != nullptr) {
     free(consensus);
-    consensus = NULL;
+    consensus = nullptr;
   }
 
-  if (logoMemory != NULL) {
+  if (logoMemory != nullptr) {
     free(logoMemory);
-    logoMemory = NULL;
+    logoMemory = nullptr;
   }
 
-  if (lookBack != NULL) {
+  if (lookBack != nullptr) {
     free(lookBack);
-    lookBack = NULL;
+    lookBack = nullptr;
   }
 
-  if (lookForward != NULL) {
+  if (lookForward != nullptr) {
     free(lookForward);
-    lookForward = NULL;
+    lookForward = nullptr;
   }
 
-  if (forwardCounts != NULL) {
+  if (forwardCounts != nullptr) {
     free(forwardCounts);
-    forwardCounts = NULL;
+    forwardCounts = nullptr;
   }
 
-  if (backCounts != NULL) {
+  if (backCounts != nullptr) {
     free(backCounts);
-    backCounts = NULL;
+    backCounts = nullptr;
   }
 
-  if (scores != NULL) {
+  if (scores != nullptr) {
     free(scores);
-    scores = NULL;
+    scores = nullptr;
+  }
+
+  if (splits != nullptr) {
+    splits->erase(splits->begin(), splits->end());
+    delete splits;
+    splits = nullptr;
+  }
+
+  if (consensi != nullptr) {
+    consensi->erase(consensi->begin(), consensi->end());
+    delete consensi;
+    consensi = nullptr;
   }
 }
 

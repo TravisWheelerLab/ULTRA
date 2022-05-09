@@ -87,9 +87,9 @@ public:
   bool v_debugOverlapCorrection = false;
 
   int v_maxSplitPeriod = 15;
-  int v_minSplitWindow = 20;
+  int v_minSplitWindow = 10;
   int v_splitDepth = 5;
-  float v_splitThreshold = 3.6;
+  float v_splitThreshold = 3.4;
 
   // TODO
   //  Plug in the settings for -json
