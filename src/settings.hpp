@@ -89,7 +89,7 @@ public:
   int v_maxSplitPeriod = 15;
   int v_minSplitWindow = 10;
   int v_splitDepth = 5;
-  float v_splitThreshold = 3.4;
+  float v_splitThreshold = 3.5;
 
   // TODO
   //  Plug in the settings for -json
