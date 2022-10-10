@@ -858,8 +858,40 @@ bool repeats_overlap(RepeatRegion *r1, RepeatRegion *r2,
       if (r1->repeatPeriod == r2->repeatPeriod) {
         return (r1->sequenceStart + r1->repeatLength >= r2->sequenceStart);
       }
-      return (r1->sequenceStart + r1->repeatLength >= r2->sequenceStart);
     }
+    return (r1->sequenceStart + r1->repeatLength >= r2->sequenceStart);
   }
   return false;
+}
+
+RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
+  if (!repeats_overlap(r1, r2, false))
+    return nullptr;
+
+  RepeatRegion *joint_rep = new RepeatRegion();
+  joint_rep->sequenceStart = r1->sequenceStart;
+  joint_rep->repeatLength = (r2->sequenceStart + r2->repeatLength) - r1->sequenceStart;
+
+
+  joint_rep->sequenceName = r1->sequenceName;
+  joint_rep->sequenceID = r1->sequenceID;
+  joint_rep->readID = r2->readID;
+  joint_rep->winOverlapSize = r1->winOverlapSize;
+  joint_rep->winTotalLength = r1->winTotalLength;
+
+  joint_rep->combinedRepeat = true;
+
+  joint_rep->repeatPeriod = r1->repeatPeriod;
+
+  joint_rep->overlapCorrection = OC_TRUE;
+
+  // We have to join ->sequence
+  // We have to join score/pval
+  // If possible we should join subrepeats
+
+  return joint_rep;
+}
+
+RepeatRegion * dead_func(RepeatRegion *r1) {
+  return joint_repeat_region(r1, r1);
 }

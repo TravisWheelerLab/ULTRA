@@ -15,12 +15,7 @@
 #include "umatrix.hpp"
 
 #define OC_NONE 0
-#define OC_OVERLAP_LEFT 1
-#define OC_OVERLAP_RIGHT 2
-#define OC_OVERLAP_SPLIT 3
-#define OC_PERIOD_LEFT 4
-#define OC_PERIOD_RIGHT 5
-#define OC_PERIOD_SPLIT 6
+#define OC_TRUE 1
 
 class RepeatRegion {
 public:
@@ -102,5 +97,9 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *i);
 
 bool repeats_overlap(RepeatRegion *r1, RepeatRegion *r2,
                      bool require_same_period = true);
+
+// This does not dealloc r1/r2.
+// this also assuems that r2
+RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2);
 
 #endif /* repeat_hpp */
