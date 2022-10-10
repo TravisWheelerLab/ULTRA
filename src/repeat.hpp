@@ -100,4 +100,7 @@ public:
 
 RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *i);
 
+bool repeats_overlap(RepeatRegion *r1, RepeatRegion *r2,
+                     bool require_same_period = true);
+
 #endif /* repeat_hpp */
