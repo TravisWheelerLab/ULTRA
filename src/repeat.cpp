@@ -850,3 +850,16 @@ void RepeatRegion::GetLogoNumbers() {
      matrix->traceback[p], logoNumbers[i]);*/
   }
 }
+
+bool repeats_overlap(RepeatRegion *r1, RepeatRegion *r2,
+                     bool require_same_period) {
+  if (r1->sequenceID == r2->sequenceID) {
+    if (require_same_period) {
+      if (r1->repeatPeriod == r2->repeatPeriod) {
+        return (r1->sequenceStart + r1->repeatLength >= r2->sequenceStart);
+      }
+      return (r1->sequenceStart + r1->repeatLength >= r2->sequenceStart);
+    }
+  }
+  return false;
+}
