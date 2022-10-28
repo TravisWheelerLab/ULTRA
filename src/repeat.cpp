@@ -4,7 +4,6 @@
 //
 
 #include "repeat.hpp"
-#include <vector>
 
 void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
   logoMemory = (int *)malloc(sizeof(int) * repeatPeriod * (NUM_SYMBOLS + 1));
