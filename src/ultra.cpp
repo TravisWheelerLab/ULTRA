@@ -190,21 +190,13 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
       // This almost feels right.
       // Probably want to change it later though.
       float join_threshold = 1.0 - (1.0 / settings->v_splitThreshold);
-      // ugh this line is ugly
-      //  printf("Splitting repeat at %i (%i %i)...\n", r->sequenceStart,
-      //  r->readID, r->repeatLength);
+
 
       r->splits = uth->splitter->SplitsForRegion(r, splitWindow,
                                                  settings->v_splitThreshold);
       r->consensi = uth->splitter->ConsensiForSplit(r, r->splits, 0.65);
       ValidateSplits(r->consensi, r->splits, 0.85);
-      //  printf("Validation successful\n");
 
-      //   printf("Splits: ");
-      for (int i = 0; i < r->splits->size(); ++i) {
-        //      printf("%i ", r->splits->at(i));
-      }
-      //    printf("\n");
     }
 
     uth->repeats.push_back(r);

@@ -5,7 +5,7 @@
 
 #include "repeat.hpp"
 #include <vector>
-
+#include "RepeatSplitter.h"
 void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
   logoMemory = (int *)malloc(sizeof(int) * repeatPeriod * (NUM_SYMBOLS + 1));
   logo = (int **)malloc(sizeof(int *) * repeatPeriod);
@@ -900,10 +900,50 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
 
   joint_rep->regionScore = (r1->regionScore * pct_seq1) + (r2->regionScore * pct_seq2);
 
-  // If possible we should join subrepeats
+  // Join splits
+  // Right now we do this lazily by combining split vectors
+  // A better way of doing this is to join the logo nums
+  // and then pass it through
+
+  // Rewrite this section
+  if (r1->splits != nullptr && r2->splits == nullptr) {
+    joint_rep->splits = new std::vector(*r1->splits);
+    joint_rep->consensi = new std::vector(*r1->consensi);
+  }
+
+  else if (r1->splits == nullptr && r2->splits != nullptr) {
+    joint_rep->splits = new std::vector(*r2->splits);
+    joint_rep->consensi = new std::vector(*r2->consensi);
+  }
+
+  // This is the only tough case
+  else if (r1->splits != nullptr && r2->splits != nullptr) {
+    joint_rep->splits = new std::vector<int>();
+    joint_rep->consensi = new std::vector<std::string>();
+
+    for (int i = 0; i < r1->splits->size(); ++i) {
+      if (r1->splits->at(i) < s1_seq_len)
+        joint_rep->splits->push_back(r1->splits->at(i));
+        joint_rep->consensi->push_back(r1->consensi->at(i));
+    }
+
+    for (int i = 0; i < r2->splits->size(); ++i) {
+      if (i == 0) {
+        if (ShouldJoinConsensus(&r2->consensi->at(i),
+                                &joint_rep->consensi->back(),
+                                0.98)) {
+          continue;
+        }
+      }
+
+    }
+  }
 
   return joint_rep;
 }
+
+
+
 
 RepeatRegion * dead_func(RepeatRegion *r1) {
   return joint_repeat_region(r1, r1);
