@@ -866,6 +866,7 @@ bool repeats_overlap(RepeatRegion *r1, RepeatRegion *r2,
 
 
 // This does not check if r1 is dominated by r2
+// This does not calculate pval for region
 RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
   if (!repeats_overlap(r1, r2, false))
     return nullptr;
@@ -892,7 +893,12 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
   if (!r1->sequence.empty() && !r2->sequence.empty()) {
     joint_rep->sequence = r1->sequence.substr(0, s1_seq_len) + r2->sequence;
   }
-  // We have to join score/pval
+  // We have to join score
+  // Perform weighted average of scores
+  float pct_seq1 = (float)s1_seq_len / (float)joint_rep->repeatLength;
+  float pct_seq2 = 1.0 - pct_seq1;
+
+  joint_rep->regionScore = (r1->regionScore * pct_seq1) + (r2->regionScore * pct_seq2);
 
   // If possible we should join subrepeats
 
