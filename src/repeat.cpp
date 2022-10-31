@@ -864,6 +864,8 @@ bool repeats_overlap(RepeatRegion *r1, RepeatRegion *r2,
   return false;
 }
 
+
+// This does not check if r1 is dominated by r2
 RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
   if (!repeats_overlap(r1, r2, false))
     return nullptr;
@@ -872,6 +874,7 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
   joint_rep->sequenceStart = r1->sequenceStart;
   joint_rep->repeatLength = (r2->sequenceStart + r2->repeatLength) - r1->sequenceStart;
 
+  int s1_seq_len = r2->sequenceStart - r1->sequenceStart;
 
   joint_rep->sequenceName = r1->sequenceName;
   joint_rep->sequenceID = r1->sequenceID;
@@ -886,7 +889,11 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
   joint_rep->overlapCorrection = OC_TRUE;
 
   // We have to join ->sequence
+  if (!r1->sequence.empty() && !r2->sequence.empty()) {
+    joint_rep->sequence = r1->sequence.substr(0, s1_seq_len) + r2->sequence;
+  }
   // We have to join score/pval
+
   // If possible we should join subrepeats
 
   return joint_rep;
