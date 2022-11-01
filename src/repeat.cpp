@@ -876,6 +876,7 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
   joint_rep->repeatLength = (r2->sequenceStart + r2->repeatLength) - r1->sequenceStart;
 
   int s1_seq_len = r2->sequenceStart - r1->sequenceStart;
+  int overlap = (r1->sequenceStart + r1->repeatLength) - r2->sequenceStart;
 
   joint_rep->sequenceName = r1->sequenceName;
   joint_rep->sequenceID = r1->sequenceID;
@@ -905,38 +906,38 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
   // A better way of doing this is to join the logo nums
   // and then pass it through
 
-  // Rewrite this section
-  if (r1->splits != nullptr && r2->splits == nullptr) {
-    joint_rep->splits = new std::vector(*r1->splits);
-    joint_rep->consensi = new std::vector(*r1->consensi);
+  // don't bother joining repeat splits if diff repeat periods
+  if (r1->repeatPeriod != r2->repeatPeriod)
+    return joint_rep;
+  // don't bother joining repeat splits if one of them doesn't have splits
+  if (r1->splits == nullptr || r2->splits == nullptr)
+    return joint_rep;
+
+  joint_rep->splits = new std::vector<int>(*r1->splits);
+  joint_rep->consensi = new std::vector<std::string>(*r1->consensi);
+
+  int split_pos = r2->repeatLength;
+
+  int split_start = -1;
+
+  // find first split
+  for (int i = 0; i < r2->splits->size(); ++i) {
+    // Check if the split (should be) contained in r1
+    if (r2->splits->at(i) < overlap)
+      continue;
+
+    else {
+      split_start = i;
+      break;
+    }
   }
 
-  else if (r1->splits == nullptr && r2->splits != nullptr) {
-    joint_rep->splits = new std::vector(*r2->splits);
-    joint_rep->consensi = new std::vector(*r2->consensi);
-  }
+  if (split_start == -1)
+    return joint_rep;
 
-  // This is the only tough case
-  else if (r1->splits != nullptr && r2->splits != nullptr) {
-    joint_rep->splits = new std::vector<int>();
-    joint_rep->consensi = new std::vector<std::string>();
-
-    for (int i = 0; i < r1->splits->size(); ++i) {
-      if (r1->splits->at(i) < s1_seq_len)
-        joint_rep->splits->push_back(r1->splits->at(i));
-        joint_rep->consensi->push_back(r1->consensi->at(i));
-    }
-
-    for (int i = 0; i < r2->splits->size(); ++i) {
-      if (i == 0) {
-        if (ShouldJoinConsensus(&r2->consensi->at(i),
-                                &joint_rep->consensi->back(),
-                                0.98)) {
-          continue;
-        }
-      }
-
-    }
+  for (int i = split_start; i < r2->splits->size(); ++i) {
+    joint_rep->splits->push_back(r2->splits->at(i));
+    joint_rep->consensi->push_back(r2->consensi->at(i+1));
   }
 
   return joint_rep;
