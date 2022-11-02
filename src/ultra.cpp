@@ -233,13 +233,12 @@ void Ultra::OutputRepeats(bool flush) {
                           threads[i]->repeats.end());
       }
     }
-
     maxReadID = 100000000;
   }
 
   SortRepeatRegions();
 
-  while (outRepeats.size() > 0) {
+  while (!outRepeats.empty()) {
 
     RepeatRegion *r = outRepeats.back();
 
@@ -252,6 +251,25 @@ void Ultra::OutputRepeats(bool flush) {
     }
 
     outRepeats.pop_back();
+
+    // Check if we need to correct overlap
+    // Correct overlap while possible
+    if (settings->v_correctOverlap) {
+      while (!outRepeats.empty()) {
+        if (outRepeats.back()->readID >= maxReadID) {
+          outRepeats.push_back(r);
+          return;
+        }
+
+        if (repeats_overlap(r, outRepeats.back())) {
+          r = joint_repeat_region(r, outRepeats.back());
+          outRepeats.pop_back();
+        }
+
+        else
+          break;
+      }
+    }
 
     OutputRepeat(r);
 
