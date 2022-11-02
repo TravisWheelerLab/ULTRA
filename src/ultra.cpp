@@ -224,7 +224,7 @@ void Ultra::CorrectOverlap(int maxReadID) {}
 
 void Ultra::OutputRepeats(bool flush) {
 
-  int maxReadID = SmallestReadID() - 20;
+  int maxReadID = SmallestReadID() - (2 * numberOfThreads);
 
   if (flush) {
     for (int i = 0; i < numberOfThreads; ++i) {
