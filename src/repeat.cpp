@@ -170,6 +170,8 @@ void RepeatRegion::CreateConsensusFromLogo() {
     //  printf("\n");
     consensus[i] = s;
   }
+
+  this->string_consensus = GetConsensus();
 }
 
 void RepeatRegion::StoreSequence(SequenceWindow *window) {
@@ -282,7 +284,8 @@ std::string RepeatRegion::GetConsensus() {
   for (int i = 0; i < repeatPeriod; ++i) {
     con.push_back(CharForSymbol(consensus[i]));
   }
-  con[repeatPeriod] = '\0';
+
+  //con[repeatPeriod] = '\0';
 
   return con;
 }
@@ -989,14 +992,33 @@ void RepeatRegion::SortConsensus(int index) {
 }
 
 void RepeatRegion::SortConsensi() {
+
+  if (string_consensus.length() > 1) {
+    int best_perm = 0;
+    for (int i = 1; i < string_consensus.length(); ++i) {
+      int c = CompareStrPerm(string_consensus, best_perm, i);
+      // If two permutations are identical, we can terminate
+      if (c == 0)
+        break;
+
+      if (c == 1)
+        best_perm = i;
+    }
+
+    string_consensus = PermutationForString(string_consensus, best_perm);
+  }
+
   if (this->consensi == nullptr)
     return;
   if (this->consensi->empty())
     return;
 
+
+
   for (int i = 0; i < consensi->size(); ++i) {
     SortConsensus(i);
   }
+
 }
 
 

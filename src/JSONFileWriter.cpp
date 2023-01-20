@@ -36,14 +36,16 @@ std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index,
   float frac_rep = (float)r->repeatLength / (float)(end - start_pos);
   float subScore = r->regionScore / frac_rep;
 
-  repeatString += "Start: ";
+  repeatString += "\"Start\": ";
   repeatString += std::to_string(start);
-  repeatString += ",\nEnd: ";
+  repeatString += ",\n\"End\": ";
   repeatString += std::to_string(end + start);
-  repeatString += ",\nScore: ";
+  repeatString += ",\n\"Score\": ";
   repeatString += std::to_string(subScore);
-  repeatString += ",\nConsensus: \"";
-  repeatString += r->consensi->at(consensusPosition);
+  repeatString += ",\n\"Consensus\": \"";
+  // Converting to a c string is important.
+  // ...Dunno why, but here we are
+  repeatString += r->consensi->at(consensusPosition).c_str();
 
   repeatString += "\"}";
 
@@ -94,7 +96,7 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
   this->OutputJSONKeyValue("Substitutions", std::to_string(repeat->mismatches));
   this->OutputJSONKeyValue("Insertions", std::to_string(repeat->insertions));
   this->OutputJSONKeyValue("Deletions", std::to_string(repeat->deletions));
-  this->OutputJSONKeyValue("Consensus", repeat->GetConsensus(), true);
+  this->OutputJSONKeyValue("Consensus", repeat->string_consensus, true);
 
   if (owner->outputReadID) {
     this->OutputJSONKeyValue("ReadID", std::to_string(repeat->readID));
