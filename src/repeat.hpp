@@ -89,6 +89,11 @@ public:
 
   RepeatRegion *SubRepeat(int start, int length);
 
+  std::string PermutationForString(const std::string &str, int offset);
+  int CompareStrPerm(const std::string &str, int perm1, int perm2);
+  void SortConsensus(int index);
+  void SortConsensi();
+
   RepeatRegion();
   ~RepeatRegion();
 };

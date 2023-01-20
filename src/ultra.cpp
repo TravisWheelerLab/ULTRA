@@ -271,6 +271,7 @@ void Ultra::OutputRepeats(bool flush) {
       }
     }
 
+    r->SortConsensi();
     OutputRepeat(r);
 
     delete r;
