@@ -946,7 +946,7 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
 std::string RepeatRegion::PermutationForString(const std::string &str, int offset) {
   std::string new_string;
   new_string.reserve(str.size());
-  for (int i = 0; i < str.size(); ++i) {
+  for (int i = 0; i < str.length(); ++i) {
     int p = (offset + i) % str.size();
     new_string[i] = str[p];
   }
@@ -957,7 +957,7 @@ std::string RepeatRegion::PermutationForString(const std::string &str, int offse
 
 // Outputs 0 if equal, 1 if perm2<perm1, -1 if perm1<perm2
 int RepeatRegion::CompareStrPerm(const std::string &str, int perm1, int perm2) {
-  int size = str.size();
+  int size = str.length();
   for (int i = 0; i < size; ++i) {
     int p1 = (i + perm1) % size;
     int p2 = (i + perm2) % size;
@@ -973,8 +973,8 @@ int RepeatRegion::CompareStrPerm(const std::string &str, int perm1, int perm2) {
 
 void RepeatRegion::SortConsensus(int index) {
   int best_perm = 0;
-  for (int i = 1; i < consensi->at(i).size(); ++i) {
-    int c = CompareStrPerm(consensi->at(i), best_perm, i);
+  for (int i = 1; i < consensi->at(index).length(); ++i) {
+    int c = CompareStrPerm(consensi->at(index), best_perm, i);
     // If two permutations are identical, we can terminate
     if (c == 0)
       break;
