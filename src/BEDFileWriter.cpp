@@ -33,7 +33,7 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
           repeat->sequenceStart + repeat->repeatLength);
   // We need to decide what to do with the overall sequence
 
-  fprintf(owner->out, " %s %f", repeat->GetConsensus().c_str(),
+  fprintf(owner->out, " %s %f", repeat->string_consensus.c_str(),
           repeat->regionScore);
 
   fprintf(owner->out, " . %lu %lu 0,0,0 ", repeat->sequenceStart,

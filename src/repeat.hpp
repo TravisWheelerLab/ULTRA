@@ -72,6 +72,7 @@ public:
 
   void CreateConsensusFromLogo();
   std::string GetConsensus();
+  std::string string_consensus = "";
 
   void StoreSequence(SequenceWindow *window);
   void StoreTraceback(UMatrix *matrix);
