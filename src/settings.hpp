@@ -91,9 +91,6 @@ public:
   int v_splitDepth = 5;
   float v_splitThreshold = 3.5;
 
-  // TODO
-  //  Plug in the settings for -json
-  //  with BED as default
 
   output_type v_outputFormat = BED;
 
