@@ -861,6 +861,9 @@ bool repeats_overlap(RepeatRegion *r1, RepeatRegion *r2,
       if (r1->repeatPeriod == r2->repeatPeriod) {
         return (r1->sequenceStart + r1->repeatLength >= r2->sequenceStart);
       }
+      else {
+        return false;
+      }
     }
     return (r1->sequenceStart + r1->repeatLength >= r2->sequenceStart);
   }
@@ -871,6 +874,7 @@ bool repeats_overlap(RepeatRegion *r1, RepeatRegion *r2,
 // This does not check if r1 is dominated by r2
 // This does not calculate pval for region
 RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
+
   if (!repeats_overlap(r1, r2, false))
     return nullptr;
 
@@ -915,6 +919,7 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
   // don't bother joining repeat splits if one of them doesn't have splits
   if (r1->splits == nullptr || r2->splits == nullptr)
     return joint_rep;
+
 
   joint_rep->splits = new std::vector<int>(*r1->splits);
   joint_rep->consensi = new std::vector<std::string>(*r1->consensi);

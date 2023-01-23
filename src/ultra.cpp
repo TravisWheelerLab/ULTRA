@@ -184,20 +184,25 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     }
     int splitWindow = std::max(r->repeatPeriod * settings->v_splitDepth,
                                settings->v_minSplitWindow);
-    if (r->repeatPeriod <= settings->v_maxSplitPeriod &&
-        r->repeatLength > 2 * splitWindow) {
+    if (r->repeatPeriod <= settings->v_maxSplitPeriod) {
+      if (r->repeatLength > 2 * splitWindow) {
 
-      // This almost feels right.
-      // Probably want to change it later though.
-      float join_threshold = 1.0 - (1.0 / settings->v_splitThreshold);
+        // This almost feels right.
+        // Probably want to change it later though.
+        float join_threshold = 1.0 - (1.0 / settings->v_splitThreshold);
 
-
-      r->splits = uth->splitter->SplitsForRegion(r, splitWindow,
-                                                 settings->v_splitThreshold);
-      r->consensi = uth->splitter->ConsensiForSplit(r, r->splits, 0.65);
-      ValidateSplits(r->consensi, r->splits, 0.85);
-
+        r->splits = uth->splitter->SplitsForRegion(r, splitWindow,
+                                                   settings->v_splitThreshold);
+        r->consensi = uth->splitter->ConsensiForSplit(r, r->splits, 0.65);
+        ValidateSplits(r->consensi, r->splits, 0.85);
+      }
+      else {
+        r->splits = new std::vector<int>;
+        r->consensi = new std::vector<std::string>;
+        r->consensi->push_back(r->string_consensus);
+      }
     }
+
 
     uth->repeats.push_back(r);
 
@@ -263,6 +268,8 @@ void Ultra::OutputRepeats(bool flush) {
 
         if (repeats_overlap(r, outRepeats.back())) {
           r = joint_repeat_region(r, outRepeats.back());
+          if (r->splits != nullptr)
+            ValidateSplits(r->consensi, r->splits, 0.85);
           outRepeats.pop_back();
         }
 

@@ -83,7 +83,7 @@ public:
   bool v_showWindowID = false;
 
   bool v_outputRepeatSequence = true;
-  bool v_correctOverlap = false;
+  bool v_correctOverlap = true;
   bool v_debugOverlapCorrection = false;
 
   int v_maxSplitPeriod = 15;
