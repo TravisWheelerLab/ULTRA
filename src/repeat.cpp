@@ -4,8 +4,8 @@
 //
 
 #include "repeat.hpp"
-#include <vector>
 #include "RepeatSplitter.h"
+#include <vector>
 void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
   logoMemory = (int *)malloc(sizeof(int) * repeatPeriod * (NUM_SYMBOLS + 1));
   logo = (int **)malloc(sizeof(int *) * repeatPeriod);
@@ -285,7 +285,7 @@ std::string RepeatRegion::GetConsensus() {
     con.push_back(CharForSymbol(consensus[i]));
   }
 
-  //con[repeatPeriod] = '\0';
+  // con[repeatPeriod] = '\0';
 
   return con;
 }
@@ -860,8 +860,7 @@ bool repeats_overlap(RepeatRegion *r1, RepeatRegion *r2,
     if (require_same_period) {
       if (r1->repeatPeriod == r2->repeatPeriod) {
         return (r1->sequenceStart + r1->repeatLength >= r2->sequenceStart);
-      }
-      else {
+      } else {
         return false;
       }
     }
@@ -869,7 +868,6 @@ bool repeats_overlap(RepeatRegion *r1, RepeatRegion *r2,
   }
   return false;
 }
-
 
 // This does not check if r1 is dominated by r2
 // This does not calculate pval for region
@@ -880,7 +878,8 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
 
   RepeatRegion *joint_rep = new RepeatRegion();
   joint_rep->sequenceStart = r1->sequenceStart;
-  joint_rep->repeatLength = (r2->sequenceStart + r2->repeatLength) - r1->sequenceStart;
+  joint_rep->repeatLength =
+      (r2->sequenceStart + r2->repeatLength) - r1->sequenceStart;
 
   int s1_seq_len = r2->sequenceStart - r1->sequenceStart;
   int overlap = (r1->sequenceStart + r1->repeatLength) - r2->sequenceStart;
@@ -906,7 +905,8 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
   float pct_seq1 = (float)s1_seq_len / (float)joint_rep->repeatLength;
   float pct_seq2 = 1.0 - pct_seq1;
 
-  joint_rep->regionScore = (r1->regionScore * pct_seq1) + (r2->regionScore * pct_seq2);
+  joint_rep->regionScore =
+      (r1->regionScore * pct_seq1) + (r2->regionScore * pct_seq2);
 
   // Join splits
   // Right now we do this lazily by combining split vectors
@@ -919,7 +919,6 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
   // don't bother joining repeat splits if one of them doesn't have splits
   if (r1->splits == nullptr || r2->splits == nullptr)
     return joint_rep;
-
 
   joint_rep->splits = new std::vector<int>(*r1->splits);
   joint_rep->consensi = new std::vector<std::string>(*r1->consensi);
@@ -945,13 +944,14 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
 
   for (int i = split_start; i < r2->splits->size(); ++i) {
     joint_rep->splits->push_back(r2->splits->at(i));
-    joint_rep->consensi->push_back(r2->consensi->at(i+1));
+    joint_rep->consensi->push_back(r2->consensi->at(i + 1));
   }
 
   return joint_rep;
 }
 
-std::string RepeatRegion::PermutationForString(const std::string &str, int offset) {
+std::string RepeatRegion::PermutationForString(const std::string &str,
+                                               int offset) {
   std::string new_string;
   new_string.reserve(str.size());
   for (int i = 0; i < str.length(); ++i) {
@@ -961,7 +961,6 @@ std::string RepeatRegion::PermutationForString(const std::string &str, int offse
 
   return new_string;
 }
-
 
 // Outputs 0 if equal, 1 if perm2<perm1, -1 if perm1<perm2
 int RepeatRegion::CompareStrPerm(const std::string &str, int perm1, int perm2) {
@@ -992,8 +991,9 @@ void RepeatRegion::SortConsensus(int index) {
   }
 
   if (best_perm == 0)
-    return ;
-  this->consensi->at(index) = PermutationForString(this->consensi->at(index), best_perm);
+    return;
+  this->consensi->at(index) =
+      PermutationForString(this->consensi->at(index), best_perm);
 }
 
 void RepeatRegion::SortConsensi() {
@@ -1018,15 +1018,11 @@ void RepeatRegion::SortConsensi() {
   if (this->consensi->empty())
     return;
 
-
-
   for (int i = 0; i < consensi->size(); ++i) {
     SortConsensus(i);
   }
-
 }
 
-
-RepeatRegion * dead_func(RepeatRegion *r1) {
+RepeatRegion *dead_func(RepeatRegion *r1) {
   return joint_repeat_region(r1, r1);
 }
