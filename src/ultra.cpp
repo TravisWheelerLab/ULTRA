@@ -195,14 +195,12 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
                                                    settings->v_splitThreshold);
         r->consensi = uth->splitter->ConsensiForSplit(r, r->splits, 0.65);
         ValidateSplits(r->consensi, r->splits, 0.85);
-      }
-      else {
+      } else {
         r->splits = new std::vector<int>;
         r->consensi = new std::vector<std::string>;
         r->consensi->push_back(r->string_consensus);
       }
     }
-
 
     uth->repeats.push_back(r);
 
@@ -417,4 +415,3 @@ bool CompareRepeatOrder::operator()(RepeatRegion *lhs, RepeatRegion *rhs) {
 
   return lhs->windowStart > rhs->windowStart;
 }
-

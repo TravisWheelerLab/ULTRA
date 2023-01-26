@@ -91,7 +91,6 @@ public:
   int v_splitDepth = 5;
   float v_splitThreshold = 3.5;
 
-
   output_type v_outputFormat = BED;
 
   //***************************
