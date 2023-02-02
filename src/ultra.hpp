@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <vector>
+#include <unordered_map>
 
 #include "BEDFileWriter.hpp"
 #include "FASTAReader.hpp"
@@ -23,6 +24,13 @@
 #include "umodel.hpp"
 
 class Ultra;
+
+typedef struct s_mask_region {
+  unsigned long long start;
+  unsigned long long end;
+
+
+} mregion;
 
 typedef struct s_uthread {
   int id;
@@ -66,14 +74,17 @@ public:
 
   bool storeTraceAndSequence = false;
 
+  std::unordered_map<std::string, std::vector<mregion> *>masks_for_seq{};
   std::vector<RepeatRegion *> outRepeats{};
-
   std::vector<UModel *> models{};
+
 
   int count = 0;
   int passID = 0;
   std::vector<uthread *> threads{};
   int correctedReadIDs = -1;
+
+  void StoreMaskForRegion(RepeatRegion *r);
 
   void AnalyzeFile();
   void AnalyzeFileWithThread(void *tid);
