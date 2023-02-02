@@ -22,15 +22,9 @@
 #include "settings.hpp"
 #include "umatrix.hpp"
 #include "umodel.hpp"
+#include "mask.h"
 
 class Ultra;
-
-typedef struct s_mask_region {
-  unsigned long long start;
-  unsigned long long end;
-
-
-} mregion;
 
 typedef struct s_uthread {
   int id;
@@ -92,8 +86,8 @@ public:
   void OutputRepeats(bool flush = false);
   void OutputRepeat(RepeatRegion *r, bool isSubRep = false);
 
-  void OutputULTRASettings();
 
+  void OutputULTRASettings();
   void InitializeWriter();
 
   void CorrectOverlap(int maxReadID);
@@ -101,10 +95,11 @@ public:
   double Log2PvalForScore(double score, double period) const;
 
   SequenceWindow *GetSequenceWindow(SequenceWindow *seq);
+
   int SmallestReadID();
 
   void SortRepeatRegions();
-
+  void OutputMaskedFASTA(std::string in_file_path, FILE* out_file);
   pthread_mutex_t outerLock;
   pthread_mutex_t innerLock;
   pthread_mutex_t repeatLock;
