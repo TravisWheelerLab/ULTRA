@@ -419,6 +419,10 @@ Ultra::Ultra(Settings *s, int n) {
     reader->multithread = true;
     multithreading = true;
   }
+
+  void Ultra::OutputMaskedFASTA(std::string in_file_path, FILE*out) {
+
+  }
 }
 
 bool CompareRepeatOrder::operator()(RepeatRegion *lhs, RepeatRegion *rhs) {
