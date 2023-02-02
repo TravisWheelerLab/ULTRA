@@ -6,7 +6,7 @@
 #include "FASTAReader.hpp"
 
 bool FASTAReader::ReadSpecialLine() {
-  if (line[0] == '>' || line[0] == ';') {
+  if (line[0] == '>') {
     sequenceName = line.substr(1, std::string::npos);
     sequenceID++;
     symbolsReadInSeq = 0;
