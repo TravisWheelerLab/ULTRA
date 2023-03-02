@@ -17,7 +17,6 @@
 #define OC_NONE 0
 #define OC_TRUE 1
 
-
 class RepeatRegion {
 public:
   std::string sequenceName;

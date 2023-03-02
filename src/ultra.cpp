@@ -303,8 +303,7 @@ void Ultra::OutputULTRASettings() {
 void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
   if (!settings->v_suppress_out)
     writer->WriteRepeat(r);
-  if (settings->v_maskWithCase ||
-      settings->v_maskWithN) {
+  if (settings->v_maskWithCase || settings->v_maskWithN) {
 
     this->StoreMaskForRegion(r);
   }
@@ -313,7 +312,8 @@ void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
 void Ultra::StoreMaskForRegion(RepeatRegion *r) {
   if (masks_for_seq.find(r->sequenceName) == masks_for_seq.end())
     masks_for_seq[r->sequenceName] = new std::vector<mregion>();
-  masks_for_seq[r->sequenceName]->push_back(mregion{r->sequenceStart, r->repeatLength + r->sequenceStart});
+  masks_for_seq[r->sequenceName]->push_back(
+      mregion{r->sequenceStart, r->repeatLength + r->sequenceStart});
 }
 
 void Ultra::SortRepeatRegions() {
@@ -418,8 +418,6 @@ Ultra::Ultra(Settings *s, int n) {
     reader->multithread = true;
     multithreading = true;
   }
-
-
 }
 
 bool CompareRepeatOrder::operator()(RepeatRegion *lhs, RepeatRegion *rhs) {

@@ -9,8 +9,8 @@
 #include <algorithm>
 #include <pthread.h>
 #include <stdio.h>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 #include "BEDFileWriter.hpp"
 #include "FASTAReader.hpp"
@@ -18,11 +18,11 @@
 #include "JSONFileWriter.hpp"
 #include "RepeatFileWriter.hpp"
 #include "RepeatSplitter.h"
+#include "mask.h"
 #include "repeat.hpp"
 #include "settings.hpp"
 #include "umatrix.hpp"
 #include "umodel.hpp"
-#include "mask.h"
 
 class Ultra;
 
@@ -68,10 +68,9 @@ public:
 
   bool storeTraceAndSequence = false;
 
-  std::unordered_map<std::string, std::vector<mregion> *>masks_for_seq{};
+  std::unordered_map<std::string, std::vector<mregion> *> masks_for_seq{};
   std::vector<RepeatRegion *> outRepeats{};
   std::vector<UModel *> models{};
-
 
   int count = 0;
   int passID = 0;
@@ -86,7 +85,6 @@ public:
   void OutputRepeats(bool flush = false);
   void OutputRepeat(RepeatRegion *r, bool isSubRep = false);
 
-
   void OutputULTRASettings();
   void InitializeWriter();
 
@@ -99,7 +97,7 @@ public:
   int SmallestReadID();
 
   void SortRepeatRegions();
-  void OutputMaskedFASTA(std::string in_file_path, FILE* out_file);
+  void OutputMaskedFASTA(std::string in_file_path, FILE *out_file);
   pthread_mutex_t outerLock;
   pthread_mutex_t innerLock;
   pthread_mutex_t repeatLock;
