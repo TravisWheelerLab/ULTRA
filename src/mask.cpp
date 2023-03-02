@@ -4,10 +4,9 @@
 
 #include "mask.h"
 
-void OutputMaskedFASTA(std::string in_path,
-                       FILE* out_file,
-                        std::unordered_map<std::string,
-                                                std::vector<mregion> *> masks) {
+void OutputMaskedFASTA(
+    std::string in_path, FILE *out_file,
+    std::unordered_map<std::string, std::vector<mregion> *> masks) {
 
   std::ifstream in_file(in_path);
   if (!in_file.is_open()) {
@@ -21,9 +20,9 @@ void OutputMaskedFASTA(std::string in_path,
 
   unsigned long long seq_pos = 0;
 
-  std::vector <mregion> *cmask = nullptr;
+  std::vector<mregion> *cmask = nullptr;
 
-  while(std::getline(in_file, line)) {
+  while (std::getline(in_file, line)) {
 
     if (line[0] == '>') {
       seq_name = line.substr(1, std::string::npos);
@@ -41,7 +40,6 @@ void OutputMaskedFASTA(std::string in_path,
         continue;
       }
     }
-
   }
 
   in_file.close();
