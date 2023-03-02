@@ -93,7 +93,6 @@ public:
 
   bool v_maskWithCase = false;
   bool v_maskWithN = false;
-  bool v_maskWithRemove = false;
   bool v_suppress_out = false;
 
   output_type v_outputFormat = BED;

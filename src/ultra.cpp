@@ -304,8 +304,7 @@ void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
   if (!settings->v_suppress_out)
     writer->WriteRepeat(r);
   if (settings->v_maskWithCase ||
-      settings->v_maskWithN ||
-      settings->v_maskWithRemove) {
+      settings->v_maskWithN) {
 
     this->StoreMaskForRegion(r);
   }
@@ -420,9 +419,7 @@ Ultra::Ultra(Settings *s, int n) {
     multithreading = true;
   }
 
-  void Ultra::OutputMaskedFASTA(std::string in_file_path, FILE*out) {
 
-  }
 }
 
 bool CompareRepeatOrder::operator()(RepeatRegion *lhs, RepeatRegion *rhs) {
