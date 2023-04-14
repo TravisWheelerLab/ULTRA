@@ -13,7 +13,6 @@ int main(int argc, const char *argv[]) {
     fclose(ultra->out);
   }
 
-
   FILE* f = fopen("./mask.fa", "w");
   if (settings.v_mask) {
     OutputMaskedFASTA(settings.v_filePath,

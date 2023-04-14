@@ -3,7 +3,7 @@
 
 void OutputMaskedFASTA(const std::string &in_path,
                        FILE* out_file,
-                       std::unordered_map<std::string, std::vector<mregion> *> masks,
+                       std::unordered_map<unsigned long long, std::vector<mregion> *> masks,
                        bool n_mask)
 {
   std::ifstream in_file(in_path);
@@ -14,33 +14,27 @@ void OutputMaskedFASTA(const std::string &in_path,
 
   std::string line;
   std::string seq_name = "";
+  long long seq_id = 0;
   unsigned long long seq_pos = 0;
   unsigned long long mask_i = 0;
   std::vector<mregion> *cmask = nullptr;
 
   while (std::getline(in_file, line)) {
-
     if (line[0] == '>') {
       seq_name = line.substr(1, std::string::npos);
       seq_pos = 0;
+      seq_id += 1;
+      mask_i = 0;
       fprintf(out_file, "%s\n", line.c_str());
 
-      if (masks.find(seq_name) != masks.end()) {
+      if (masks.find(seq_id) != masks.end()) {
         if (cmask != nullptr)
           delete cmask;
-        cmask = masks[seq_name];
-        for (int i = 0; i < cmask->size(); ++i) {
-          printf("%i: %i %i = %i\n", i, cmask->at(i).start, cmask->at(i).end, cmask->at(i).end - cmask->at(i).start);
-        }
-        printf("-------\n");
-        cmask = CleanedMasks(masks[seq_name]);
+        cmask = masks[seq_id];
+        cmask = CleanedMasks(masks[seq_id]);
         if (cmask->size() == 0) {
+          delete cmask;
           cmask = nullptr;
-        }
-        else {
-          for (int i = 0; i < cmask->size(); ++i) {
-            printf("%i: %i %i = %i\n", i, cmask->at(i).start, cmask->at(i).end, cmask->at(i).end - cmask->at(i).start);
-          }
         }
       }
     }
@@ -52,8 +46,8 @@ void OutputMaskedFASTA(const std::string &in_path,
         continue;
       }
 
-      // There are masks for this sequence, check to see if we need to mask
-      else {
+      // If there are masks for this sequence, check to see if we need to mask
+      if (cmask) {
         for (int i = 0; i < line.length(); ++i) {
           if (line[i] == 'a' || line[i] == 'A' ||
               line[i] == 'c' || line[i] == 'C' ||
