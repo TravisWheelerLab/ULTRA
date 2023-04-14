@@ -2,8 +2,10 @@
 #include "ultra.hpp"
 #include "mask.h"
 #include <string>
+#include "../lib/CLI11.hpp"
 
 int main(int argc, const char *argv[]) {
+
   auto settings = Settings(argc, argv);
   auto *ultra = new Ultra(&settings, 0);
   ultra->AnalyzeFile();

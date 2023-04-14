@@ -91,6 +91,7 @@ public:
   int v_splitDepth = 5;
   float v_splitThreshold = 3.5;
 
+  std::string v_mask_out = "";
   bool v_mask = true;
   bool v_maskWithN = false;
 
@@ -131,7 +132,7 @@ public:
       "mu", 1};
 
   setting_param lengthThreshold = {
-      "Region Length Trheshold",
+      "Region Length Threshold",
       "Minimum total repeat length necessary for a repeat to be recorded", "ml",
       1};
 
