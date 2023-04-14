@@ -23,14 +23,24 @@ void OutputMaskedFASTA(const std::string &in_path,
     if (line[0] == '>') {
       seq_name = line.substr(1, std::string::npos);
       seq_pos = 0;
-      fprintf(out_file, "%s", line.c_str());
+      fprintf(out_file, "%s\n", line.c_str());
 
       if (masks.find(seq_name) != masks.end()) {
         if (cmask != nullptr)
           delete cmask;
+        cmask = masks[seq_name];
+        for (int i = 0; i < cmask->size(); ++i) {
+          printf("%i: %i %i = %i\n", i, cmask->at(i).start, cmask->at(i).end, cmask->at(i).end - cmask->at(i).start);
+        }
+        printf("-------\n");
         cmask = CleanedMasks(masks[seq_name]);
         if (cmask->size() == 0) {
           cmask = nullptr;
+        }
+        else {
+          for (int i = 0; i < cmask->size(); ++i) {
+            printf("%i: %i %i = %i\n", i, cmask->at(i).start, cmask->at(i).end, cmask->at(i).end - cmask->at(i).start);
+          }
         }
       }
     }
@@ -38,7 +48,7 @@ void OutputMaskedFASTA(const std::string &in_path,
     else {
       // If there are no masks for this sequence, just skip over it
       if (cmask == nullptr) {
-        fprintf(out_file, "%s", line.c_str());
+        fprintf(out_file, "%s\n", line.c_str());
         continue;
       }
 
@@ -53,7 +63,7 @@ void OutputMaskedFASTA(const std::string &in_path,
             if (cmask) {
               if (cmask->at(mask_i).start <= seq_pos) {
                 // We need to mask
-                if (cmask->at(mask_i).end >= seq_pos) {
+                if (cmask->at(mask_i).end > seq_pos) {
                   // We should mask
                   if (n_mask) {
                     line[i] = 'n';
@@ -79,7 +89,7 @@ void OutputMaskedFASTA(const std::string &in_path,
             seq_pos += 1;
           }
         }
-        fprintf(out_file, "%s", line.c_str());
+        fprintf(out_file, "%s\n", line.c_str());
       }
     }
   }
@@ -88,10 +98,10 @@ void OutputMaskedFASTA(const std::string &in_path,
 
 bool mregion::operator()(mregion m1, mregion m2) {
   if (m1.start != m2.start)
-    return (m1.start > m2.start);
+    return (m1.start < m2.start);
 
   else
-    return m1.end > m2.end;
+    return m1.end < m2.end;
 }
 
 std::vector<mregion> *CleanedMasks(std::vector<mregion> *mask) {
