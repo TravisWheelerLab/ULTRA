@@ -91,8 +91,9 @@ public:
   int v_splitDepth = 5;
   float v_splitThreshold = 3.5;
 
-  bool v_maskWithCase = false;
+  bool v_mask = true;
   bool v_maskWithN = false;
+
   bool v_suppress_out = false;
 
   output_type v_outputFormat = BED;

@@ -303,8 +303,7 @@ void Ultra::OutputULTRASettings() {
 void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
   if (!settings->v_suppress_out)
     writer->WriteRepeat(r);
-  if (settings->v_maskWithCase || settings->v_maskWithN) {
-
+  if (settings->v_mask) {
     this->StoreMaskForRegion(r);
   }
 }
