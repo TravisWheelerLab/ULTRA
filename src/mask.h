@@ -18,7 +18,7 @@ typedef struct s_mask_region {
 
 void OutputMaskedFASTA(const std::string &in_path,
                        FILE* out_file,
-                       std::unordered_map<std::string, std::vector<mregion> *> masks,
+                       std::unordered_map<unsigned long long, std::vector<mregion> *> masks,
                        bool n_mask);
 
 std::vector<mregion> *CleanedMasks(std::vector<mregion> *mask);

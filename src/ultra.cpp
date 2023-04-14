@@ -309,9 +309,9 @@ void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
 }
 
 void Ultra::StoreMaskForRegion(RepeatRegion *r) {
-  if (masks_for_seq.find(r->sequenceName) == masks_for_seq.end())
-    masks_for_seq[r->sequenceName] = new std::vector<mregion>();
-  masks_for_seq[r->sequenceName]->push_back(
+  if (masks_for_seq.find(r->sequenceID) == masks_for_seq.end())
+    masks_for_seq[r->sequenceID] = new std::vector<mregion>();
+  masks_for_seq[r->sequenceID]->push_back(
       mregion{r->sequenceStart, r->repeatLength + r->sequenceStart});
 }
 
