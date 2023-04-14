@@ -262,7 +262,7 @@ public:
 
   bool CheckFlags(bool printErrors = true); // Makes sure flags aren't reused
   int InterpretArgument(setting_param arg, int argc, const char *argv[],
-                        int index); // returns the new index
+                        int index);         // returns the new index
   std::string StringUsage();
   std::string StringVersion();
   std::string StringHelp();
