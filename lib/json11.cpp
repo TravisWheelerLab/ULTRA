@@ -25,7 +25,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <limits>
-
+#pragma warning(push, 0)
 namespace json11 {
 
 static const int max_depth = 200;
@@ -50,11 +50,13 @@ struct NullStruct {
  * Serialization
  */
 
-static void dump(NullStruct, string &out) {
+
+[[maybe_unused]] static void dump(NullStruct, string &out) {
     out += "null";
 }
 
-static void dump(double value, string &out) {
+
+[[maybe_unused]] static void dump(double value, string &out) {
     if (std::isfinite(value)) {
         char buf[32];
         snprintf(buf, sizeof buf, "%.17g", value);
@@ -64,17 +66,19 @@ static void dump(double value, string &out) {
     }
 }
 
-static void dump(int value, string &out) {
+
+[[maybe_unused]] static void dump(int value, string &out) {
     char buf[32];
     snprintf(buf, sizeof buf, "%d", value);
     out += buf;
 }
 
-static void dump(bool value, string &out) {
+[[maybe_unused]] static void dump(bool value, string &out) {
     out += value ? "true" : "false";
 }
 
-static void dump(const string &value, string &out) {
+
+[[maybe_unused]] static void dump(const string &value, string &out) {
     out += '"';
     for (size_t i = 0; i < value.length(); i++) {
         const char ch = value[i];
@@ -111,7 +115,8 @@ static void dump(const string &value, string &out) {
     out += '"';
 }
 
-static void dump(const Json::array &values, string &out) {
+
+[[maybe_unused]] static void dump(const Json::array &values, string &out) {
     bool first = true;
     out += "[";
     for (const auto &value : values) {
@@ -123,7 +128,8 @@ static void dump(const Json::array &values, string &out) {
     out += "]";
 }
 
-static void dump(const Json::object &values, string &out) {
+
+[[maybe_unused]] static void dump(const Json::object &values, string &out) {
     bool first = true;
     out += "{";
     for (const auto &kv : values) {
@@ -137,7 +143,8 @@ static void dump(const Json::object &values, string &out) {
     out += "}";
 }
 
-void Json::dump(string &out) const {
+
+[[maybe_unused]] void Json::dump(string &out) const {
     m_ptr->dump(out);
 }
 
@@ -151,7 +158,7 @@ protected:
 
     // Constructors
     explicit Value(const T &value) : m_value(value) {}
-    explicit Value(T &&value)      : m_value(move(value)) {}
+    explicit Value(T &&value)      : m_value(std::move(value)) {}
 
     // Get type tag
     Json::Type type() const override {
@@ -198,7 +205,7 @@ class JsonString final : public Value<Json::STRING, string> {
     const string &string_value() const override { return m_value; }
 public:
     explicit JsonString(const string &value) : Value(value) {}
-    explicit JsonString(string &&value)      : Value(move(value)) {}
+    explicit JsonString(string &&value)      : Value(std::move(value)) {}
 };
 
 class JsonArray final : public Value<Json::ARRAY, Json::array> {
@@ -206,7 +213,7 @@ class JsonArray final : public Value<Json::ARRAY, Json::array> {
     const Json & operator[](size_t i) const override;
 public:
     explicit JsonArray(const Json::array &value) : Value(value) {}
-    explicit JsonArray(Json::array &&value)      : Value(move(value)) {}
+    explicit JsonArray(Json::array &&value)      : Value(std::move(value)) {}
 };
 
 class JsonObject final : public Value<Json::OBJECT, Json::object> {
@@ -214,7 +221,7 @@ class JsonObject final : public Value<Json::OBJECT, Json::object> {
     const Json & operator[](const string &key) const override;
 public:
     explicit JsonObject(const Json::object &value) : Value(value) {}
-    explicit JsonObject(Json::object &&value)      : Value(move(value)) {}
+    explicit JsonObject(Json::object &&value)      : Value(std::move(value)) {}
 };
 
 class JsonNull final : public Value<Json::NUL, NullStruct> {
@@ -256,12 +263,12 @@ Json::Json(double value)               : m_ptr(make_shared<JsonDouble>(value)) {
 Json::Json(int value)                  : m_ptr(make_shared<JsonInt>(value)) {}
 Json::Json(bool value)                 : m_ptr(value ? statics().t : statics().f) {}
 Json::Json(const string &value)        : m_ptr(make_shared<JsonString>(value)) {}
-Json::Json(string &&value)             : m_ptr(make_shared<JsonString>(move(value))) {}
+Json::Json(string &&value)             : m_ptr(make_shared<JsonString>(std::move(value))) {}
 Json::Json(const char * value)         : m_ptr(make_shared<JsonString>(value)) {}
 Json::Json(const Json::array &values)  : m_ptr(make_shared<JsonArray>(values)) {}
-Json::Json(Json::array &&values)       : m_ptr(make_shared<JsonArray>(move(values))) {}
+Json::Json(Json::array &&values)       : m_ptr(make_shared<JsonArray>(std::move(values))) {}
 Json::Json(const Json::object &values) : m_ptr(make_shared<JsonObject>(values)) {}
-Json::Json(Json::object &&values)      : m_ptr(make_shared<JsonObject>(move(values))) {}
+Json::Json(Json::object &&values)      : m_ptr(make_shared<JsonObject>(std::move(values))) {}
 
 /* * * * * * * * * * * * * * * * * * * *
  * Accessors
@@ -359,7 +366,7 @@ struct JsonParser final {
      * Mark this parse as failed.
      */
     Json fail(string &&msg) {
-        return fail(move(msg), Json());
+        return fail(std::move(msg), Json());
     }
 
     template <typename T>
@@ -786,3 +793,5 @@ bool Json::has_shape(const shape & types, string & err) const {
 }
 
 } // namespace json11
+
+#pragma warning(pop)

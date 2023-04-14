@@ -67,7 +67,7 @@
         #endif
     #endif
 #endif
-
+#pragma warning(push, 0)
 namespace json11 {
 
 enum JsonParse {
@@ -230,3 +230,4 @@ protected:
 };
 
 } // namespace json11
+#pragma warning(pop)
