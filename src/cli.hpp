@@ -4,7 +4,7 @@
 
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
-
+#define ULTRA_VERSION_STRING "1.0.0 (beta)"
 #include <string>
 #include <vector>
 #include "../lib/CLI11.hpp"
@@ -38,7 +38,7 @@ struct Settings_t {
   bool show_memory = false;
 
   // Filter settings
-  float min_score = -1000.0;
+  float min_score = -100.0;
   unsigned long long min_length = 10;
   unsigned long long min_units = 2;
 
@@ -64,16 +64,31 @@ struct Settings_t {
   float transition_ii = 0.02;
   float transition_dd = 0.02;
 
-  // Split parameters
+  // Split and naming parameters
   bool no_split = false;
   unsigned long long max_split = 10;
   float split_threshold = 3.5;
   unsigned long long split_depth = 5;
   unsigned long long min_split_window = 10;
+  //TODO
+  // implement these
+  unsigned long long max_namable_period=50;
+  unsigned long long max_highfi_naming=20;
 
-  CLI::App app{"(U)ltra (L)ocates (T)andemly (R)epetitive (A)reas\n"};
+
+  CLI::App app{"\n"
+               "(U)ltra (L)ocates (T)andemly (R)epetitive (A)reas\n"
+               "     Daniel R. Olson and Travis J. Wheeler\n"
+               "            Version " ULTRA_VERSION_STRING "\n"
+               "\n"
+  };
 
   Settings_t();
+  bool parse_input(int argc, const char**argv);
+  int calculate_num_states();
+  void assign_settings();
+  void print_memory_usage();
+  std::string json_string();
 
 };
 

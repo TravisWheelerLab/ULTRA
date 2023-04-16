@@ -2,10 +2,22 @@
 #include "ultra.hpp"
 #include "mask.h"
 #include <string>
-#include "../lib/CLI11.hpp"
+#include "cli.hpp"
 
 int main(int argc, const char *argv[]) {
 
+  auto settings = Settings_t();
+  if (!settings.parse_input(argc, argv)) {
+    exit(0);
+  }
+
+  settings.assign_settings();
+  if (settings.show_memory) {
+    settings.print_memory_usage();
+    exit(0);
+  }
+
+/*
   auto settings = Settings(argc, argv);
   auto *ultra = new Ultra(&settings, 0);
   ultra->AnalyzeFile();
@@ -22,6 +34,6 @@ int main(int argc, const char *argv[]) {
                       ultra->masks_for_seq,
                       settings.v_maskWithN);
   }
-  fclose(f);
+  fclose(f);*/
   return 0;
 }
