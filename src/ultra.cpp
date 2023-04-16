@@ -348,12 +348,12 @@ Ultra::Ultra(Settings *s, int n) {
   passID = 0;
   AnalyzingJSON = false;
 
-  reader = new FileReader(settings->out_file, settings->windows,
+  reader = new FileReader(settings->in_file, settings->windows,
                           settings->window_size, settings->overlap,
                           settings->threads > 1);
 
   int leng = settings->window_size + (settings->overlap + 2);
-
+  storeTraceAndSequence = true;
   if (settings->max_split > 0) {
     storeTraceAndSequence = true;
   }

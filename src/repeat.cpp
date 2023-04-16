@@ -280,11 +280,10 @@ RepeatRegion::~RepeatRegion() {
 
 std::string RepeatRegion::GetConsensus() {
   std::string con = "";
-
+  con.reserve(repeatPeriod);
   for (int i = 0; i < repeatPeriod; ++i) {
     con.push_back(CharForSymbol(consensus[i]));
   }
-
   // con[repeatPeriod] = '\0';
 
   return con;
@@ -953,10 +952,10 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
 std::string RepeatRegion::PermutationForString(const std::string &str,
                                                int offset) {
   std::string new_string;
-  new_string.reserve(str.size());
+  new_string.reserve(str.length());
   for (int i = 0; i < str.length(); ++i) {
     int p = (offset + i) % str.size();
-    new_string[i] = str[p];
+    new_string.push_back(str[p]);
   }
 
   return new_string;
@@ -1009,18 +1008,25 @@ void RepeatRegion::SortConsensi() {
       if (c == 1)
         best_perm = i;
     }
-
+    printf("%s = ", string_consensus.c_str());
     string_consensus = PermutationForString(string_consensus, best_perm);
+    printf("%s = ", string_consensus.c_str());
+
   }
 
-  if (this->consensi == nullptr)
+  if (this->consensi == nullptr) {
+    printf(".\n");
     return;
-  if (this->consensi->empty())
+  }
+  if (this->consensi->empty()) {
+    printf(".\n");
     return;
+  }
 
   for (int i = 0; i < consensi->size(); ++i) {
     SortConsensus(i);
   }
+  printf("%s\n", string_consensus.c_str());
 }
 
 RepeatRegion *dead_func(RepeatRegion *r1) {
