@@ -6,7 +6,7 @@
 #include "repeat.hpp"
 #include "ultra.hpp"
 #include <algorithm>
-
+#include <iostream>
 void BEDFileWriter::InitializeWriter(Ultra *ultra) { owner = ultra; }
 
 void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
@@ -33,8 +33,7 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
           repeat->sequenceStart + repeat->repeatLength);
   // We need to decide what to do with the overall sequence
 
-  fprintf(owner->out, "\t%s\t%f", repeat->string_consensus.c_str(),
-          repeat->regionScore);
+  printf("consensus: %s\n", repeat->string_consensus.c_str());
 
   fprintf(owner->out, "\t.\t%lu\t%lu\t0,0,0\t", repeat->sequenceStart,
           repeat->sequenceStart + repeat->repeatLength);
