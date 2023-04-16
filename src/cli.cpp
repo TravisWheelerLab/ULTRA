@@ -7,8 +7,7 @@
 Settings_t::Settings_t() {
 
   app.footer("For additional information see README\n"
-             "Supported by: NIH NIGMS P20GM103546\n"
-             "              NIH NHGRI U24HG010136\n");
+             "Supported by: NIH NIGMS P20GM103546 and NIH NHGRI U24HG010136\n");
 
   // *************
   // Input options
@@ -16,7 +15,7 @@ Settings_t::Settings_t() {
   app.add_option("input_file",
                  this->in_file,
                  "DNA FASTA input file")
-      ->required(true)
+      ->required(false)
       ->group("Input");
 
   app.add_flag("-r,--readall",
@@ -115,7 +114,7 @@ Settings_t::Settings_t() {
 
   app.add_flag("--mem",
                  this->show_memory,
-                 "Display memory requirements for current settings")
+                 "Display memory requirements for current settings and exit")
       ->group("System");
 
   // *************
@@ -259,8 +258,13 @@ Settings_t::Settings_t() {
 }
 
 bool Settings_t::parse_input(int argc, const char**argv) {
-  this->app.parse(argc, argv);
+  CLI11_PARSE(this->app, argc, argv);
   bool passed = true;
+  if (this->in_file.empty() && !this->show_memory) {
+    printf("Input file required.\n");
+    passed = false;
+  }
+
   if (!this->json) {
     if (this->hide_seq) {
       printf("--hideseq is only available with --json\n");
@@ -487,13 +491,14 @@ void Settings_t::print_memory_usage() {
   unsigned long long dp_size = (unsigned long long)num_states;
   dp_size *= (unsigned long long)(this->window_size + (2*this->overlap));
   printf("----------------------------\n");
+  printf("Maximum repeat period: %llu\n", this->max_period);
   printf("Number of states: %i\n", num_states);
-  printf("Total sequence window size: %i\n", (this->window_size + 2*this->overlap));
+  printf("Total sequence window size: %lli\n", (this->window_size + 2*this->overlap));
   printf("DP matrix cells: %llu\n", dp_size);
   printf("Threads: %i\n", this->threads);
   dp_size *= (unsigned long long)this->threads;
   dp_size *= 4;
-  printf("Sequence window queue length: %i\n", this->windows);
+  printf("Sequence window queue length: %llu\n", this->windows);
   dp_size += (this->window_size + (2*this->overlap)) * this->windows;
   float gb_size = (float)dp_size / (1024.0 * 1024.0 * 1024.0);
   if (gb_size > 0.09) {

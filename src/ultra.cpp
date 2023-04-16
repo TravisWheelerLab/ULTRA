@@ -41,7 +41,7 @@ void Ultra::AnalyzeFile() {
   OutputULTRASettings();
   InitializeWriter();
 
-  // double Log2PvalForScore(double score, double period);
+  // float Log2PvalForScore(float score, float period);
 
   for (int i = 1; i < numberOfThreads; ++i) {
     pthread_create(&threads[i]->p_thread, nullptr, UltraThreadLaunch,
@@ -135,9 +135,9 @@ void Ultra::AnalyzeFileWithThread(void *dat) {
   }
 }
 
-double Ultra::Log2PvalForScore(double score, double period) const {
-  double loc = (settings->v_exponLocM * period) + settings->v_exponLocB;
-  double scale = (settings->v_exponScaleM * period) + settings->v_exponScaleB;
+float Ultra::Log2PvalForScore(float score, float period) const {
+  float loc = (settings->v_exponLocM * period) + settings->v_exponLocB;
+  float scale = (settings->v_exponScaleM * period) + settings->v_exponScaleB;
 
   // Cap location
   if (loc < 0.2)

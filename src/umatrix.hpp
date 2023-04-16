@@ -4,7 +4,7 @@
  Contains definitions for cell information and the general matrix used by ULTRA
 
  UMatrix contains two seperate matrix spaces:
-    a double based score matrix used to store scores
+    a float based score matrix used to store scores
     an int based transition matrix used to store transitions
         The transition matrix does not describe transitions from every cell
         instead it only describes transitions from CT_BACKGROUND cells and
@@ -52,8 +52,8 @@ public:
   int length;         // Number of columns in matrix
   int cellsPerColumn; // Number of rows in matrix
 
-  double *scoreMatrix = NULL;
-  double **scoreColumns = NULL;
+  float *scoreMatrix = NULL;
+  float **scoreColumns = NULL;
 
   int *tracebackMatrix = NULL;
   int **tracebackColumns = NULL;
@@ -61,16 +61,16 @@ public:
   int currentColumnIndex;
   int previousColumnIndex;
 
-  double *currentScoreColumn = NULL;
-  double *previousScoreColumn = NULL;
+  float *currentScoreColumn = NULL;
+  float *previousScoreColumn = NULL;
 
   int *currentTracebackColumn = NULL;
   int *previousTracebackColumn = NULL;
 
   cell *cellDescriptions = NULL; // Array of size <cellsPerColumn>
 
-  double lastScoreAdjustment = 0;
-  double totalScoreAdjustment = 0;
+  float lastScoreAdjustment = 0;
+  float totalScoreAdjustment = 0;
 
   int *traceback = NULL;
 
@@ -82,9 +82,9 @@ public:
 
   void AdjustScoreToZero(int numberOfColumns);
   void AdjustColumn(int column,
-                    double adjustment); // row value = value + adjustment
+                    float adjustment); // row value = value + adjustment
 
-  double PreviousScore(int row,
+  float PreviousScore(int row,
                        int d); // How far back we look
   int PreviousTraceback(int row, int d);
   int PreviousColumn(int d);
