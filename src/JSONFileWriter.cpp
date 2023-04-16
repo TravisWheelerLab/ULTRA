@@ -89,7 +89,7 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
   this->OutputJSONKeyValue("Length", std::to_string(repeat->repeatLength));
   this->OutputJSONKeyValue("Period", std::to_string(repeat->repeatPeriod));
   this->OutputJSONKeyValue("Score", std::to_string(repeat->regionScore));
-  if (owner->settings->v_calculateLogPVal) {
+  if (owner->settings->pval) {
     this->OutputJSONKeyValue("Log2PVal", std::to_string(repeat->logPVal));
   }
 
@@ -106,11 +106,11 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
     this->OutputJSONKeyValue("Sequence", repeat->sequence, true);
   }
 
-  if (owner->settings->v_showTraceback) {
+  if (owner->settings->show_trace) {
     this->OutputJSONKeyValue("Traceback", repeat->traceback, true);
   }
 
-  if (owner->settings->v_showLogoNumbers) {
+  if (owner->settings->show_logo_nums) {
     std::string logoNumbers = "\"" + std::to_string(repeat->logoNumbers[0]);
     for (int i = 0; i < repeat->repeatLength; ++i) {
       logoNumbers.append("," + std::to_string(repeat->logoNumbers[i]));
@@ -121,7 +121,7 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
     this->OutputJSONKeyValue("LogoNumbers", logoNumbers);
   }
 
-  if (owner->settings->v_showScores) {
+  if (owner->settings->show_deltas) {
     std::string positionScoreDeltas = "[";
 
     for (int i = 0; i < repeat->repeatLength; ++i) {

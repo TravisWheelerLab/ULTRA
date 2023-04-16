@@ -1,4 +1,3 @@
-#include "settings.hpp"
 #include "ultra.hpp"
 #include "mask.h"
 #include <string>
@@ -6,7 +5,7 @@
 
 int main(int argc, const char *argv[]) {
 
-  auto settings = Settings_t();
+  auto settings = Settings();
   if (!settings.parse_input(argc, argv)) {
     exit(0);
   }
@@ -17,23 +16,22 @@ int main(int argc, const char *argv[]) {
     exit(0);
   }
 
-/*
-  auto settings = Settings(argc, argv);
+
   auto *ultra = new Ultra(&settings, 0);
   ultra->AnalyzeFile();
   ultra->OutputRepeats(true);
 
-  if (!ultra->settings->v_outFilePath.empty()) {
+  if (!settings.out_file.empty()) {
     fclose(ultra->out);
   }
 
-  FILE* f = fopen("./mask.fa", "w");
-  if (settings.v_mask) {
-    OutputMaskedFASTA(settings.v_filePath,
+  if (settings.produce_mask) {
+    FILE *f = fopen(settings.mask_file.c_str(), "w");
+    OutputMaskedFASTA(settings.in_file,
                       f,
                       ultra->masks_for_seq,
-                      settings.v_maskWithN);
+                      settings.mask_with_n);
+    fclose(f);
   }
-  fclose(f);*/
   return 0;
 }

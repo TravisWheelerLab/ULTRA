@@ -9,7 +9,7 @@
 #include <vector>
 #include "../lib/CLI11.hpp"
 
-struct Settings_t {
+struct Settings {
   // Input settings
   std::string in_file = "";
   bool read_all = false;
@@ -17,6 +17,11 @@ struct Settings_t {
   // Output settings
   std::string out_file = "";
   bool pval = false;
+  float pval_exponent_loc_m = -0.13;
+  float pval_exponent_loc_b = 2.82;
+  float pval_exponent_scale_m = 0.081;
+  float pval_exponent_scale_b = 1.28;
+
   bool json = false;
   bool hide_seq = false;
   bool show_deltas = false;
@@ -34,7 +39,7 @@ struct Settings_t {
   int threads = 1;
   long long window_size = -1;
   long long overlap = -1;
-  unsigned long long windows = 1024;
+  long long windows = 1024;
   bool show_memory = false;
 
   // Filter settings
@@ -83,7 +88,7 @@ struct Settings_t {
                "            Version " ULTRA_VERSION_STRING "\n"
   };
 
-  Settings_t();
+  Settings();
   bool parse_input(int argc, const char**argv);
   int calculate_num_states();
   void assign_settings();
