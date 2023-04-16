@@ -40,10 +40,10 @@ public:
 
   int repeatPeriod;
 
-  double startScore;
-  double endScore;
-  double regionScore;
-  double *scores;
+  float startScore;
+  float endScore;
+  float regionScore;
+  float *scores;
 
   int *logoMemory;
   int **logo;
@@ -65,7 +65,7 @@ public:
 
   int overlapCorrection;
 
-  double logPVal;
+  float logPVal;
 
   void CreateLogo(SequenceWindow *window, UMatrix *matrix);
   void CreateLogoWithoutMatrix(); // Requires traceback + sequence + lookBack

@@ -35,7 +35,7 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
 
   int p = 0;
 
-  // double lastUnitScore = 0;
+  // float lastUnitScore = 0;
   int modp = 0;
 
   for (unsigned long i = 0; i < endpoint; ++i) {
@@ -325,7 +325,7 @@ void RepeatRegion::StoreTraceback(UMatrix *matrix) {
 
 void RepeatRegion::StoreScores(UMatrix *matrix) {
 
-  scores = (double *)malloc(sizeof(double) * repeatLength);
+  scores = (float *)malloc(sizeof(float) * repeatLength);
 
   for (unsigned long i = 1; i <= repeatLength; ++i) {
 
@@ -333,12 +333,12 @@ void RepeatRegion::StoreScores(UMatrix *matrix) {
     int cell = matrix->traceback[p];
     if (matrix->cellDescriptions[cell].type != CT_MATCH)
       cell = matrix->cellDescriptions[cell].parentIndex;
-    double s = matrix->scoreColumns[p][cell];
+    float s = matrix->scoreColumns[p][cell];
 
     int prevCell = matrix->traceback[p - 1];
     if (matrix->cellDescriptions[prevCell].type != CT_MATCH)
       prevCell = matrix->cellDescriptions[cell].parentIndex;
-    double ps = matrix->scoreColumns[p - 1][prevCell];
+    float ps = matrix->scoreColumns[p - 1][prevCell];
 
     scores[i - 1] = s - ps;
 
@@ -717,10 +717,10 @@ RepeatRegion *RepeatRegion::SubRepeat(int start, int length) {
   region->repeatPeriod = repeatPeriod;
 
   // Add real score capabilities at some point...
-  double scorePerSymbol = regionScore / ((double)repeatLength);
+  float scorePerSymbol = regionScore / ((float)repeatLength);
 
-  region->startScore = startScore + (scorePerSymbol * ((double)start));
-  region->endScore = region->startScore + (scorePerSymbol * ((double)length));
+  region->startScore = startScore + (scorePerSymbol * ((float)start));
+  region->endScore = region->startScore + (scorePerSymbol * ((float)length));
   region->regionScore = region->endScore - region->startScore;
 
   if (region->sequence.length() > 0 && region->traceback.length() > 0) {

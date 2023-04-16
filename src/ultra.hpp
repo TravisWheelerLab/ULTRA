@@ -50,7 +50,7 @@ public:
   FILE *out;
   FILE *settings_out;
 
-  double scoreThreshold = 0.0;
+  float scoreThreshold = 0.0;
 
   bool outputRepeatSequence = true;
   bool outputReadID = false;
@@ -90,7 +90,7 @@ public:
 
   void CorrectOverlap(int maxReadID);
 
-  double Log2PvalForScore(double score, double period) const;
+  float Log2PvalForScore(float score, float period) const;
 
   SequenceWindow *GetSequenceWindow(SequenceWindow *seq);
 
