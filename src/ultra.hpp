@@ -20,7 +20,7 @@
 #include "RepeatSplitter.h"
 #include "mask.h"
 #include "repeat.hpp"
-#include "settings.hpp"
+#include "cli.hpp"
 #include "umatrix.hpp"
 #include "umodel.hpp"
 

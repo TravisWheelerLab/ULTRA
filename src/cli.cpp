@@ -4,7 +4,7 @@
 
 #include "cli.hpp"
 
-Settings_t::Settings_t() {
+Settings::Settings() {
 
   app.footer("For additional information see README\n"
              "Supported by: NIH NIGMS P20GM103546 and NIH NHGRI U24HG010136\n");
@@ -257,7 +257,7 @@ Settings_t::Settings_t() {
 
 }
 
-bool Settings_t::parse_input(int argc, const char**argv) {
+bool Settings::parse_input(int argc, const char**argv) {
   CLI11_PARSE(this->app, argc, argv);
   bool passed = true;
   if (this->in_file.empty() && !this->show_memory) {
@@ -388,7 +388,7 @@ bool Settings_t::parse_input(int argc, const char**argv) {
   return passed;
 }
 
-int Settings_t::calculate_num_states() {
+int Settings::calculate_num_states() {
   int num_of_states = 0;
 
   // Calculate the number of cells needed
@@ -416,10 +416,14 @@ int Settings_t::calculate_num_states() {
     }
   }
 
+  if (this->read_all) {
+    this->windows = -1;
+  }
+
   return num_of_states;
 }
 
-void Settings_t::assign_settings() {
+void Settings::assign_settings() {
   if (!this->mask_file.empty()) {
     this->produce_mask = true;
   }
@@ -485,7 +489,7 @@ void Settings_t::assign_settings() {
   }
 }
 
-void Settings_t::print_memory_usage() {
+void Settings::print_memory_usage() {
 
   int num_states = this->calculate_num_states();
   unsigned long long dp_size = (unsigned long long)num_states;
@@ -511,4 +515,8 @@ void Settings_t::print_memory_usage() {
 
   printf("*Actual memory usage will be slightly greater due to "
          "output repeat queue and repeat split matrices\n");
+}
+
+std::string Settings::json_string() {
+  return "";
 }

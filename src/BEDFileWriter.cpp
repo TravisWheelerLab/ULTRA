@@ -39,7 +39,7 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
   fprintf(owner->out, "\t.\t%lu\t%lu\t0,0,0\t", repeat->sequenceStart,
           repeat->sequenceStart + repeat->repeatLength);
 
-  if (owner->settings->v_maxSplitPeriod > 0) {
+  if (owner->settings->max_split > 0) {
 
     std::string sizes = "";
     std::string starts = "0";
