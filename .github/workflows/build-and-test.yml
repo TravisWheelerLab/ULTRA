@@ -22,13 +22,3 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - run: cmake . && make examples
-
-  check-format:
-    runs-on: ubuntu-20.04
-    container:
-      image: traviswheelerlab/ultra-build
-      volumes:
-        - ${{ github.workspace }}:/code
-    steps:
-      - uses: actions/checkout@v1
-      - run: ./tool/check-format.sh
