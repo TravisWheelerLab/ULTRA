@@ -33,8 +33,6 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
           repeat->sequenceStart + repeat->repeatLength);
   // We need to decide what to do with the overall sequence
 
-  printf("consensus: %s\n", repeat->string_consensus.c_str());
-
   fprintf(owner->out, "\t.\t%lu\t%lu\t0,0,0\t", repeat->sequenceStart,
           repeat->sequenceStart + repeat->repeatLength);
 
