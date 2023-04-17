@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 
 typedef struct s_mask_region {
   unsigned long long start;
