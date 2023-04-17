@@ -1,5 +1,5 @@
 #include "cli.hpp"
-#include "mask.h"
+#include "mask.hpp"
 #include "ultra.hpp"
 #include <string>
 

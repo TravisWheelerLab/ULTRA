@@ -26,7 +26,12 @@ set(
         src/umatrix.hpp
         src/umodel.hpp
         src/umodeldriver.hpp
-
+        src/BEDFileWriter.hpp
+        src/RepeatFileWriter.hpp
+        src/JSONFileWriter.hpp
+        src/RepeatSplitter.hpp
+        src/cli.hpp
+        src/mask.hpp
 )
 set(
         CPP_FILES
@@ -41,7 +46,11 @@ set(
         src/umatrix.cpp
         src/umodel.cpp
         src/umodeldriver.cpp
-        src/BEDFileWriter.cpp src/BEDFileWriter.hpp src/RepeatFileWriter.hpp src/JSONFileWriter.cpp src/JSONFileWriter.hpp src/RepeatSplitter.cpp src/RepeatSplitter.h src/mask.cpp src/mask.h src/cli.cpp src/cli.hpp)
+        src/BEDFileWriter.cpp
+        src/JSONFileWriter.cpp
+        src/RepeatSplitter.cpp
+        src/mask.cpp
+        src/cli.cpp)
 
 find_package(Threads REQUIRED)
 

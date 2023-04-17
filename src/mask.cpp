@@ -1,5 +1,5 @@
 
-#include "mask.h"
+#include "mask.hpp"
 
 void OutputMaskedFASTA(
     const std::string &in_path, FILE *out_file,

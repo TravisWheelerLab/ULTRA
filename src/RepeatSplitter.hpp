@@ -4,10 +4,12 @@
 
 #ifndef REPEATSPLITTER_REPEATSPLITTER_H
 #define REPEATSPLITTER_REPEATSPLITTER_H
-#include <vector>
+
 #include <string>
-#include "repeat.hpp"
+#include <vector>
+
 #include "Symbol.hpp"
+#include "repeat.hpp"
 #include <math.h>
 
 typedef struct s_splitWindow {
@@ -16,7 +18,6 @@ typedef struct s_splitWindow {
 
   float logNp;
   float logNq;
-
 
   // Indexing is: c[symbol][position]
   float **cp = nullptr;
@@ -40,7 +41,6 @@ typedef struct s_splitWindow {
   int place = 0;
   int length = 0;
 
-
   void AllocateSplitWindow(int alphabetSize, int maxPeriod);
   void StartSplitWindow(int period, float startingScore);
   void DeallocSplitWindow();
@@ -56,29 +56,23 @@ typedef struct s_splitWindow {
   void FillWindow(RepeatRegion *r, int windowSize);
   void MoveWindowForward(RepeatRegion *r);
 
+  std::vector<float> *RegionScores(RepeatRegion *r, int windowSize);
 
-  std::vector<float>*RegionScores(RepeatRegion *r,
-                                   int windowSize);
-
-  std::vector<int> *SplitsForRegion(RepeatRegion *r,
-                                    int window_size,
+  std::vector<int> *SplitsForRegion(RepeatRegion *r, int window_size,
                                     float threshold);
 
   void FillLogoForRegion(RepeatRegion *r, int start, int end);
-  std::string ConsensusForRegion(RepeatRegion *r,
-                                 int start,
-                                 int end,
+  std::string ConsensusForRegion(RepeatRegion *r, int start, int end,
                                  float consensus_threshold);
   std::vector<std::string> *ConsensiForSplit(RepeatRegion *r,
                                              std::vector<int> *splits,
                                              float consensus_threshold);
 
-
 } SplitWindow;
 
 float ConsensusSimilarity(std::string *c1, std::string *c2, int offset);
-bool ShouldJoinConsensus(std::string *c1, std::string *c2, float join_threshold);
+bool ShouldJoinConsensus(std::string *c1, std::string *c2,
+                         float join_threshold);
 void ValidateSplits(std::vector<std::string> *consensi,
-                    std::vector<int> *splits,
-                    float join_threshold);
-#endif //REPEATSPLITTER_REPEATSPLITTER_H
+                    std::vector<int> *splits, float join_threshold);
+#endif // REPEATSPLITTER_REPEATSPLITTER_H
