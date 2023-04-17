@@ -1,7 +1,7 @@
-#include "ultra.hpp"
-#include "mask.h"
-#include <string>
 #include "cli.hpp"
+#include "mask.h"
+#include "ultra.hpp"
+#include <string>
 
 int main(int argc, const char *argv[]) {
 
@@ -16,7 +16,6 @@ int main(int argc, const char *argv[]) {
     exit(0);
   }
 
-
   auto *ultra = new Ultra(&settings, 0);
   ultra->AnalyzeFile();
   ultra->OutputRepeats(true);
@@ -27,9 +26,7 @@ int main(int argc, const char *argv[]) {
 
   if (settings.produce_mask) {
     FILE *f = fopen(settings.mask_file.c_str(), "w");
-    OutputMaskedFASTA(settings.in_file,
-                      f,
-                      ultra->masks_for_seq,
+    OutputMaskedFASTA(settings.in_file, f, ultra->masks_for_seq,
                       settings.mask_with_n);
     fclose(f);
   }

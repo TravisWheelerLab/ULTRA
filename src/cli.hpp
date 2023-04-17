@@ -5,11 +5,13 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 #define ULTRA_VERSION_STRING "1.0.0 (beta 0)"
+#include "../lib/CLI11.hpp"
 #include <string>
 #include <vector>
-#include "../lib/CLI11.hpp"
 
 struct Settings {
+  std::string args = "";
+
   // Input settings
   std::string in_file = "";
   bool read_all = false;
@@ -62,7 +64,7 @@ struct Settings {
   float match_probability = 0.8;
 
   float period_decay = 0.85;
-  float transition_nr =0.01;
+  float transition_nr = 0.01;
   float transition_rn = 0.05;
   float transition_ri = 0.02;
   float transition_rd = 0.02;
@@ -75,26 +77,23 @@ struct Settings {
   float split_threshold = 3.5;
   unsigned long long split_depth = 5;
   unsigned long long min_split_window = 10;
-  //TODO
-  // implement these
-  unsigned long long max_namable_period=50;
-  unsigned long long max_highfi_naming=20;
-
+  // TODO
+  //  implement these
+  unsigned long long max_namable_period = 50;
+  unsigned long long max_highfi_naming = 20;
 
   CLI::App app{"\n"
                "=================================================\n"
                "(U)ltra (L)ocates (T)andemly (R)epetitive (A)reas\n"
                "     Daniel R. Olson and Travis J. Wheeler\n"
-               "            Version " ULTRA_VERSION_STRING "\n"
-  };
+               "            Version " ULTRA_VERSION_STRING "\n"};
 
   Settings();
-  bool parse_input(int argc, const char**argv);
+  bool parse_input(int argc, const char **argv);
   int calculate_num_states();
   void assign_settings();
   void print_memory_usage();
   std::string json_string();
-
 };
 
 #endif // ULTRA_CLI_HPP

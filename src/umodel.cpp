@@ -198,7 +198,7 @@ void UModel::CalculateScores() {
 
 // This does not check if index - d > 0
 float UModel::PreviousEmissionScore(SequenceWindow *seq, int index, int order,
-                                     int d) {
+                                    int d) {
 
   int p = index - d;
   float b = bscore[seq->seq[p]];
@@ -351,7 +351,7 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
 
         // Check to see if the match state should transition from here
         float score = p[row] + tscore[CT_INSERTION][CT_MATCH] +
-                       EmissionScore(sequence, nucIndex, order);
+                      EmissionScore(sequence, nucIndex, order);
         if (score > c[parentIndex]) {
           // printf("%i %i %f %f\n", order, indelNum, score,
           // c[parentIndex]);
@@ -435,7 +435,7 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
         // Check to see if the match state can transition from the del
         // state
         float score = p[row] + tscore[CT_DELETION][CT_MATCH] +
-                       EmissionScore(sequence, nucIndex, order);
+                      EmissionScore(sequence, nucIndex, order);
         if (score > c[parentIndex]) {
           c[parentIndex] = score;
           ct[desc[row].order] = row;

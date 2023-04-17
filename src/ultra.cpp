@@ -136,8 +136,10 @@ void Ultra::AnalyzeFileWithThread(void *dat) {
 }
 
 float Ultra::Log2PvalForScore(float score, float period) const {
-  float loc = (settings->pval_exponent_loc_m * period) + settings->pval_exponent_loc_b;
-  float scale = (settings->pval_exponent_scale_m * period) + settings->pval_exponent_scale_b;
+  float loc =
+      (settings->pval_exponent_loc_m * period) + settings->pval_exponent_loc_b;
+  float scale = (settings->pval_exponent_scale_m * period) +
+                settings->pval_exponent_scale_b;
 
   // Cap location
   if (loc < 0.2)
@@ -283,8 +285,7 @@ void Ultra::OutputRepeats(bool flush) {
 }
 
 void Ultra::OutputULTRASettings() {
-  fprintf(settings_out, "{\"Version\": \"%s\", \n",
-          ULTRA_VERSION_STRING);
+  fprintf(settings_out, "{\"Version\": \"%s\", \n", ULTRA_VERSION_STRING);
   fprintf(settings_out, "\"Parameters\": {\n");
   fprintf(settings_out, "%s}}\n", settings->json_string().c_str());
   if (settings_out != stdout)
@@ -334,7 +335,6 @@ Ultra::Ultra(Settings *s, int n) {
 
   numberOfThreads = settings->threads;
 
-
   scoreThreshold = settings->min_score;
   outputReadID = settings->show_wid;
   outputRepeatSequence = !settings->hide_seq;
@@ -360,9 +360,8 @@ Ultra::Ultra(Settings *s, int n) {
   for (int i = 0; i < numberOfThreads; ++i) {
     // We now are making the v_maxPeriod setting more intuitive, by adding 1 to
     // it. This makes a v_maxPeriod of 10 able to detect repeats of length 10.
-    UModel *mod =
-        new UModel(settings->max_period + 1, settings->max_insert,
-                   settings->max_delete, leng);
+    UModel *mod = new UModel(settings->max_period + 1, settings->max_insert,
+                             settings->max_delete, leng);
 
     mod->periodDecay = settings->period_decay;
 

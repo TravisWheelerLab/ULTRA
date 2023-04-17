@@ -85,7 +85,7 @@ public:
                     float adjustment); // row value = value + adjustment
 
   float PreviousScore(int row,
-                       int d); // How far back we look
+                      int d); // How far back we look
   int PreviousTraceback(int row, int d);
   int PreviousColumn(int d);
 
