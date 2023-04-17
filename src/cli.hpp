@@ -86,7 +86,8 @@ struct Settings {
                "=================================================\n"
                "(U)ltra (L)ocates (T)andemly (R)epetitive (A)reas\n"
                "     Daniel R. Olson and Travis J. Wheeler\n"
-               "            Version " ULTRA_VERSION_STRING "\n"};
+               "            Version " ULTRA_VERSION_STRING "\n"
+               "=================================================\n"};
 
   Settings();
   bool parse_input(int argc, const char **argv);
