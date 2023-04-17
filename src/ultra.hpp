@@ -18,9 +18,9 @@
 #include "JSONFileWriter.hpp"
 #include "RepeatFileWriter.hpp"
 #include "RepeatSplitter.h"
+#include "cli.hpp"
 #include "mask.h"
 #include "repeat.hpp"
-#include "cli.hpp"
 #include "umatrix.hpp"
 #include "umodel.hpp"
 
@@ -68,7 +68,8 @@ public:
 
   bool storeTraceAndSequence = false;
 
-  std::unordered_map<unsigned long long, std::vector<mregion> *> masks_for_seq{};
+  std::unordered_map<unsigned long long, std::vector<mregion> *>
+      masks_for_seq{};
   std::vector<RepeatRegion *> outRepeats{};
   std::vector<UModel *> models{};
 

@@ -27,7 +27,6 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
   if (endpoint > window->length + window->overlap)
     endpoint = window->length + window->overlap;
 
-
   int insertionReset = -1;
   int deletionReset = -1;
 
@@ -331,7 +330,6 @@ void RepeatRegion::StoreScores(UMatrix *matrix) {
     float ps = matrix->scoreColumns[p - 1][prevCell];
 
     scores[i - 1] = s - ps;
-
   }
 }
 
@@ -665,7 +663,6 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos) {
 
   for (i = *pos; i < seqLength; ++i) {
 
-
     if (matrix->traceback[i] > 0) {
       foundRepeat = true;
       break;
@@ -683,7 +680,6 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos) {
     region->sequenceID = window->seqID;
     region->readID = window->readID;
     region->repeatPeriod = desc.order;
-
 
     region->windowStart = i - region->repeatPeriod - 1;
     region->sequenceStart =
@@ -750,13 +746,11 @@ void RepeatRegion::GetLogoNumbers() {
     for (int j = 0; j < delCount; ++j) {
       logoNumbers[i] = num % repeatPeriod;
 
-
       ++num;
       ++i;
     }
     if (delCount > 0)
       --i;
-
   }
 }
 
@@ -917,7 +911,6 @@ void RepeatRegion::SortConsensi() {
         best_perm = i;
     }
     string_consensus = PermutationForString(string_consensus, best_perm);
-
   }
 
   if (this->consensi == nullptr) {

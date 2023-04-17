@@ -411,8 +411,7 @@ void UMatrix::CreateMatrix() {
    }*/
 
   // Allocate matrices
-  scoreMatrix =
-      (float *)malloc(sizeof(float) * cellsPerColumn * (length + 1));
+  scoreMatrix = (float *)malloc(sizeof(float) * cellsPerColumn * (length + 1));
   tracebackMatrix = (int *)malloc(sizeof(int) * (maxPeriod + 1) * (length + 1));
   scoreColumns = (float **)malloc(sizeof(float *) * (length + 1));
   tracebackColumns = (int **)malloc(sizeof(int *) * (length + 1));

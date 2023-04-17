@@ -1,11 +1,10 @@
 
 #include "mask.h"
 
-void OutputMaskedFASTA(const std::string &in_path,
-                       FILE* out_file,
-                       std::unordered_map<unsigned long long, std::vector<mregion> *> masks,
-                       bool n_mask)
-{
+void OutputMaskedFASTA(
+    const std::string &in_path, FILE *out_file,
+    std::unordered_map<unsigned long long, std::vector<mregion> *> masks,
+    bool n_mask) {
   std::ifstream in_file(in_path);
   if (!in_file.is_open()) {
     printf("Unable to open %s\n", in_path.c_str());
@@ -49,9 +48,8 @@ void OutputMaskedFASTA(const std::string &in_path,
       // If there are masks for this sequence, check to see if we need to mask
       if (cmask) {
         for (int i = 0; i < line.length(); ++i) {
-          if (line[i] == 'a' || line[i] == 'A' ||
-              line[i] == 'c' || line[i] == 'C' ||
-              line[i] == 'g' || line[i] == 'G' ||
+          if (line[i] == 'a' || line[i] == 'A' || line[i] == 'c' ||
+              line[i] == 'C' || line[i] == 'g' || line[i] == 'G' ||
               line[i] == 't' || line[i] == 'T') {
 
             if (cmask) {

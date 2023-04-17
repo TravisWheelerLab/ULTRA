@@ -29,10 +29,10 @@ public:
 
   // Eventually this will need to be expanded for proteins
   float matchProbabilities[5][5]{{1.0, .3, .2, .3, .2},           // [N][*]
-                                  {1.00, 0.61, 0.13, 0.13, 0.13},  // [T][*]
-                                  {1.00, 0.13, 0.61, 0.13, 0.13},  // [C][*]
-                                  {1.00, 0.13, 0.13, 0.61, 0.13},  // [A][*]
-                                  {1.00, 0.13, 0.13, 0.13, 0.61}}; // [G][*]
+                                 {1.00, 0.61, 0.13, 0.13, 0.13},  // [T][*]
+                                 {1.00, 0.13, 0.61, 0.13, 0.13},  // [C][*]
+                                 {1.00, 0.13, 0.13, 0.61, 0.13},  // [A][*]
+                                 {1.00, 0.13, 0.13, 0.13, 0.61}}; // [G][*]
 
   //                                     N     T     C     A     G
   float backgroundProbabilties[5] = {1.00, 0.3, 0.2, 0.3, 0.2};
@@ -60,8 +60,7 @@ public:
 
   void CalculateScores(); // Needs to be called before general use
 
-  float PreviousEmissionScore(SequenceWindow *seq, int index, int order,
-                               int d);
+  float PreviousEmissionScore(SequenceWindow *seq, int index, int order, int d);
 
   float EmissionScore(SequenceWindow *seq, int index, int order);
 

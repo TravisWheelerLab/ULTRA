@@ -12,59 +12,48 @@ Settings::Settings() {
   // *************
   // Input options
   // *************
-  app.add_option("input_file",
-                 this->in_file,
-                 "DNA FASTA input file")
+  app.add_option("input_file", this->in_file, "DNA FASTA input file")
       ->required(false)
       ->group("Input");
 
-  app.add_flag("-r,--readall",
-               this->read_all,
+  app.add_flag("-r,--readall", this->read_all,
                "Read entire input file into memory"
-               " (disables streaming input)")->group("Input");
-
+               " (disables streaming input)")
+      ->group("Input");
 
   // *************
   // Output options
   // *************
 
-  app.add_flag("--pval",
-               this->pval,
+  app.add_flag("--pval", this->pval,
                "Use p-values instead of scores in BED output")
       ->group("Output");
 
-  app.add_flag("-j,--json",
-               this->json,
+  app.add_flag("-j,--json", this->json,
                "Use JSON outuput format instead of BED")
       ->group("Output");
 
-  app.add_flag("--hideseq",
-               this->hide_seq,
+  app.add_flag("--hideseq", this->hide_seq,
                "Hide sequence descriptor in JSON output")
       ->group("Output");
 
-  app.add_flag("--showdelta",
-               this->show_deltas,
+  app.add_flag("--showdelta", this->show_deltas,
                "Show positional score deltas in JSON output")
       ->group("Output");
 
-  app.add_flag("--showtrace",
-               this->show_trace,
+  app.add_flag("--showtrace", this->show_trace,
                "Show Viterbi trace in JSON output")
       ->group("Output");
 
-  app.add_flag("--showwid",
-               this->show_wid,
+  app.add_flag("--showwid", this->show_wid,
                "Show sequence window IDs in JSON output")
       ->group("Output");
 
-  app.add_flag("--showlogo",
-               this->show_logo_nums,
+  app.add_flag("--showlogo", this->show_logo_nums,
                "Show logo numbers in JSON output")
       ->group("Output");
 
-  app.add_flag("--suppress",
-               this->suppress_out,
+  app.add_flag("--suppress", this->suppress_out,
                "Do not output BED or JSON annotation")
       ->group("Output");
 
@@ -72,68 +61,53 @@ Settings::Settings() {
   // Mask options
   // *************
 
-  app.add_option("-o,--out",
-               this->out_file,
-               "Output file path")
+  app.add_option("-o,--out", this->out_file, "Output file path")
       ->group("Masking");
 
-  app.add_option("--mask",
-                 this->mask_file,
-                 "File path to save a masked FASTA")
+  app.add_option("--mask", this->mask_file, "File path to save a masked FASTA")
       ->group("Masking");
 
-  app.add_flag("--nmask",
-               mask_with_n,
-               "Use n masking instead of case masking")
+  app.add_flag("--nmask", mask_with_n, "Use n masking instead of case masking")
       ->group("Masking");
 
   // *************
   // System options
   // *************
-  app.add_option("-t,--threads",
-                 this->threads,
-                 "Number of threads to use")
+  app.add_option("-t,--threads", this->threads, "Number of threads to use")
       ->default_str("1")
       ->group("System");
 
-  app.add_option("--winsize",
-                 this->window_size,
+  app.add_option("--winsize", this->window_size,
                  "Manually set sequence window size")
-  ->group("System");
+      ->group("System");
 
-  app.add_option("--overlap",
-                 this->overlap,
+  app.add_option("--overlap", this->overlap,
                  "Manually set sequence window overlap size")
       ->group("System");
 
-  app.add_option("--windows",
-                 this->windows,
+  app.add_option("--windows", this->windows,
                  "Number of sequence windows to store at once")
       ->default_val(this->windows)
       ->group("System");
 
-  app.add_flag("--mem",
-                 this->show_memory,
-                 "Display memory requirements for current settings and exit")
+  app.add_flag("--mem", this->show_memory,
+               "Display memory requirements for current settings and exit")
       ->group("System");
 
   // *************
   // Filter options
   // *************
-  app.add_option("-s, --score",
-                 this->min_score,
+  app.add_option("-s, --score", this->min_score,
                  "Minimum reportable repeat score")
       ->default_str("-100.0")
       ->group("Filter");
 
-  app.add_option("--minlen",
-                 this->min_length,
+  app.add_option("--minlen", this->min_length,
                  "Minimum reportable repeat length")
       ->default_val(this->min_length)
       ->group("Filter");
 
-  app.add_option("--minunit",
-                 this->min_units,
+  app.add_option("--minunit", this->min_units,
                  "Minimum reportable number of repeat units")
       ->default_val(this->min_units)
       ->group("Filter");
@@ -141,20 +115,17 @@ Settings::Settings() {
   // *************
   // Model options
   // *************
-  app.add_option("-p, --period",
-                 this->max_period,
+  app.add_option("-p, --period", this->max_period,
                  "Maximum detectable repeat period")
       ->default_val(this->max_period)
       ->group("Model");
 
-  app.add_option("-i, --inserts",
-                 this->max_insert,
+  app.add_option("-i, --inserts", this->max_insert,
                  "Maximum number of insertion states")
       ->default_val(this->max_insert)
       ->group("Model");
 
-  app.add_option("-d, --deletes",
-                 this->max_delete,
+  app.add_option("-d, --deletes", this->max_delete,
                  "Maximum number of deletion states")
       ->default_val(this->max_delete)
       ->group("Model");
@@ -162,62 +133,50 @@ Settings::Settings() {
   // *************
   // Probability options
   // *************
-  app.add_option("--at",
-                 this->at,
-                 "Expected AT content")
+  app.add_option("--at", this->at, "Expected AT content")
       ->default_val(this->at)
       ->group("Probabilities");
 
-  app.add_option("--acgt",
-                 this->acgt,
-                 "Expected frequency of A C G T")
+  app.add_option("--acgt", this->acgt, "Expected frequency of A C G T")
       ->expected(4)
       ->group("Probabilities");
 
-  app.add_option("-m,--match",
-                 this->match_probability,
+  app.add_option("-m,--match", this->match_probability,
                  "Expected conservation in repeats")
       ->default_val(this->match_probability)
       ->group("Probabilities");
 
-  app.add_option("--decay",
-                 this->period_decay,
+  app.add_option("--decay", this->period_decay,
                  "Decay penalty applied to repetitive states")
       ->default_val(this->period_decay)
       ->group("Probabilities");
 
-  app.add_option("--nr",
-                 this->transition_nr,
+  app.add_option("--nr", this->transition_nr,
                  "Probability of a repeat starting")
       ->default_val(this->transition_nr)
       ->group("Probabilities");
 
-  app.add_option("--rn",
-                 this->transition_rn,
+  app.add_option("--rn", this->transition_rn,
                  "Probability of a repeat stopping")
       ->default_val(this->transition_rn)
       ->group("Probabilities");
 
-  app.add_option("--ri",
-                 this->transition_ri,
+  app.add_option("--ri", this->transition_ri,
                  "Probability of an insertion occurring")
       ->default_val(this->transition_ri)
       ->group("Probabilities");
 
-  app.add_option("--rd",
-                 this->transition_rd,
+  app.add_option("--rd", this->transition_rd,
                  "Probability of a deletion occurring")
       ->default_val(this->transition_rd)
       ->group("Probabilities");
 
-  app.add_option("--ii",
-                 this->transition_ii,
+  app.add_option("--ii", this->transition_ii,
                  "Probability of consecutive insertions occurring")
       ->default_val(this->transition_ii)
       ->group("Probabilities");
 
-  app.add_option("--dd",
-                 this->transition_dd,
+  app.add_option("--dd", this->transition_dd,
                  "Probability of consecutive deletions occurring")
       ->default_val(this->transition_dd)
       ->group("Probabilities");
@@ -226,38 +185,38 @@ Settings::Settings() {
   // Split options
   // *************
 
-  app.add_flag("--nosplit",
-               this->no_split,
-               "Do not perform repeat splitting")
-  ->group("Splitting and Naming");
+  app.add_flag("--nosplit", this->no_split, "Do not perform repeat splitting")
+      ->group("Splitting and Naming");
 
-  app.add_option("--maxsplit",
-                 this->max_split,
+  app.add_option("--maxsplit", this->max_split,
                  "The maximum repeat period to perform repeat splitting")
       ->default_val(this->max_split)
       ->group("Splitting and Naming");
 
-  app.add_option("--splitval",
-                 this->split_threshold,
-                 "Split threshold value")
+  app.add_option("--splitval", this->split_threshold, "Split threshold value")
       ->default_val(this->split_threshold)
       ->group("Splitting and Naming");
 
-  app.add_option("--splitdepth",
-                 this->split_depth,
+  app.add_option("--splitdepth", this->split_depth,
                  "Number of repeat units to use in repeat splitting")
       ->default_val(this->split_depth)
       ->group("Splitting and Naming");
 
-  app.add_option("--minsplitwin",
-                 this->min_split_window,
+  app.add_option("--minsplitwin", this->min_split_window,
                  "Minimum repeat split window size")
       ->default_val(this->min_split_window)
       ->group("Splitting and Naming");
-
 }
 
-bool Settings::parse_input(int argc, const char**argv) {
+bool Settings::parse_input(int argc, const char **argv) {
+
+  for (int i = 0; i < argc; ++i) {
+    if (i > 0) {
+      this->args += " ";
+    }
+    this->args += argv[i];
+  }
+
   CLI11_PARSE(this->app, argc, argv);
   bool passed = true;
   if (this->in_file.empty() && !this->show_memory) {
@@ -302,7 +261,6 @@ bool Settings::parse_input(int argc, const char**argv) {
     printf("--threads must be at least 1.\n");
     passed = false;
   }
-
 
   if (this->window_size != -1 && this->window_size < this->max_period) {
     printf("--winsize cannot be smaller than --period\n");
@@ -430,11 +388,9 @@ void Settings::assign_settings() {
 
   // Assign default system setting parameters
 
-
   if (this->overlap == -1) {
     this->overlap = this->max_period;
   }
-
 
   if (this->window_size == -1) {
     int num_states = this->calculate_num_states();
@@ -493,22 +449,22 @@ void Settings::print_memory_usage() {
 
   int num_states = this->calculate_num_states();
   unsigned long long dp_size = (unsigned long long)num_states;
-  dp_size *= (unsigned long long)(this->window_size + (2*this->overlap));
+  dp_size *= (unsigned long long)(this->window_size + (2 * this->overlap));
   printf("----------------------------\n");
   printf("Maximum repeat period: %llu\n", this->max_period);
   printf("Number of states: %i\n", num_states);
-  printf("Total sequence window size: %lli\n", (this->window_size + 2*this->overlap));
+  printf("Total sequence window size: %lli\n",
+         (this->window_size + 2 * this->overlap));
   printf("DP matrix cells: %llu\n", dp_size);
   printf("Threads: %i\n", this->threads);
   dp_size *= (unsigned long long)this->threads;
   dp_size *= 4;
   printf("Sequence window queue length: %llu\n", this->windows);
-  dp_size += (this->window_size + (2*this->overlap)) * this->windows;
+  dp_size += (this->window_size + (2 * this->overlap)) * this->windows;
   float gb_size = (float)dp_size / (1024.0 * 1024.0 * 1024.0);
   if (gb_size > 0.09) {
     printf("Total size: %.2f GB (%llu bytes)\n", gb_size, dp_size);
-  }
-  else {
+  } else {
     printf("Total size: (%llu bytes)\n", dp_size);
   }
   printf("----------------------------\n");
@@ -517,6 +473,99 @@ void Settings::print_memory_usage() {
          "output repeat queue and repeat split matrices\n");
 }
 
-std::string Settings::json_string() {
-  return "";
+// This could be done in less code with templates. Yikcy wicky yucky wucky.
+std::string json_var(std::string name, std::string value) {
+  return "\"" + name + "\": " + "\"" + value + "\",\n";
 }
+
+std::string json_var(std::string name, bool value) {
+  if (value)
+    return "\"" + name + "\": " + "true" + ",\n";
+  else
+    return "\"" + name + "\": " + "false" + ",\n";
+}
+
+std::string json_var(std::string name, int value) {
+  return "\"" + name + "\": " + std::to_string(value) + ",\n";
+}
+
+std::string json_var(std::string name, float value) {
+  return "\"" + name + "\": " + std::to_string(value) + ",\n";
+}
+
+std::string json_var(std::string name, unsigned long long value) {
+  return "\"" + name + "\": " + std::to_string(value) + ",\n";
+}
+
+std::string json_var(std::string name, long long value) {
+  return "\"" + name + "\": " + std::to_string(value) + ",\n";
+}
+
+#define JSONMACRO(NAME) json_string += json_var(#NAME, NAME)
+
+std::string Settings::json_string() {
+  std::string json_string = "";
+  JSONMACRO(args);
+
+  JSONMACRO(in_file);
+  JSONMACRO(read_all);
+
+  JSONMACRO(out_file);
+  JSONMACRO(pval);
+  JSONMACRO(pval_exponent_loc_m);
+  JSONMACRO(pval_exponent_loc_b);
+  JSONMACRO(pval_exponent_scale_m);
+  JSONMACRO(pval_exponent_scale_b);
+
+  JSONMACRO(json);
+  JSONMACRO(hide_seq);
+  JSONMACRO(show_deltas);
+  JSONMACRO(show_trace);
+  JSONMACRO(show_wid);
+  JSONMACRO(show_logo_nums);
+  JSONMACRO(suppress_out);
+
+  JSONMACRO(produce_mask);
+  JSONMACRO(mask_file);
+  JSONMACRO(mask_with_n);
+
+  JSONMACRO(threads);
+  JSONMACRO(window_size);
+  JSONMACRO(overlap);
+  JSONMACRO(windows);
+
+  JSONMACRO(min_score);
+  JSONMACRO(min_length);
+  JSONMACRO(min_units);
+
+  JSONMACRO(max_period);
+  JSONMACRO(max_insert);
+  JSONMACRO(max_delete);
+
+  JSONMACRO(a_freq);
+  JSONMACRO(c_freq);
+  JSONMACRO(g_freq);
+  JSONMACRO(t_freq);
+  JSONMACRO(match_probability);
+
+  JSONMACRO(period_decay);
+  JSONMACRO(transition_nr);
+  JSONMACRO(transition_rn);
+  JSONMACRO(transition_ri);
+  JSONMACRO(transition_rd);
+  JSONMACRO(transition_ii);
+  JSONMACRO(transition_dd);
+
+  JSONMACRO(no_split);
+  JSONMACRO(max_split);
+  JSONMACRO(split_threshold);
+  JSONMACRO(split_depth);
+  JSONMACRO(min_split_window);
+  json_string.pop_back();
+  json_string.pop_back();
+  json_string += "\n";
+
+  return json_string;
+}
+
+#undef JSONMACRO
