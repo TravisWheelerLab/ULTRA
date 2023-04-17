@@ -8,8 +8,8 @@
 
 /*** UMODEL SCORE ADJUSTMENT METHODS ***/
 
-void UModel::SetMatchProbabilities(double p) {
-  double ip = 1.0 - p;
+void UModel::SetMatchProbabilities(float p) {
+  float ip = 1.0 - p;
   ip = ip / 3.0;
 
   for (int i = 1; i < 5; ++i) {
@@ -23,7 +23,7 @@ void UModel::SetMatchProbabilities(double p) {
   }
 }
 
-void UModel::SetATCGProbabilities(double A, double T, double C, double G) {
+void UModel::SetATCGProbabilities(float A, float T, float C, float G) {
 
   backgroundProbabilties[N_A] = A;
   backgroundProbabilties[N_T] = T;
@@ -36,7 +36,7 @@ void UModel::CalculateScores() {
   // tscore[CT_BACKGROUND][*]
   tscore[CT_BACKGROUND][CT_BACKGROUND] = log2(1.0 - tp_zeroToMatch);
 
-  double sum = 0.0;
+  float sum = 0.0;
   for (int i = 0; i < matrix->maxPeriod; ++i) {
     sum += pow(periodDecay, i);
   }
@@ -47,7 +47,7 @@ void UModel::CalculateScores() {
 
   if (adjustForMaximumPeriod) {
     tscore[CT_BACKGROUND][CT_MATCH] =
-        log2(tp_zeroToMatch / (double)matrix->maxPeriod);
+        log2(tp_zeroToMatch / (float)matrix->maxPeriod);
   }
 
   else {
@@ -95,13 +95,13 @@ void UModel::CalculateScores() {
 
       for (int i = 0; i < 256; ++i) {
 
-          double at = (double)i / 256.0;
-          double cg = 1.0 - at;
+          float at = (float)i / 256.0;
+          float cg = 1.0 - at;
 
-          double a = at / 2.0;
-          double t = a;
-          double c = cg / 2.0;
-          double g = c;
+          float a = at / 2.0;
+          float t = a;
+          float c = cg / 2.0;
+          float g = c;
 
           backgroundScores[i][0] = 0.25;
           backgroundScores[i][N_A] = a;
@@ -114,7 +114,7 @@ void UModel::CalculateScores() {
   backgroundScores[i][N_G]);
 
           for (int x = 0; x < 5; ++x) {
-              double s = 0.0;
+              float s = 0.0;
               for (int y = 0; y < 5; ++y) {
                   matchScores[i][x][y] = log2(backgroundScores[i][x] *
   backgroundScores[i][y] + 0.0001) * matchProbabilities[x][y]; s +=
@@ -142,13 +142,13 @@ void UModel::CalculateScores() {
 
       for (int i = 0; i < 256; ++i) {
 
-          double at = (double)i / 256.0;
-          double cg = 1.0 - at;
+          float at = (float)i / 256.0;
+          float cg = 1.0 - at;
 
-          double a = at / 2.0;
-          double t = a;
-          double c = cg / 2.0;
-          double g = c;
+          float a = at / 2.0;
+          float t = a;
+          float c = cg / 2.0;
+          float g = c;
 
           backgroundScores[i][0] = 0.25;
           backgroundScores[i][N_A] = a;
@@ -197,16 +197,16 @@ void UModel::CalculateScores() {
 /*** UMODEL SCORE CALCULATION ***/
 
 // This does not check if index - d > 0
-double UModel::PreviousEmissionScore(SequenceWindow *seq, int index, int order,
-                                     int d) {
+float UModel::PreviousEmissionScore(SequenceWindow *seq, int index, int order,
+                                    int d) {
 
   int p = index - d;
-  double b = bscore[seq->seq[p]];
+  float b = bscore[seq->seq[p]];
   // symbol s = seq->seq[p];
   // printf("%i, %i %i %i, %f\n", p, order, p-order, (int)seq->seq[p],
   // mscore[p-order][seq->seq[p]]);
 
-  double v = mscore[seq->seq[p - order]][seq->seq[p]];
+  float v = mscore[seq->seq[p - order]][seq->seq[p]];
 
   return v - b;
   // return emissionScore(seq, index, order)
@@ -216,8 +216,8 @@ double UModel::PreviousEmissionScore(SequenceWindow *seq, int index, int order,
 
   int at = seq->symbolFreqs[p];
 
-  double mp[5][5];
-  double b = backgroundScores[at][seq->seq[p]];
+  float mp[5][5];
+  float b = backgroundScores[at][seq->seq[p]];
 
   for (int i = 0; i < 5; ++i) {
       for (int j = 0; j < 5; ++j) {
@@ -226,12 +226,12 @@ double UModel::PreviousEmissionScore(SequenceWindow *seq, int index, int order,
       }
   }
 
-  double v = mp[seq->seq[p - order]][seq->seq[p]];
+  float v = mp[seq->seq[p - order]][seq->seq[p]];
 
   return v - b;*/
 }
 
-double UModel::EmissionScore(SequenceWindow *seq, int index, int order) {
+float UModel::EmissionScore(SequenceWindow *seq, int index, int order) {
 
   symbol s1 = seq->seq[index];
   symbol s2 = seq->seq[index - order];
@@ -243,11 +243,11 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
                                     bool *canBeRepetitive) {
   bool cbr = false; // can be repetitive - true if it is possible for next
                     // character to be repetitve
-  double bestRepeatScore = NEG_INF;
+  float bestRepeatScore = NEG_INF;
 
   cell *desc = matrix->cellDescriptions;
-  double *p = matrix->previousScoreColumn;
-  double *c = matrix->currentScoreColumn;
+  float *p = matrix->previousScoreColumn;
+  float *c = matrix->currentScoreColumn;
 
   int *ct = matrix->currentTracebackColumn;
 
@@ -280,7 +280,7 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
       // Check to see if match->none is a better score than none->none
       int parentIndex = desc[row].parentIndex;
       int order = desc[row].order;
-      double score = p[row] + tscore[CT_MATCH][CT_BACKGROUND];
+      float score = p[row] + tscore[CT_MATCH][CT_BACKGROUND];
       score += (order)*periodDecay;
       score += periodDecayOffset;
 
@@ -304,7 +304,7 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
       // Testing out having transitions to state n come from 0th order n
       // characters previous
 
-      double zscore = 0.0;
+      float zscore = 0.0;
 
       if (immediateTransitionToRepeat) {
         zscore = p[0];
@@ -315,7 +315,7 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
         zscore += tscore[CT_BACKGROUND][CT_BACKGROUND] * order;
       }
 
-      double es = EmissionScore(sequence, nucIndex, order);
+      float es = EmissionScore(sequence, nucIndex, order);
 
       score = zscore + tscore[CT_BACKGROUND][CT_MATCH] + es;
 
@@ -350,8 +350,8 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
       if (matind > minIndex) {
 
         // Check to see if the match state should transition from here
-        double score = p[row] + tscore[CT_INSERTION][CT_MATCH] +
-                       EmissionScore(sequence, nucIndex, order);
+        float score = p[row] + tscore[CT_INSERTION][CT_MATCH] +
+                      EmissionScore(sequence, nucIndex, order);
         if (score > c[parentIndex]) {
           // printf("%i %i %f %f\n", order, indelNum, score,
           // c[parentIndex]);
@@ -387,7 +387,7 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
 
       // We have to do a manual calculation of the score
       else if (matind == minIndex) {
-        double score = matrix->PreviousScore(
+        float score = matrix->PreviousScore(
             parentIndex,
             peridocity); // The match score this insertion comes from
         score += 0.0;    // The emission score of the actual insertion = 0
@@ -396,8 +396,8 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
         // Transition cost
         score += tscore[CT_MATCH][CT_INSERTION];
         score += tscore[CT_INSERTION][CT_INSERTION] *
-                 (double)(desc[row].indelNumber - 1);
-        score += log2(1.0 - tp_matchToZero) * (double)order;
+                 (float)(desc[row].indelNumber - 1);
+        score += log2(1.0 - tp_matchToZero) * (float)order;
 
         // We don not need to consider the insertion cost at this point
         // because the insertion state is 0th order, and will have
@@ -434,8 +434,8 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
 
         // Check to see if the match state can transition from the del
         // state
-        double score = p[row] + tscore[CT_DELETION][CT_MATCH] +
-                       EmissionScore(sequence, nucIndex, order);
+        float score = p[row] + tscore[CT_DELETION][CT_MATCH] +
+                      EmissionScore(sequence, nucIndex, order);
         if (score > c[parentIndex]) {
           c[parentIndex] = score;
           ct[desc[row].order] = row;
@@ -469,13 +469,13 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
       else if (matind == minIndex) {
 
         // Get the match state score
-        double score = matrix->PreviousScore(parentIndex, order);
-        // double oscore = p[row];
+        float score = matrix->PreviousScore(parentIndex, order);
+        // float oscore = p[row];
 
         // Calculate transition score
         score += tscore[CT_MATCH][CT_DELETION];
-        score += tscore[CT_DELETION][CT_DELETION] * (double)(indelNum - 1);
-        score += log2(1.0 - tp_matchToZero) * (double)order;
+        score += tscore[CT_DELETION][CT_DELETION] * (float)(indelNum - 1);
+        score += log2(1.0 - tp_matchToZero) * (float)order;
 
         // Calculate deletion state emission scores
         for (int j = 0; j < order - indelNum; ++j) {

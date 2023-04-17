@@ -43,15 +43,15 @@ public:
   double C_pctg;
   double G_pctg;
 
-  symbol *overlapBuffer;       //    = NULL;
-  unsigned long overlapLength; //    = 0;
+  symbol *overlapBuffer;          //    = NULL;
+  unsigned long overlapLength;    //    = 0;
 
   std::string sequenceName;       // = "";
   unsigned long sequenceID;       // = 0;
   unsigned long readID;           // = 0; // read id's may not be contiguous
   unsigned long symbolsReadInSeq; // = 0;
 
-  bool doneReadingFile; //  = false;
+  bool doneReadingFile;           //  = false;
   bool isReading;
 
   bool CopyOverlapBufferFromWindow(SequenceWindow *window,

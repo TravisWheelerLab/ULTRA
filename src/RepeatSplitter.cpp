@@ -2,7 +2,7 @@
 // Created by Olson, Daniel (NIH/NIAID) [E] on 4/28/22.
 //
 
-#include "RepeatSplitter.h"
+#include "RepeatSplitter.hpp"
 
 #define score_func() (KLD_pq() + KLD_qp())
 

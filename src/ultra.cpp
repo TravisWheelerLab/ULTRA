@@ -41,7 +41,7 @@ void Ultra::AnalyzeFile() {
   OutputULTRASettings();
   InitializeWriter();
 
-  // double Log2PvalForScore(double score, double period);
+  // float Log2PvalForScore(float score, float period);
 
   for (int i = 1; i < numberOfThreads; ++i) {
     pthread_create(&threads[i]->p_thread, nullptr, UltraThreadLaunch,
@@ -135,9 +135,11 @@ void Ultra::AnalyzeFileWithThread(void *dat) {
   }
 }
 
-double Ultra::Log2PvalForScore(double score, double period) const {
-  double loc = (settings->v_exponLocM * period) + settings->v_exponLocB;
-  double scale = (settings->v_exponScaleM * period) + settings->v_exponScaleB;
+float Ultra::Log2PvalForScore(float score, float period) const {
+  float loc =
+      (settings->pval_exponent_loc_m * period) + settings->pval_exponent_loc_b;
+  float scale = (settings->pval_exponent_scale_m * period) +
+                settings->pval_exponent_scale_b;
 
   // Cap location
   if (loc < 0.2)
@@ -182,29 +184,24 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
       r->GetLogoNumbers();
     }
-    int splitWindow = std::max(r->repeatPeriod * settings->v_splitDepth,
-                               settings->v_minSplitWindow);
-    if (r->repeatPeriod <= settings->v_maxSplitPeriod &&
-        r->repeatLength > 2 * splitWindow) {
+    int splitWindow = std::max(r->repeatPeriod * settings->split_depth,
+                               settings->min_split_window);
+    if (r->repeatPeriod <= settings->max_split) {
+      if (r->repeatLength > 2 * splitWindow) {
 
-      // This almost feels right.
-      // Probably want to change it later though.
-      float join_threshold = 1.0 - (1.0 / settings->v_splitThreshold);
-      // ugh this line is ugly
-      //  printf("Splitting repeat at %i (%i %i)...\n", r->sequenceStart,
-      //  r->readID, r->repeatLength);
+        // This almost feels right.
+        // Probably want to change it later though.
+        float join_threshold = 1.0 - (1.0 / settings->split_threshold);
 
-      r->splits = uth->splitter->SplitsForRegion(r, splitWindow,
-                                                 settings->v_splitThreshold);
-      r->consensi = uth->splitter->ConsensiForSplit(r, r->splits, 0.65);
-      ValidateSplits(r->consensi, r->splits, 0.85);
-      //  printf("Validation successful\n");
-
-      //   printf("Splits: ");
-      for (int i = 0; i < r->splits->size(); ++i) {
-        //      printf("%i ", r->splits->at(i));
+        r->splits = uth->splitter->SplitsForRegion(r, splitWindow,
+                                                   settings->split_threshold);
+        r->consensi = uth->splitter->ConsensiForSplit(r, r->splits, 0.65);
+        ValidateSplits(r->consensi, r->splits, 0.85);
+      } else {
+        r->splits = new std::vector<int>;
+        r->consensi = new std::vector<std::string>;
+        r->consensi->push_back(r->string_consensus);
       }
-      //    printf("\n");
     }
 
     uth->repeats.push_back(r);
@@ -228,11 +225,9 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   }
 }
 
-void Ultra::CorrectOverlap(int maxReadID) {}
-
 void Ultra::OutputRepeats(bool flush) {
 
-  int maxReadID = SmallestReadID() - 20;
+  int maxReadID = SmallestReadID() - (2 * numberOfThreads);
 
   if (flush) {
     for (int i = 0; i < numberOfThreads; ++i) {
@@ -241,19 +236,14 @@ void Ultra::OutputRepeats(bool flush) {
                           threads[i]->repeats.end());
       }
     }
-
     maxReadID = 100000000;
   }
 
   SortRepeatRegions();
 
-  while (outRepeats.size() > 0) {
+  while (!outRepeats.empty()) {
 
     RepeatRegion *r = outRepeats.back();
-
-    if (settings->v_correctOverlap) {
-      CorrectOverlap(maxReadID);
-    }
 
     if (r->readID >= maxReadID) {
       break;
@@ -261,6 +251,25 @@ void Ultra::OutputRepeats(bool flush) {
 
     outRepeats.pop_back();
 
+    // Check if we need to correct overlap
+    while (!outRepeats.empty()) {
+      if (outRepeats.back()->readID >= maxReadID) {
+        outRepeats.push_back(r);
+        return;
+      }
+
+      if (repeats_overlap(r, outRepeats.back())) {
+        r = joint_repeat_region(r, outRepeats.back());
+        if (r->splits != nullptr)
+          ValidateSplits(r->consensi, r->splits, 0.85);
+        outRepeats.pop_back();
+      }
+
+      else
+        break;
+    }
+
+    r->SortConsensi();
     OutputRepeat(r);
 
     delete r;
@@ -276,16 +285,26 @@ void Ultra::OutputRepeats(bool flush) {
 }
 
 void Ultra::OutputULTRASettings() {
-  fprintf(settings_out, "{\"Version\": \"%s\", \n",
-          settings->StringVersion().c_str());
+  fprintf(settings_out, "{\"Version\": \"%s\", \n", ULTRA_VERSION_STRING);
   fprintf(settings_out, "\"Parameters\": {\n");
-  fprintf(settings_out, "%s}}\n", settings->JSONString().c_str());
+  fprintf(settings_out, "%s}}\n", settings->json_string().c_str());
   if (settings_out != stdout)
     fclose(settings_out);
 }
 
 void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
-  writer->WriteRepeat(r);
+  if (!settings->suppress_out)
+    writer->WriteRepeat(r);
+  if (settings->produce_mask) {
+    this->StoreMaskForRegion(r);
+  }
+}
+
+void Ultra::StoreMaskForRegion(RepeatRegion *r) {
+  if (masks_for_seq.find(r->sequenceID) == masks_for_seq.end())
+    masks_for_seq[r->sequenceID] = new std::vector<mregion>();
+  masks_for_seq[r->sequenceID]->push_back(
+      mregion{r->sequenceStart, r->repeatLength + r->sequenceStart});
 }
 
 void Ultra::SortRepeatRegions() {
@@ -295,48 +314,45 @@ void Ultra::SortRepeatRegions() {
 Ultra::Ultra(Settings *s, int n) {
   settings = s;
 
-  if (settings->v_outFilePath == "") {
+  if (settings->out_file == "") {
     out = stdout;
     settings_out = stdout;
   }
 
   else {
-    out = fopen(settings->v_outFilePath.c_str(), "w");
-    std::string settings_file_path = settings->v_outFilePath + ".settings";
+    out = fopen(settings->out_file.c_str(), "w");
+    std::string settings_file_path = settings->out_file + ".settings";
     settings_out = fopen(settings_file_path.c_str(), "w");
   }
 
-  if (settings->v_outputFormat == JSON) {
+  if (settings->json) {
     writer = new JSONFileWriter();
   }
 
-  else if (settings->v_outputFormat == BED) {
+  else {
     writer = new BEDFileWriter();
   }
 
-  numberOfThreads = settings->v_numberOfThreads;
+  numberOfThreads = settings->threads;
 
-  if (settings->v_readWholeFile)
-    settings->v_windowSize = -1;
+  scoreThreshold = settings->min_score;
+  outputReadID = settings->show_wid;
+  outputRepeatSequence = !settings->hide_seq;
 
-  scoreThreshold = settings->v_scoreThreshold;
-  outputReadID = settings->v_showWindowID;
-  outputRepeatSequence = settings->v_outputRepeatSequence;
+  passID = 0;
+  AnalyzingJSON = false;
 
-  passID = settings->v_passID;
-  AnalyzingJSON = settings->v_JSONInput;
+  reader = new FileReader(settings->in_file, settings->windows,
+                          settings->window_size, settings->overlap,
+                          settings->threads > 1);
 
-  reader = new FileReader(settings->v_filePath, settings->v_numberOfWindows,
-                          settings->v_windowSize, settings->v_overlapSize,
-                          settings->v_numberOfThreads > 1);
-
-  int leng = settings->v_windowSize + settings->v_overlapSize + 2;
-
-  if (settings->v_maxSplitPeriod > 0) {
+  int leng = settings->window_size + (settings->overlap + 2);
+  storeTraceAndSequence = true;
+  if (settings->max_split > 0) {
     storeTraceAndSequence = true;
   }
 
-  if (settings->v_showLogoNumbers) {
+  if (settings->show_logo_nums) {
     storeTraceAndSequence = true;
   }
 
@@ -344,26 +360,25 @@ Ultra::Ultra(Settings *s, int n) {
   for (int i = 0; i < numberOfThreads; ++i) {
     // We now are making the v_maxPeriod setting more intuitive, by adding 1 to
     // it. This makes a v_maxPeriod of 10 able to detect repeats of length 10.
-    UModel *mod =
-        new UModel(settings->v_maxPeriod + 1, settings->v_maxInsertion,
-                   settings->v_maxDeletion, leng);
+    UModel *mod = new UModel(settings->max_period + 1, settings->max_insert,
+                             settings->max_delete, leng);
 
-    mod->periodDecay = settings->v_repeatPeriodDecay;
+    mod->periodDecay = settings->period_decay;
 
-    mod->SetMatchProbabilities(settings->v_matchProbability);
-    mod->SetATCGProbabilities(settings->v_Apctg, settings->v_Tpctg,
-                              settings->v_Cpctg, settings->v_Gpctg);
+    mod->SetMatchProbabilities(settings->match_probability);
+    mod->SetATCGProbabilities(settings->a_freq, settings->t_freq,
+                              settings->c_freq, settings->g_freq);
 
     // printf(mod->backgroundProbabilties)
 
-    mod->tp_zeroToMatch = settings->v_zeroToMatch;
-    mod->tp_matchToZero = settings->v_matchToZero;
+    mod->tp_zeroToMatch = settings->transition_nr;
+    mod->tp_matchToZero = settings->transition_rn;
 
-    mod->tp_matchToInsertion = settings->v_matchToInsertion;
-    mod->tp_matchToDeletion = settings->v_matchToDeletion;
+    mod->tp_matchToInsertion = settings->transition_ri;
+    mod->tp_matchToDeletion = settings->transition_rd;
 
-    mod->tp_consecutiveInsertion = settings->v_consecutiveInsertion;
-    mod->tp_consecutiveDeletion = settings->v_consecutiveDeletion;
+    mod->tp_consecutiveInsertion = settings->transition_ii;
+    mod->tp_consecutiveDeletion = settings->transition_dd;
 
     mod->CalculateScores();
 
@@ -377,7 +392,7 @@ Ultra::Ultra(Settings *s, int n) {
     newThread->model = models[i];
     newThread->repeats.reserve(64);
     newThread->splitter = new SplitWindow();
-    newThread->splitter->AllocateSplitWindow(4, settings->v_maxPeriod + 1);
+    newThread->splitter->AllocateSplitWindow(4, settings->max_period + 1);
     threads.push_back(newThread);
   }
 

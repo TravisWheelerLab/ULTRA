@@ -78,7 +78,7 @@ void UMatrix::AdjustScoreToZero(int startingAt, int numberOfColumns) {
 }
 
 // Adjust every row in <column> to be [row] = [row] + adjustment
-void UMatrix::AdjustColumn(int column, double adjustment) {
+void UMatrix::AdjustColumn(int column, float adjustment) {
   for (int i = 0; i < cellsPerColumn; ++i) {
     scoreColumns[column][i] += adjustment;
   }
@@ -86,8 +86,8 @@ void UMatrix::AdjustColumn(int column, double adjustment) {
 
 // Return the score in scoreColumns[currentColumnIndex - d][row]
 // Account for warpping if currentColumnIndex - d < 0
-double UMatrix::PreviousScore(int row, int d) {
-  double s = NEG_INF;
+float UMatrix::PreviousScore(int row, int d) {
+  float s = NEG_INF;
 
   if (d < length) {
     int c = PreviousColumn(d);
@@ -411,10 +411,9 @@ void UMatrix::CreateMatrix() {
    }*/
 
   // Allocate matrices
-  scoreMatrix =
-      (double *)malloc(sizeof(double) * cellsPerColumn * (length + 1));
+  scoreMatrix = (float *)malloc(sizeof(float) * cellsPerColumn * (length + 1));
   tracebackMatrix = (int *)malloc(sizeof(int) * (maxPeriod + 1) * (length + 1));
-  scoreColumns = (double **)malloc(sizeof(double *) * (length + 1));
+  scoreColumns = (float **)malloc(sizeof(float *) * (length + 1));
   tracebackColumns = (int **)malloc(sizeof(int *) * (length + 1));
 
   // Assign columns of matrices

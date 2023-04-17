@@ -88,6 +88,8 @@ void FileReader::SetIsReading(bool value) {
 unsigned long FileReader::ReadyWindowsSize() {
   if (format == FASTA)
     return fastaReader->readyWindows.size();
+
+  return 0;
 }
 
 bool FileReader::FillWindows() {

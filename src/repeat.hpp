@@ -15,12 +15,7 @@
 #include "umatrix.hpp"
 
 #define OC_NONE 0
-#define OC_OVERLAP_LEFT 1
-#define OC_OVERLAP_RIGHT 2
-#define OC_OVERLAP_SPLIT 3
-#define OC_PERIOD_LEFT 4
-#define OC_PERIOD_RIGHT 5
-#define OC_PERIOD_SPLIT 6
+#define OC_TRUE 1
 
 class RepeatRegion {
 public:
@@ -45,10 +40,10 @@ public:
 
   int repeatPeriod;
 
-  double startScore;
-  double endScore;
-  double regionScore;
-  double *scores;
+  float startScore;
+  float endScore;
+  float regionScore;
+  float *scores;
 
   int *logoMemory;
   int **logo;
@@ -70,13 +65,14 @@ public:
 
   int overlapCorrection;
 
-  double logPVal;
+  float logPVal;
 
   void CreateLogo(SequenceWindow *window, UMatrix *matrix);
   void CreateLogoWithoutMatrix(); // Requires traceback + sequence + lookBack
 
   void CreateConsensusFromLogo();
   std::string GetConsensus();
+  std::string string_consensus = "";
 
   void StoreSequence(SequenceWindow *window);
   void StoreTraceback(UMatrix *matrix);
@@ -94,10 +90,22 @@ public:
 
   RepeatRegion *SubRepeat(int start, int length);
 
+  std::string PermutationForString(const std::string &str, int offset);
+  int CompareStrPerm(const std::string &str, int perm1, int perm2);
+  void SortConsensus(int index);
+  void SortConsensi();
+
   RepeatRegion();
   ~RepeatRegion();
 };
 
 RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *i);
+
+bool repeats_overlap(RepeatRegion *r1, RepeatRegion *r2,
+                     bool require_same_period = true);
+
+// This does not dealloc r1/r2.
+// this also assuems that r2
+RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2);
 
 #endif /* repeat_hpp */

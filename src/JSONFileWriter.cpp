@@ -16,7 +16,7 @@ void JSONFileWriter::OutputJSONKeyValue(std::string key, std::string value,
 
 void JSONFileWriter::InitializeWriter(Ultra *ultra) {
   owner = ultra;
-  fprintf(owner->out, "{\"Repeats\": [");
+  fprintf(owner->out, "{\"Repeats\": [\n");
 }
 
 std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index,
@@ -36,14 +36,16 @@ std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index,
   float frac_rep = (float)r->repeatLength / (float)(end - start_pos);
   float subScore = r->regionScore / frac_rep;
 
-  repeatString += "Start: ";
+  repeatString += "\"Start\": ";
   repeatString += std::to_string(start);
-  repeatString += ",\nEnd: ";
+  repeatString += ",\n\"End\": ";
   repeatString += std::to_string(end + start);
-  repeatString += ",\nScore: ";
+  repeatString += ",\n\"Score\": ";
   repeatString += std::to_string(subScore);
-  repeatString += ",\nConsensus: \"";
-  repeatString += r->consensi->at(consensusPosition);
+  repeatString += ",\n\"Consensus\": \"";
+  // Converting to a c string is important.
+  // ...Dunno why, but here we are
+  repeatString += r->consensi->at(consensusPosition).c_str();
 
   repeatString += "\"}";
 
@@ -87,14 +89,14 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
   this->OutputJSONKeyValue("Length", std::to_string(repeat->repeatLength));
   this->OutputJSONKeyValue("Period", std::to_string(repeat->repeatPeriod));
   this->OutputJSONKeyValue("Score", std::to_string(repeat->regionScore));
-  if (owner->settings->v_calculateLogPVal) {
+  if (owner->settings->pval) {
     this->OutputJSONKeyValue("Log2PVal", std::to_string(repeat->logPVal));
   }
 
   this->OutputJSONKeyValue("Substitutions", std::to_string(repeat->mismatches));
   this->OutputJSONKeyValue("Insertions", std::to_string(repeat->insertions));
   this->OutputJSONKeyValue("Deletions", std::to_string(repeat->deletions));
-  this->OutputJSONKeyValue("Consensus", repeat->GetConsensus(), true);
+  this->OutputJSONKeyValue("Consensus", repeat->string_consensus, true);
 
   if (owner->outputReadID) {
     this->OutputJSONKeyValue("ReadID", std::to_string(repeat->readID));
@@ -104,11 +106,11 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
     this->OutputJSONKeyValue("Sequence", repeat->sequence, true);
   }
 
-  if (owner->settings->v_showTraceback) {
+  if (owner->settings->show_trace) {
     this->OutputJSONKeyValue("Traceback", repeat->traceback, true);
   }
 
-  if (owner->settings->v_showLogoNumbers) {
+  if (owner->settings->show_logo_nums) {
     std::string logoNumbers = "\"" + std::to_string(repeat->logoNumbers[0]);
     for (int i = 0; i < repeat->repeatLength; ++i) {
       logoNumbers.append("," + std::to_string(repeat->logoNumbers[i]));
@@ -119,7 +121,7 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
     this->OutputJSONKeyValue("LogoNumbers", logoNumbers);
   }
 
-  if (owner->settings->v_showScores) {
+  if (owner->settings->show_deltas) {
     std::string positionScoreDeltas = "[";
 
     for (int i = 0; i < repeat->repeatLength; ++i) {

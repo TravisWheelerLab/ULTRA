@@ -6,7 +6,7 @@
 #include "repeat.hpp"
 #include "ultra.hpp"
 #include <algorithm>
-
+#include <iostream>
 void BEDFileWriter::InitializeWriter(Ultra *ultra) { owner = ultra; }
 
 void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
@@ -29,17 +29,16 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
     }
   }
 
-  fprintf(owner->out, "%s %lu %lu", name.c_str(), repeat->sequenceStart,
+  fprintf(owner->out, "%s\t%lu\t%lu", name.c_str(), repeat->sequenceStart,
           repeat->sequenceStart + repeat->repeatLength);
   // We need to decide what to do with the overall sequence
 
-  fprintf(owner->out, " %s %f", repeat->GetConsensus().c_str(),
-          repeat->regionScore);
+  printf("consensus: %s\n", repeat->string_consensus.c_str());
 
-  fprintf(owner->out, " . %lu %lu 0,0,0 ", repeat->sequenceStart,
+  fprintf(owner->out, "\t.\t%lu\t%lu\t0,0,0\t", repeat->sequenceStart,
           repeat->sequenceStart + repeat->repeatLength);
 
-  if (owner->settings->v_maxSplitPeriod > 0) {
+  if (owner->settings->max_split > 0) {
 
     std::string sizes = "";
     std::string starts = "0";
@@ -65,13 +64,13 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
         sizes.push_back(',');
       sizes += std::to_string(repeat->repeatLength - cstart);
 
-      fprintf(owner->out, "%i %s %s", numberOfValidSplits + 1, sizes.c_str(),
+      fprintf(owner->out, "%i\t%s\t%s", numberOfValidSplits + 1, sizes.c_str(),
               starts.c_str());
 
     }
 
     else {
-      fprintf(owner->out, "1 %lu 0", repeat->repeatLength);
+      fprintf(owner->out, "1\t%lu\t0", repeat->repeatLength);
     }
   }
 

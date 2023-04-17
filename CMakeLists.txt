@@ -4,6 +4,10 @@ project(
         HOMEPAGE_URL https://github.com/TravisWheelerLab/ULTRA
 )
 
+if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(
         LIB_CPP_FILES
@@ -18,12 +22,16 @@ set(
         src/SequenceWindow.hpp
         src/Symbol.hpp
         src/repeat.hpp
-        src/settings.hpp
         src/ultra.hpp
         src/umatrix.hpp
         src/umodel.hpp
         src/umodeldriver.hpp
-
+        src/BEDFileWriter.hpp
+        src/RepeatFileWriter.hpp
+        src/JSONFileWriter.hpp
+        src/RepeatSplitter.hpp
+        src/cli.hpp
+        src/mask.hpp
 )
 set(
         CPP_FILES
@@ -34,12 +42,15 @@ set(
         src/Symbol.cpp
         src/main.cpp
         src/repeat.cpp
-        src/settings.cpp
         src/ultra.cpp
         src/umatrix.cpp
         src/umodel.cpp
         src/umodeldriver.cpp
-        src/BEDFileWriter.cpp src/BEDFileWriter.hpp src/RepeatFileWriter.hpp src/JSONFileWriter.cpp src/JSONFileWriter.hpp src/RepeatSplitter.cpp src/RepeatSplitter.h)
+        src/BEDFileWriter.cpp
+        src/JSONFileWriter.cpp
+        src/RepeatSplitter.cpp
+        src/mask.cpp
+        src/cli.cpp)
 
 find_package(Threads REQUIRED)
 
