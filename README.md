@@ -2,7 +2,7 @@
 
 **U**LTRA **L**ocates **T**andemly **R**epetitive **A**reas
 
-(Note: The current stable release is 1.0.0 beta. As we move out of beta we will update the README to be more informative.
+(Note: The current stable release is 1.0.0 beta. As we move out of beta we will update the README to be more informative.)
 
 ULTRA is a tool to find and annotate tandem repeats inside genomic sequence. It
 is able to find repeats of any length and of any period (up to a maximum period
