@@ -16,7 +16,7 @@ void JSONFileWriter::OutputJSONKeyValue(std::string key, std::string value,
 
 void JSONFileWriter::InitializeWriter(Ultra *ultra) {
   owner = ultra;
-  fprintf(owner->out, "{\"Repeats\": [");
+  fprintf(owner->out, "{\"Repeats\": [\n");
 }
 
 std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index,

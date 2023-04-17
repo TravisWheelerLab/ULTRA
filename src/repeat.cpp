@@ -24,11 +24,9 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
   unsigned long fplace = repeatPeriod + windowStart;
   unsigned long bplace = windowStart;
 
-  // printf("%llu %llu %llu\n", backset, fplace, endpoint);
   if (endpoint > window->length + window->overlap)
     endpoint = window->length + window->overlap;
 
-  // printf("\n%i vs %i\n", windowStart, endpoint);
 
   int insertionReset = -1;
   int deletionReset = -1;
@@ -41,8 +39,6 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
   for (unsigned long i = 0; i < endpoint; ++i) {
     int frow = matrix->traceback[fplace];
     int brow = matrix->traceback[bplace];
-    //   printf("%f\n", matrix->scoreColumns[fplace][frow]);
-    // printf("%i(%i,%i,%i).", row, insertions, deletions, mismatches);
 
     cell fdesc = matrix->cellDescriptions[frow];
     cell bdesc = matrix->cellDescriptions[brow];
@@ -58,7 +54,6 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
                lookBack[i + j] = 0;
            }*/
 
-      // printf("Insertion.\n");
     }
 
     else if (fdesc.type == CT_DELETION) {
@@ -66,7 +61,6 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
       bplace += fdesc.indelNumber;
       p += fdesc.indelNumber;
       modp += fdesc.indelNumber + 1;
-      // printf("Deletion.\n");
     }
 
     else {
@@ -86,8 +80,7 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
 
     symbol s = window->seq[fplace];
     symbol sb = window->seq[bplace];
-    //  printf("%i (%i): %c %c\n", fplace, bplace, CharForSymbol(s),
-    //  CharForSymbol(sb));
+
     p = p % repeatPeriod;
 
     if (s != sb) {
@@ -96,7 +89,6 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
     }
 
     else {
-      // printf("\n**%i %i**\n", p, s);
       logo[p][s] += 4;
     }
 
@@ -118,8 +110,10 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
 
 void RepeatRegion::CreateLogoWithoutMatrix() {
 
-  if (sequence.length() == 0 || traceback.length() == 0)
+  if (sequence.length() == 0 || traceback.length() == 0) {
     return;
+  }
+
   logoMemory = (int *)malloc(sizeof(int) * repeatPeriod * (NUM_SYMBOLS + 1));
   logo = (int **)malloc(sizeof(int *) * repeatPeriod);
 
@@ -165,9 +159,7 @@ void RepeatRegion::CreateConsensusFromLogo() {
     for (int j = 1; j < NUM_SYMBOLS; ++j) {
       if (logo[i][j] > logo[i][s])
         s = j;
-      //   printf("%i ", logo[i][j]);
     }
-    //  printf("\n");
     consensus[i] = s;
   }
 
@@ -285,7 +277,6 @@ std::string RepeatRegion::GetConsensus() {
     con.push_back(CharForSymbol(consensus[i]));
   }
   // con[repeatPeriod] = '\0';
-
   return con;
 }
 
@@ -341,11 +332,7 @@ void RepeatRegion::StoreScores(UMatrix *matrix) {
 
     scores[i - 1] = s - ps;
 
-    //    printf("[%i %i]: (%f, %f) %i %f %i %f \n", i, p,
-    //    matrix->scoreColumns[p - 1][27], matrix->scoreColumns[p][27],
-    //    cell, s, prevCell, ps);
   }
-  // exit(0);
 }
 
 void RepeatRegion::LookBackDistance() {
@@ -576,71 +563,6 @@ void RepeatRegion::CountForwardBackwardConsensus(const int depth) {
 
   LookBackDistance();
   LookForwardDistance();
-
-  /*printf("\n------SEQUENCE------\n");
-
-  for (int i = 0; i < repeatLength; ++i) {
-      printf("%c", sequence[i]);
-  }
-
-  printf("\n------END SEQUENCE------\n");
-
-  printf("\n------TRACEBACK------\n");
-
-  for (int i = 0; i < repeatLength; ++i) {
-      printf("%c", traceback[i]);
-  }
-
-  printf("\n------END TRACEBACK------\n");
-
-
-  printf("\n------LOOK BACK------\n");
-
-  for (int i = 0; i < repeatLength; ++i) {
-      printf("%i", lookBack[i]);
-  }
-
-  printf("\n------END LOOK BACK------\n");
-
-  printf("\n------LOOK FORWARD------\n");
-
-  for (int i = 0; i < repeatLength; ++i) {
-      printf("%i", lookForward[i]);
-  }
-
-  printf("\n------END LOOK FORWARD------\n");*/
-
-  backCounts = (char *)malloc(sizeof(char) * repeatLength);
-  forwardCounts = (char *)malloc(sizeof(char) * repeatLength);
-
-  CountFromDistance(lookBack, backCounts, -1, depth);
-  CountFromDistance(lookForward, forwardCounts, 1, depth);
-
-  /* printf("\n------BACK COUNTS------\n");
-
-   for (int i = 0; i < repeatLength; ++i) {
-       int c = backCounts[i];
-       if (c < 0)
-           printf("*");
-       else
-           printf("%i", backCounts[i]);
-   }
-
-   printf("\n------END BACK COUNTS------\n");
-
-   printf("\n------FORWARD COUNTS------\n");
-
-   for (int i = 0; i < repeatLength; ++i) {
-       int c = forwardCounts[i];
-       if (c < 0)
-           printf("*");
-       else
-           printf("%i", forwardCounts[i]);
-   }
-
-   printf("\n------END FORWARD COUNTS------\n");*/
-
-  // CountFromDistance(lookForward, forwardCounts, 1, depth);
 }
 
 std::vector<RepeatRegion *> *RepeatRegion::SplitRepeats(const int depth,
@@ -662,7 +584,6 @@ std::vector<RepeatRegion *> *RepeatRegion::SplitRepeats(const int depth,
     // Check to see if the ith position has the right conditions
     if (backCounts[i] > invCutoff && forwardCounts[i] < cutoff) {
       int f = i + lookForward[i];
-      // printf("i:%i f:%i bf:%i ff:%i")
 
       // Don't split on insertions or at the beginning/end of the sequence
       if (backCounts[f] < 0 || forwardCounts[f] < 0 || lookBack[i] == 0)
@@ -744,21 +665,15 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos) {
 
   for (i = *pos; i < seqLength; ++i) {
 
-    // printf("%i: %llx, %llx, %llx\n", i, (unsigned long)matrix, (unsigned
-    // long)matrix->traceback, (unsigned long)&matrix->traceback[i]);
+
     if (matrix->traceback[i] > 0) {
       foundRepeat = true;
       break;
-    }
-
-    else if (matrix->traceback[i] < 0) {
-      //     printf("%i %i\n", i, matrix->traceback[i]);
     }
   }
 
   if (foundRepeat) {
     int row = matrix->traceback[i];
-    // printf("%i %i\n", matrix->traceback[i], matrix->traceback[i-1]);
     cell desc = matrix->cellDescriptions[row];
 
     region = new RepeatRegion();
@@ -769,8 +684,7 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos) {
     region->readID = window->readID;
     region->repeatPeriod = desc.order;
 
-    // printf("%i %i %i %i\n", window->start, i, window->overlap,
-    // region->repeatPeriod);
+
     region->windowStart = i - region->repeatPeriod - 1;
     region->sequenceStart =
         window->start + (i - window->overlap - region->repeatPeriod) - 1;
@@ -815,9 +729,6 @@ void RepeatRegion::GetLogoNumbers() {
   unsigned long length = this->repeatLength;
   logoNumbers = (int *)malloc(sizeof(int) * (length + 1));
 
-  // for (int i = 0; i < )
-  // printf("\n\n\n\n");
-  // printf("Get logo numbers for %i %i\n", start, length);
   int num = 0;
   for (unsigned long i = 0; i < length; ++i) {
 
@@ -839,17 +750,13 @@ void RepeatRegion::GetLogoNumbers() {
     for (int j = 0; j < delCount; ++j) {
       logoNumbers[i] = num % repeatPeriod;
 
-      /*printf("D:%i %i %c %c %i %i\n", i, desc.type, sequence[i], traceback[i],
-       * matrix->traceback[p], logoNumbers[i]);*/
+
       ++num;
       ++i;
     }
     if (delCount > 0)
       --i;
-    /*
-     if (delCount == 0)
-     printf("%i %i %c %c %i %i\n", i, desc.type, sequence[i], traceback[i],
-     matrix->traceback[p], logoNumbers[i]);*/
+
   }
 }
 
@@ -876,6 +783,7 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
     return nullptr;
 
   RepeatRegion *joint_rep = new RepeatRegion();
+  joint_rep->string_consensus = r1->string_consensus;
   joint_rep->sequenceStart = r1->sequenceStart;
   joint_rep->repeatLength =
       (r2->sequenceStart + r2->repeatLength) - r1->sequenceStart;
@@ -1008,25 +916,20 @@ void RepeatRegion::SortConsensi() {
       if (c == 1)
         best_perm = i;
     }
-    printf("%s = ", string_consensus.c_str());
     string_consensus = PermutationForString(string_consensus, best_perm);
-    printf("%s = ", string_consensus.c_str());
 
   }
 
   if (this->consensi == nullptr) {
-    printf(".\n");
     return;
   }
   if (this->consensi->empty()) {
-    printf(".\n");
     return;
   }
 
   for (int i = 0; i < consensi->size(); ++i) {
     SortConsensus(i);
   }
-  printf("%s\n", string_consensus.c_str());
 }
 
 RepeatRegion *dead_func(RepeatRegion *r1) {

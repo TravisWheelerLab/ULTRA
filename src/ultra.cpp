@@ -223,8 +223,6 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   }
 }
 
-void Ultra::CorrectOverlap(int maxReadID) {}
-
 void Ultra::OutputRepeats(bool flush) {
 
   int maxReadID = SmallestReadID() - (2 * numberOfThreads);
@@ -244,9 +242,6 @@ void Ultra::OutputRepeats(bool flush) {
   while (!outRepeats.empty()) {
 
     RepeatRegion *r = outRepeats.back();
-
-    CorrectOverlap(maxReadID);
-
 
     if (r->readID >= maxReadID) {
       break;
@@ -271,7 +266,6 @@ void Ultra::OutputRepeats(bool flush) {
       else
         break;
     }
-
 
     r->SortConsensi();
     OutputRepeat(r);
