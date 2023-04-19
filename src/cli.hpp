@@ -89,7 +89,7 @@ struct Settings {
                "            Version " ULTRA_VERSION_STRING "\n"
                "=================================================\n"};
 
-  Settings();
+  void prepare_settings();
   bool parse_input(int argc, const char **argv);
   int calculate_num_states();
   void assign_settings();
