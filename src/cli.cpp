@@ -4,7 +4,7 @@
 
 #include "cli.hpp"
 
-Settings::Settings() {
+void Settings::prepare_settings() {
 
   app.footer("For additional information see README\n"
              "Supported by: NIH NIGMS P20GM103546 and NIH NHGRI U24HG010136\n");

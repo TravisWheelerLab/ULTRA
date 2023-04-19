@@ -5,7 +5,8 @@
 
 int main(int argc, const char *argv[]) {
 
-  auto settings = Settings();
+  Settings settings;
+  settings.prepare_settings();
   if (!settings.parse_input(argc, argv)) {
     exit(0);
   }
