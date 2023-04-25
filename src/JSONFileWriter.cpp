@@ -100,6 +100,7 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
   if (owner->outputReadID) {
     this->OutputJSONKeyValue("ReadID", std::to_string(repeat->readID));
+    this->OutputJSONKeyValue("OC", std::to_string(repeat->overlapCorrection));
   }
 
   if (owner->outputRepeatSequence) {
@@ -110,7 +111,7 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
     this->OutputJSONKeyValue("Traceback", repeat->traceback, true);
   }
 
-  if (owner->settings->show_logo_nums) {
+  if (owner->settings->show_logo_nums && repeat->logoNumbers != nullptr) {
     std::string logoNumbers = "\"" + std::to_string(repeat->logoNumbers[0]);
     for (int i = 0; i < repeat->repeatLength; ++i) {
       logoNumbers.append("," + std::to_string(repeat->logoNumbers[i]));
@@ -121,7 +122,7 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
     this->OutputJSONKeyValue("LogoNumbers", logoNumbers);
   }
 
-  if (owner->settings->show_deltas) {
+  if (owner->settings->show_deltas && repeat->scores != nullptr) {
     std::string positionScoreDeltas = "[";
 
     for (int i = 0; i < repeat->repeatLength; ++i) {
@@ -130,8 +131,8 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
       positionScoreDeltas += std::to_string(repeat->scores[i]);
     }
 
-    this->OutputJSONKeyValue("PositionScoreDeltas", positionScoreDeltas);
     positionScoreDeltas.push_back(']');
+    this->OutputJSONKeyValue("PositionScoreDeltas", positionScoreDeltas);
   }
 
   int numberOfValidSplits = 0;
