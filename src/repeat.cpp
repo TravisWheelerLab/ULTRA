@@ -802,6 +802,11 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
     joint_rep->sequence = r1->sequence.substr(0, s1_seq_len) + r2->sequence;
   }
 
+  // Check if we have to join ->traceback
+  if (!r1->traceback.empty() && !r2->traceback.empty()) {
+    joint_rep->traceback = r1->traceback.substr(0, s1_seq_len) + r2->traceback;
+  }
+
   // Check to see if we have to join scores
   if (r1->scores != nullptr && r2->scores != nullptr) {
     joint_rep->scores = (float *)malloc(sizeof(float) * joint_rep->repeatLength);
