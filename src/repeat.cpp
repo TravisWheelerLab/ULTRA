@@ -801,6 +801,56 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
   if (!r1->sequence.empty() && !r2->sequence.empty()) {
     joint_rep->sequence = r1->sequence.substr(0, s1_seq_len) + r2->sequence;
   }
+
+  // Check to see if we have to join scores
+  if (r1->scores != nullptr && r2->scores != nullptr) {
+    joint_rep->scores = (float *)malloc(sizeof(float) * joint_rep->repeatLength);
+    // copy from repeat 1
+    int i = 0;
+    for (; i < s1_seq_len; ++i) {
+      joint_rep->scores[i] = r1->scores[i];
+    }
+
+    // Copy from repeat 2
+    for (int j = 0; j < r2->repeatLength; ++j) {
+      joint_rep->scores[i] = r2->scores[j];
+      ++i;
+    }
+  }
+
+  // Check to see if we have to join logo numbers
+  if (r1->logoNumbers != nullptr && r2->logoNumbers != nullptr) {
+    joint_rep->logoNumbers = (int *)malloc(sizeof(int) * joint_rep->repeatLength);
+    // copy from repeat 1
+    int i = 0;
+    for (; i < s1_seq_len; ++i) {
+      joint_rep->logoNumbers[i] = r1->logoNumbers[i];
+    }
+
+    // Copy from repeat 2
+    for (int j = 0; j < r2->repeatLength; ++j) {
+      joint_rep->logoNumbers[i] = r2->logoNumbers[j];
+      ++i;
+    }
+  }
+
+
+  // Check to see if we have to join scores
+  if (r1->scores != nullptr && r2->scores != nullptr) {
+    joint_rep->scores = (float *)malloc(sizeof(float) * joint_rep->repeatLength);
+    // copy from repeat 1
+    int i = 0;
+    for (; i < s1_seq_len; ++i) {
+      joint_rep->scores[i] = r1->scores[i];
+    }
+
+    // Copy from repeat 2
+    for (int j = 0; j < r2->repeatLength; ++j) {
+      joint_rep->scores[i] = r2->scores[j];
+      ++i;
+    }
+  }
+
   // We have to join score
   // Perform weighted average of scores
   float pct_seq1 = (float)s1_seq_len / (float)joint_rep->repeatLength;
