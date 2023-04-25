@@ -4,7 +4,7 @@
 
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
-#define ULTRA_VERSION_STRING "1.0.0 (beta 2)"
+#define ULTRA_VERSION_STRING "1.0.0 (beta 4)"
 #include "../lib/CLI11.hpp"
 #include <string>
 #include <vector>
@@ -30,6 +30,7 @@ struct Settings {
   bool show_trace = false;
   bool show_wid = false;
   bool show_logo_nums = false;
+  bool hide_settings = false;
   bool suppress_out = false;
 
   // Masking settings
