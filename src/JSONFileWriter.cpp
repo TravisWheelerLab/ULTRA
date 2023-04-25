@@ -130,8 +130,8 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
       positionScoreDeltas += std::to_string(repeat->scores[i]);
     }
 
-    this->OutputJSONKeyValue("PositionScoreDeltas", positionScoreDeltas);
     positionScoreDeltas.push_back(']');
+    this->OutputJSONKeyValue("PositionScoreDeltas", positionScoreDeltas);
   }
 
   int numberOfValidSplits = 0;
