@@ -285,9 +285,12 @@ void Ultra::OutputRepeats(bool flush) {
 }
 
 void Ultra::OutputULTRASettings() {
-  fprintf(settings_out, "{\"Version\": \"%s\", \n", ULTRA_VERSION_STRING);
-  fprintf(settings_out, "\"Parameters\": {\n");
-  fprintf(settings_out, "%s}}\n", settings->json_string().c_str());
+  if (!settings->hide_settings) {
+    fprintf(settings_out, "{\"Version\": \"%s\", \n", ULTRA_VERSION_STRING);
+    fprintf(settings_out, "\"Parameters\": {\n");
+    fprintf(settings_out, "%s}}\n", settings->json_string().c_str());
+  }
+
   if (settings_out != stdout)
     fclose(settings_out);
 }
@@ -314,15 +317,15 @@ void Ultra::SortRepeatRegions() {
 Ultra::Ultra(Settings *s, int n) {
   settings = s;
 
-  if (settings->out_file == "") {
-    out = stdout;
-    settings_out = stdout;
-  }
+  out = stdout;
+  settings_out = stdout;
 
-  else {
+  if (!settings->out_file.empty()) {
     out = fopen(settings->out_file.c_str(), "w");
     std::string settings_file_path = settings->out_file + ".settings";
-    settings_out = fopen(settings_file_path.c_str(), "w");
+    if (!settings->hide_settings) {
+      settings_out = fopen(settings_file_path.c_str(), "w");
+    }
   }
 
   if (settings->json) {

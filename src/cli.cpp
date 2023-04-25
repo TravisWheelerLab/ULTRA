@@ -53,6 +53,10 @@ void Settings::prepare_settings() {
                "Show logo numbers in JSON output")
       ->group("Output");
 
+  app.add_flag("--hs, --hidesettings", this->hide_settings,
+               "Do not output settings")
+      ->group("Output");
+
   app.add_flag("--suppress", this->suppress_out,
                "Do not output BED or JSON annotation")
       ->group("Output");

@@ -810,7 +810,9 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
 
   // Check to see if we have to join scores
   if (r1->scores != nullptr && r2->scores != nullptr) {
-    joint_rep->scores = (float *)malloc(sizeof(float) * joint_rep->repeatLength);
+    joint_rep->scores =
+        (float *)malloc(sizeof(float) * joint_rep->repeatLength);
+
     // copy from repeat 1
     int i = 0;
     for (; i < s1_seq_len; ++i) {
@@ -826,7 +828,9 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
 
   // Check to see if we have to join logo numbers
   if (r1->logoNumbers != nullptr && r2->logoNumbers != nullptr) {
-    joint_rep->logoNumbers = (int *)malloc(sizeof(int) * joint_rep->repeatLength);
+    joint_rep->logoNumbers =
+        (int *)malloc(sizeof(int) * joint_rep->repeatLength);
+
     // copy from repeat 1
     int i = 0;
     for (; i < s1_seq_len; ++i) {
@@ -843,7 +847,9 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
 
   // Check to see if we have to join scores
   if (r1->scores != nullptr && r2->scores != nullptr) {
-    joint_rep->scores = (float *)malloc(sizeof(float) * joint_rep->repeatLength);
+    joint_rep->scores =
+        (float *)malloc(sizeof(float) * joint_rep->repeatLength);
+
     // copy from repeat 1
     int i = 0;
     for (; i < s1_seq_len; ++i) {
