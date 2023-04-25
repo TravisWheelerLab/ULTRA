@@ -777,6 +777,7 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
     return nullptr;
 
   RepeatRegion *joint_rep = new RepeatRegion();
+
   joint_rep->string_consensus = r1->string_consensus;
   joint_rep->sequenceStart = r1->sequenceStart;
   joint_rep->repeatLength =
@@ -787,7 +788,7 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
 
   joint_rep->sequenceName = r1->sequenceName;
   joint_rep->sequenceID = r1->sequenceID;
-  joint_rep->readID = r2->readID;
+  joint_rep->readID = r1->readID;
   joint_rep->winOverlapSize = r1->winOverlapSize;
   joint_rep->winTotalLength = r1->winTotalLength;
 
@@ -795,7 +796,7 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
 
   joint_rep->repeatPeriod = r1->repeatPeriod;
 
-  joint_rep->overlapCorrection = OC_TRUE;
+  joint_rep->overlapCorrection = r1->overlapCorrection + 1;
 
   // We have to join ->sequence
   if (!r1->sequence.empty() && !r2->sequence.empty()) {

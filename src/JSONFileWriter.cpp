@@ -100,6 +100,7 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
   if (owner->outputReadID) {
     this->OutputJSONKeyValue("ReadID", std::to_string(repeat->readID));
+    this->OutputJSONKeyValue("OC", std::to_string(repeat->overlapCorrection));
   }
 
   if (owner->outputRepeatSequence) {
