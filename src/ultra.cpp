@@ -227,7 +227,7 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
 void Ultra::OutputRepeats(bool flush) {
 
-  int maxReadID = SmallestReadID() - (2 * numberOfThreads);
+  int maxReadID = SmallestReadID() - (3 * numberOfThreads);
 
   if (flush) {
     for (int i = 0; i < numberOfThreads; ++i) {
@@ -411,9 +411,9 @@ Ultra::Ultra(Settings *s, int n) {
 }
 
 bool CompareRepeatOrder::operator()(RepeatRegion *lhs, RepeatRegion *rhs) {
-  if (lhs->readID != rhs->readID) {
-    return lhs->readID > rhs->readID;
+  if (lhs->sequenceID != rhs->sequenceID) {
+    return lhs->sequenceID > rhs->sequenceID;
   }
 
-  return lhs->windowStart > rhs->windowStart;
+  return lhs->sequenceStart > rhs->sequenceStart;
 }
