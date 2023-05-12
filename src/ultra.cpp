@@ -204,7 +204,13 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
       }
     }
 
-    uth->repeats.push_back(r);
+    // Make sure we have at least 1 unit of repeat here...
+    if (r->repeatLength >= r->repeatPeriod)
+      uth->repeats.push_back(r);
+    else {
+      delete r;
+      r = nullptr;
+    }
 
     r = GetNextRepeat(sequence, model->matrix, &i);
   }
@@ -270,7 +276,8 @@ void Ultra::OutputRepeats(bool flush) {
     }
 
     r->SortConsensi();
-    OutputRepeat(r);
+    if (r->repeatLength / r->repeatPeriod >= settings->min_units)
+      OutputRepeat(r);
 
     delete r;
     r = nullptr;
