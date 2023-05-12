@@ -844,7 +844,6 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
     }
   }
 
-
   // Check to see if we have to join scores
   if (r1->scores != nullptr && r2->scores != nullptr) {
     joint_rep->scores =
