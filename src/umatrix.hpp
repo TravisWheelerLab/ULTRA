@@ -45,12 +45,12 @@ typedef struct {
 class UMatrix {
 public:
   // Class variables
-  int maxPeriod;      // Max period is included
-  int maxInsertions;  // Max insertion is included
-  int maxDeletions;   // Max deletion is included
+  unsigned long long maxPeriod;      // Max period is included
+  unsigned long long maxInsertions;  // Max insertion is included
+  unsigned long long maxDeletions;   // Max deletion is included
 
-  int length;         // Number of columns in matrix
-  int cellsPerColumn; // Number of rows in matrix
+  unsigned long long length;         // Number of columns in matrix
+  unsigned long long cellsPerColumn; // Number of rows in matrix
 
   float *scoreMatrix = NULL;
   float **scoreColumns = NULL;
@@ -58,8 +58,8 @@ public:
   int *tracebackMatrix = NULL;
   int **tracebackColumns = NULL;
 
-  int currentColumnIndex;
-  int previousColumnIndex;
+  unsigned long long currentColumnIndex;
+  unsigned long long previousColumnIndex;
 
   float *currentScoreColumn = NULL;
   float *previousScoreColumn = NULL;
