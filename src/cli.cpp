@@ -25,6 +25,9 @@ void Settings::prepare_settings() {
   // Output options
   // *************
 
+  app.add_option("-o,--out", this->out_file, "Output file path")
+      ->group("Output");
+
   app.add_flag("--pval", this->pval,
                "Use p-values instead of scores in BED output")
       ->group("Output");
@@ -64,9 +67,6 @@ void Settings::prepare_settings() {
   // *************
   // Mask options
   // *************
-
-  app.add_option("-o,--out", this->out_file, "Output file path")
-      ->group("Masking");
 
   app.add_option("--mask", this->mask_file, "File path to save a masked FASTA")
       ->group("Masking");
