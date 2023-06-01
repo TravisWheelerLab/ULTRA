@@ -34,7 +34,10 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
   // We need to decide what to do with the overall sequence
 
-  fprintf(owner->out, "\t.\t%lu\t%lu\t0,0,0\t", repeat->sequenceStart,
+  std::string rep_con = ".";
+  if (!repeat->string_consensus.empty())
+    rep_con = repeat->string_consensus;
+  fprintf(owner->out, "\t%s\t%lu\t%lu\t0,0,0\t", rep_con.c_str(), repeat->sequenceStart,
           repeat->sequenceStart + repeat->repeatLength);
 
   if (owner->settings->max_split > 0) {
