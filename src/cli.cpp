@@ -220,6 +220,7 @@ bool Settings::parse_input(int argc, const char **argv) {
     }
     this->args += argv[i];
 
+    // Argument preprocessor
     if (strlen(argv[i]) >= 3) {
       if (argv[i][0] == '-') {
         if (isalpha(argv[i][1])) {
