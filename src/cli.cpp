@@ -219,6 +219,14 @@ bool Settings::parse_input(int argc, const char **argv) {
       this->args += " ";
     }
     this->args += argv[i];
+
+    if (strlen(argv[i]) >= 3) {
+      if (argv[i][0] == '-') {
+        if (isalpha(argv[i][1])) {
+          printf("Argument '%s' is not allowed (long arguments begin with --, filenames may not begin with -)\n", argv[i]);
+        }
+      }
+    }
   }
 
   CLI11_PARSE(this->app, argc, argv);
