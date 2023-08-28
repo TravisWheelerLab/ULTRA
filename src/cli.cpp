@@ -3,7 +3,7 @@
 //
 
 #include "cli.hpp"
-
+#include <cstring>
 void Settings::prepare_settings() {
 
   app.footer("For additional information see README\n"
