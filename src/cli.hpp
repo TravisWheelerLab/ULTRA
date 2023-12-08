@@ -5,7 +5,7 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.0.0 (beta 7)"
+#define ULTRA_VERSION_STRING "1.0.0 (beta 8)"
 
 #include "../lib/CLI11.hpp"
 #include <string>
@@ -67,8 +67,8 @@ struct Settings {
   float match_probability = 0.8;
 
   float period_decay = 0.85;
-  float transition_nr = 0.01;
-  float transition_rn = 0.05;
+  float transition_nr = 0.001;
+  float transition_rn = 0.005;
   float transition_ri = 0.02;
   float transition_rd = 0.02;
   float transition_ii = 0.02;
