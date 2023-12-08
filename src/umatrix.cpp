@@ -36,7 +36,7 @@ bool UMatrix::MoveMatrixForward() {
   previousTracebackColumn = tracebackColumns[previousColumnIndex];
 
   if (wrap == true) {
-    printf("%i %i\n", currentColumnIndex, length);
+    printf("%llu %llu\n", currentColumnIndex, length);
     printf("*****8WRAP**\n");
     printf("*****8WRAP**\n");
     printf("*****8WRAP**\n");
@@ -419,11 +419,10 @@ void UMatrix::CreateMatrix() {
 
   // Assign columns of matrices
   for (int i = 0; i < length; ++i) {
-
     scoreColumns[i] = &(scoreMatrix[(i * (cellsPerColumn))]);
     tracebackColumns[i] = &(tracebackMatrix[(i * (maxPeriod + 1))]);
-
   }
+  
   previousScoreColumn = scoreColumns[0];
   currentScoreColumn = scoreColumns[1];
 

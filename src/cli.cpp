@@ -3,7 +3,7 @@
 //
 
 #include "cli.hpp"
-
+#include <cstring>
 void Settings::prepare_settings() {
 
   app.footer("For additional information see README\n"
@@ -24,6 +24,9 @@ void Settings::prepare_settings() {
   // *************
   // Output options
   // *************
+
+  app.add_option("-o,--out", this->out_file, "Output file path")
+      ->group("Output");
 
   app.add_flag("--pval", this->pval,
                "Use p-values instead of scores in BED output")
@@ -64,9 +67,6 @@ void Settings::prepare_settings() {
   // *************
   // Mask options
   // *************
-
-  app.add_option("-o,--out", this->out_file, "Output file path")
-      ->group("Masking");
 
   app.add_option("--mask", this->mask_file, "File path to save a masked FASTA")
       ->group("Masking");
@@ -219,6 +219,18 @@ bool Settings::parse_input(int argc, const char **argv) {
       this->args += " ";
     }
     this->args += argv[i];
+
+    // Argument preprocessor
+    if (strlen(argv[i]) >= 3) {
+      if (argv[i][0] == '-') {
+        if (isalpha(argv[i][1])) {
+          printf("Argument '%s' is not allowed (long arguments begin with --, "
+                 "filenames may not begin with -)\n",
+                 argv[i]);
+          return false;
+        }
+      }
+    }
   }
 
   CLI11_PARSE(this->app, argc, argv);
