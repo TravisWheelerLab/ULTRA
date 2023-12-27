@@ -241,6 +241,9 @@ bool Settings::parse_input(int argc, const char **argv) {
   } catch (const CLI::ExtrasError &e) {
     std::cerr << "Unrecognized flag or argument: " << e.what() << std::endl;
     exit(0); // or any other error handling
+  } catch (const CLI::CallForHelp &e) {
+    std::cout << this->app.help();
+    exit(0); // or any other error handling
   }
 
   bool passed = true;
