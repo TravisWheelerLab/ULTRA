@@ -236,7 +236,13 @@ bool Settings::parse_input(int argc, const char **argv) {
     }
   }
 
-  CLI11_PARSE(this->app, argc, argv);
+  try {
+    this->app.parse(argc, argv);
+  } catch (const CLI::ExtrasError &e) {
+    std::cerr << "Unrecognized flag or argument: " << e.what() << std::endl;
+    exit(0); // or any other error handling
+  }
+
   bool passed = true;
   if (this->in_file.empty() && !this->show_memory) {
     printf("Input file required.\n");
