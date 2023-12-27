@@ -27,6 +27,9 @@ void Settings::prepare_settings() {
 
   app.add_option("-o,--out", this->out_file, "Output file path")
       ->group("Output");
+  app.add_flag("--disable_streaming_out", this->disable_streaming_out,
+               "Disables streaming output; no output will be created until all analysis has been completed")
+      ->group("Output");
 
   app.add_flag("--pval", this->pval,
                "Use p-values instead of scores in BED output")
