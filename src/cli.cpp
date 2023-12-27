@@ -27,6 +27,9 @@ void Settings::prepare_settings() {
 
   app.add_option("-o,--out", this->out_file, "Output file path")
       ->group("Output");
+  app.add_flag("--disable_streaming_out", this->disable_streaming_out,
+               "Disables streaming output; no output will be created until all analysis has been completed")
+      ->group("Output");
 
   app.add_flag("--pval", this->pval,
                "Use p-values instead of scores in BED output")
@@ -233,7 +236,13 @@ bool Settings::parse_input(int argc, const char **argv) {
     }
   }
 
-  CLI11_PARSE(this->app, argc, argv);
+  try {
+    this->app.parse(argc, argv);
+  } catch (const CLI::ExtrasError &e) {
+    std::cerr << "Unrecognized flag or argument: " << e.what() << std::endl;
+    exit(0); // or any other error handling
+  }
+
   bool passed = true;
   if (this->in_file.empty() && !this->show_memory) {
     printf("Input file required.\n");

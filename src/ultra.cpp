@@ -222,7 +222,7 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
                       uth->repeats.end());
     uth->repeats.clear();
 
-    if (outRepeats.size() > repeatBuffer) {
+    if (outRepeats.size() > repeatBuffer && !this->settings->disable_streaming_out) {
       OutputRepeats();
     }
 
@@ -233,6 +233,8 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
 void Ultra::OutputRepeats(bool flush) {
 
+  if (!flush && settings->disable_streaming_out)
+    return;
   int maxReadID = SmallestReadID() - (3 * numberOfThreads);
 
   if (flush) {

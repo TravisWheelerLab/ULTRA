@@ -5,7 +5,7 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.0.0 (beta 8)"
+#define ULTRA_VERSION_STRING "1.0.0 (beta 9)"
 
 #include "../lib/CLI11.hpp"
 #include <string>
@@ -21,6 +21,7 @@ struct Settings {
   // Output settings
   std::string out_file = "";
   bool pval = false;
+  bool disable_streaming_out = false;
   float pval_exponent_loc_m = -0.13;
   float pval_exponent_loc_b = 2.82;
   float pval_exponent_scale_m = 0.081;
