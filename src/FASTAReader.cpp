@@ -261,7 +261,7 @@ bool FASTAReader::AddWaitingWindow(SequenceWindow *window) {
  waitingWindows.push_back(window);
  }
  */
-FASTAReader::FASTAReader(std::string filePath, unsigned long mxWindows,
+FASTAReader::FASTAReader(std::string filePath, int mxWindows,
                          unsigned long mxSeqLength,
                          unsigned long mxOverlapLength) {
 
@@ -332,7 +332,7 @@ FASTAReader::FASTAReader(std::string filePath, unsigned long mxWindows,
   linePlace = 0;
 }
 
-FASTAReader::FASTAReader(unsigned long rn, unsigned long maxWindows,
+FASTAReader::FASTAReader(unsigned long rn, int maxWindows,
                          unsigned long maxSeqLength,
                          unsigned long maxOverlapLength) {
   doneReadingFile = false;
