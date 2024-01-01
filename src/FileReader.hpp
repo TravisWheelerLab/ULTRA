@@ -13,7 +13,7 @@ typedef enum { UNKNOWN, FASTA, JSON, BED } file_type;
 
 class FileReader {
 public:
-  unsigned long maxWindows;
+  int maxWindows;
   unsigned long maxSeqLength;
   unsigned long maxOverlapLength;
 
@@ -37,7 +37,7 @@ public:
 
   void SetIsReading(bool value);
 
-  FileReader(std::string FASTAFilePath, unsigned long maxWindows,
+  FileReader(std::string FASTAFilePath, int maxWindows,
              unsigned long maxSeqLength, unsigned long maxOverlapLength,
              bool multithread);
 

@@ -34,7 +34,7 @@ public:
 
   // If readWholeFile is set to true, then maxWindows is ignored
   bool readWholeFile;
-  unsigned long maxWindows;
+  int maxWindows;
   unsigned long maxSeqLength;
   unsigned long maxOverlapLength;
 
@@ -71,11 +71,11 @@ public:
   SequenceWindow *GetWaitingWindow();
   bool AddWaitingWindow(SequenceWindow *window);
 
-  FASTAReader(std::string filePath, unsigned long maxWindows = 100,
+  FASTAReader(std::string filePath, int maxWindows = 100,
               unsigned long maxSeqLength = 10000,
               unsigned long maxOverlapLength = 100);
 
-  FASTAReader(unsigned long randomWindows, unsigned long maxWindows = 100,
+  FASTAReader(unsigned long randomWindows, int maxWindows = 100,
               unsigned long maxSeqLength = 10000,
               unsigned long maxOverlapLength = 100);
   ~FASTAReader();

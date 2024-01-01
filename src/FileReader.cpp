@@ -5,7 +5,7 @@
 
 #include "FileReader.hpp"
 
-FileReader::FileReader(std::string FASTAFilePath, unsigned long mWindows,
+FileReader::FileReader(std::string FASTAFilePath, int mWindows,
                        unsigned long mSeqLength, unsigned long mOverlapLength,
                        bool mthread) {
   maxWindows = mWindows;
