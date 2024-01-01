@@ -5,7 +5,7 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.0.0 (beta 10)"
+#define ULTRA_VERSION_STRING "1.0.0 (beta 11)"
 
 #include "../lib/CLI11.hpp"
 #include <string>
@@ -63,7 +63,7 @@ struct Settings {
   float c_freq = 0.2;
   float g_freq = 0.2;
   float t_freq = 0.3;
-  std::vector<int> acgt;
+  std::vector<float> acgt;
   float at = 0.6;
   float match_probability = 0.8;
 
