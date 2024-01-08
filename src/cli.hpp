@@ -59,17 +59,17 @@ struct Settings {
   unsigned long long max_delete = 10;
 
   // Probability parameters
-  float a_freq = 0.3;
-  float c_freq = 0.2;
-  float g_freq = 0.2;
-  float t_freq = 0.3;
+  float a_freq = 0.25;
+  float c_freq = 0.25;
+  float g_freq = 0.25;
+  float t_freq = 0.25;
   std::vector<float> acgt;
-  float at = 0.6;
-  float match_probability = 0.8;
+  float at = 0.5;
+  float match_probability = 0.7;
 
   float period_decay = 0.85;
-  float transition_nr = 0.001;
-  float transition_rn = 0.005;
+  float transition_nr = 0.01;
+  float transition_rn = 0.05;
   float transition_ri = 0.02;
   float transition_rd = 0.02;
   float transition_ii = 0.02;
