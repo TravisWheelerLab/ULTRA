@@ -55,7 +55,7 @@ public:
   bool outputRepeatSequence = true;
   bool outputReadID = false;
   bool multithreading = false;
-  bool AnalyzingJSON = false;
+  bool shuffleSequence = false;
 
   bool storeSequence = false;
   bool storeTraceback = false;
@@ -67,6 +67,7 @@ public:
   unsigned long repeatBuffer = 2000;
 
   bool storeTraceAndSequence = false;
+
 
   std::unordered_map<unsigned long long, std::vector<mregion> *>
       masks_for_seq{};
@@ -98,12 +99,14 @@ public:
   int SmallestReadID();
 
   void SortRepeatRegions();
-  void OutputMaskedFASTA(std::string in_file_path, FILE *out_file);
+  unsigned long long Coverage();
+
   pthread_mutex_t outerLock;
   pthread_mutex_t innerLock;
   pthread_mutex_t repeatLock;
 
-  Ultra(Settings *settings, int numberOfThreads);
+  Ultra(Settings *settings);
+  ~Ultra();
 };
 
 class CompareRepeatOrder {

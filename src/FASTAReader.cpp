@@ -62,7 +62,7 @@ bool FASTAReader::FillWindows() {
         win = GetWaitingWindow();
       }
 
-      if (ReadWindow(win) == false) {
+      if (!ReadWindow(win)) {
         return false;
       }
 
@@ -132,7 +132,7 @@ bool FASTAReader::ReadWindow(SequenceWindow *window) {
   while (true) {
 
     if (linePlace >= 0 && linePlace < READ_ALL) {
-      linePlace = window->ReadLine(line, linePlace);
+      linePlace = window->ReadLine(line, linePlace, total_seq_length);
 
       // Check to see if we can't read anything else into the window
       if (linePlace >= 0 && linePlace < READ_ALL) {
@@ -265,6 +265,8 @@ FASTAReader::FASTAReader(std::string filePath, int mxWindows,
                          unsigned long mxSeqLength,
                          unsigned long mxOverlapLength) {
 
+  total_seq_length = 0;
+
   overlapLength = 0;
   sequenceName = "";
   sequenceID = 0;
@@ -338,6 +340,8 @@ FASTAReader::FASTAReader(unsigned long rn, int maxWindows,
   doneReadingFile = false;
   symbolsReadInSeq = 0;
 
+  total_seq_length = 0;
+
   readID = 0;
 
   A_pctg = 0.3;
@@ -398,4 +402,7 @@ FASTAReader::~FASTAReader() {
   for (int i = 0; i < maxWindows; ++i) {
     delete windows[i];
   }
+  windows.clear();
+  readyWindows.clear();
+  waitingWindows.clear();
 }

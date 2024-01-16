@@ -26,6 +26,7 @@ public:
 
   std::string line;
   long long linePlace;
+  unsigned long long total_seq_length;
 
   // change to queues
   std::vector<SequenceWindow *> windows;

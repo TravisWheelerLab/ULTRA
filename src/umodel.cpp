@@ -514,7 +514,6 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
 
 /*** UMODEL CLASS MANAGEMENT ***/
 
-UModel::UModel(UMatrix *m) { this->matrix = m; }
 
 UModel::UModel(int maxPeriod, int maxInsertions, int maxDeletions,
                int matrixLength) {
@@ -525,4 +524,9 @@ UModel::UModel(int maxPeriod, int maxInsertions, int maxDeletions,
   // Initialize score distributions here
 }
 
-UModel::~UModel() {}
+UModel::~UModel() {
+  if (matrix) {
+    delete matrix;
+    matrix = nullptr;
+  }
+}

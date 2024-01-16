@@ -4,11 +4,13 @@ project(
         HOMEPAGE_URL https://github.com/TravisWheelerLab/ULTRA
 )
 
+
 if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(
         LIB_CPP_FILES
 

@@ -53,6 +53,15 @@ struct Settings {
   unsigned long long min_length = 10;
   unsigned long long min_units = 2;
 
+  // Tuning parameters
+
+  double tune_fdr = 0.1;
+  bool tune = false;
+  bool tune_small = false;
+  bool tune_large = false;
+  bool tune_only = false;
+  std::string tune_param_path;
+
   // Model parameters
   unsigned long long max_period = 100;
   unsigned long long max_insert = 10;
@@ -100,5 +109,11 @@ struct Settings {
   void print_memory_usage();
   std::string json_string();
 };
+
+
+std::vector<std::tuple<std::string,Settings *>> default_tune_settings(int argc, const char **argv);
+std::vector<std::tuple<std::string,Settings *>> large_tune_settings(int argc, const char **argv);
+std::vector<std::tuple<std::string,Settings *>> small_tune_settings(int argc, const char **argv);
+std::vector<std::tuple<std::string,Settings *>> tune_settings_for_path(std::string path);
 
 #endif // ULTRA_CLI_HPP

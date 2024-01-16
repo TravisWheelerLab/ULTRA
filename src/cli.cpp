@@ -120,6 +120,35 @@ void Settings::prepare_settings() {
       ->group("Filter");
 
   // *************
+  // Tune options
+  // *************
+  app.add_flag("--tune", this->tune,
+               "Tune parameters before running (see README)")
+      ->group("Parameter Tuning");
+
+  app.add_flag("--tune_small", this->tune_small,
+               "Tune parameters using a smaller search grid before running (see README)")
+      ->group("Parameter Tuning");
+
+  app.add_flag("--tune_large", this->tune_large,
+               "Tune parameters using a larger search grid before running (see README)")
+      ->group("Parameter Tuning");
+
+  app.add_flag("--tune_only", this->tune_only,
+               "Tune parameters and don't run (see README)")
+      ->group("Parameter Tuning");
+
+  app.add_option("--tune_fdr", this->tune_fdr,
+                 "FDR to be tuned against (see README)")
+      ->default_val("0.1")
+      ->group("Parameter Tuning");
+
+  app.add_option("--tune_file", this->tune_param_path,
+                 "Use custom parameter search during tuning (see README)")
+      ->default_val("")
+      ->group("Parameter Tuning");
+
+  // *************
   // Model options
   // *************
   app.add_option("-p, --period", this->max_period,
@@ -306,7 +335,7 @@ bool Settings::parse_input(int argc, const char **argv) {
   }
 
   if (this->at < 0.0 || this->at > 1.0) {
-    printf("--at must be > 0.0 and < 1.0\n");
+    printf("--at must be >= 0.0 and <= 1.0\n");
     passed = false;
   }
 
@@ -326,8 +355,8 @@ bool Settings::parse_input(int argc, const char **argv) {
     }
   }
 
-  if (this->match_probability < 0.0 || this->match_probability > 1.0) {
-    printf("--match must be > 0.0 and < 1.0\n");
+  if (this->match_probability <= 0.0 || this->match_probability > 1.0) {
+    printf("--match must be > 0.0 and <= 1.0\n");
     passed = false;
   }
 
@@ -337,37 +366,56 @@ bool Settings::parse_input(int argc, const char **argv) {
   }
 
   if (this->transition_nr < 0.0 || this->transition_nr > 1.0) {
-    printf("--nr must be > 0.0 and < 1.0\n");
+    printf("--nr must be >= 0.0 and <= 1.0\n");
     passed = false;
   }
 
   if (this->transition_rn < 0.0 || this->transition_rn > 1.0) {
-    printf("--rn must be > 0.0 and < 1.0\n");
+    printf("--rn must be >= 0.0 and <= 1.0\n");
     passed = false;
   }
 
   if (this->transition_ri < 0.0 || this->transition_ri > 1.0) {
-    printf("--ri must be > 0.0 and < 1.0\n");
+    printf("--ri must be >= 0.0 and <= 1.0\n");
     passed = false;
   }
 
   if (this->transition_rd < 0.0 || this->transition_rd > 1.0) {
-    printf("--rd must be > 0.0 and < 1.0\n");
+    printf("--rd must be >= 0.0 and <= 1.0\n");
     passed = false;
   }
 
   if (this->transition_ii < 0.0 || this->transition_ii > 1.0) {
-    printf("--ii must be > 0.0 and < 1.0\n");
+    printf("--ii must be >= 0.0 and <= 1.0\n");
     passed = false;
   }
 
   if (this->transition_dd < 0.0 || this->transition_dd > 1.0) {
-    printf("--dd must be > 0.0 and < 1.0\n");
+    printf("--dd must be >= 0.0 and <= 1.0\n");
     passed = false;
   }
 
   if (this->split_threshold <= 0) {
     printf("--splitval must be > 0.0\n");
+    passed = false;
+  }
+
+  if (tune_fdr < 0.0 || tune_fdr > 1.0) {
+    printf("--tune_fdr must be >= 0 and <= 1.0\n");
+    passed = false;
+  }
+
+  if (this->tune_only || this->tune_small || this->tune_large) {
+    this->tune = true;
+  }
+
+  if (this->tune_small && this->tune_large) {
+    printf("Cannot use --tune_small and --tune_large\n");
+    passed = false;
+  }
+
+  if (!this->tune_param_path.empty() && (this->tune_small || this->tune_large)) {
+    printf("Cannot use --tune_file and (--tune_small or --tune_large).\n");
     passed = false;
   }
 
@@ -471,6 +519,10 @@ void Settings::assign_settings() {
     this->g_freq = this->acgt[2] / sum;
     this->t_freq = this->acgt[3] / sum;
   }
+
+  if (this->no_split) {
+    this->max_split = 0;
+  }
 }
 
 void Settings::print_memory_usage() {
@@ -531,6 +583,7 @@ std::string json_var(std::string name, long long value) {
 
 #define JSONMACRO(NAME) json_string += json_var(#NAME, NAME)
 
+// TODO: Update json_string to include correct tuning info
 std::string Settings::json_string() {
   std::string json_string = "";
   JSONMACRO(args);
@@ -595,5 +648,169 @@ std::string Settings::json_string() {
 
   return json_string;
 }
-
 #undef JSONMACRO
+
+std::vector<std::tuple<std::string,Settings *>>small_tune_settings(int argc, const char **argv)
+{
+
+  std::vector<std::tuple<std::string,Settings *>> settings;
+
+  std::vector match_settings = std::vector<float>{0.6, 0.75, 0.9};
+  std::vector at_settings = std::vector<float>{0.4, 0.5, 0.6};
+  std::vector repeat_start = std::vector<float>{0.001, 0.01};
+  std::vector repeat_stop = std::vector<float>{0.005, 0.05};
+
+  for (auto match : match_settings) {
+    for (auto at : at_settings) {
+      for (int i = 0; i < 2; ++i) {
+        Settings *new_settings = new Settings();
+        new_settings->prepare_settings();
+        new_settings->parse_input(argc, argv);
+        new_settings->assign_settings();
+
+        // Settings we are searching through
+        new_settings->match_probability = match;
+        new_settings->at = at;
+        new_settings->a_freq = at / 2.0;
+        new_settings->t_freq = at / 2.0;
+        new_settings->c_freq = (1.0 - at) / 2.0;
+        new_settings->g_freq = (1.0 - at) / 2.0;
+        new_settings->transition_nr = repeat_start[i];
+        new_settings->transition_rn = repeat_stop[i];
+
+        // Settings we are forcing
+        new_settings->max_insert = 0;
+        new_settings->max_delete = 0;
+        new_settings->suppress_out = true;
+        new_settings->produce_mask = true;
+        new_settings->out_file = "";
+        new_settings->hide_settings = true;
+        new_settings->no_split = true;
+        new_settings->max_split = 0;
+
+
+        std::string param_name = "-m " + std::to_string(match) + " ";
+        param_name += "--at " + std::to_string(at) + " ";
+        param_name += "--rn " + std::to_string(repeat_start[i]) + " ";
+        param_name += "--nr " + std::to_string(repeat_stop[i]);
+        auto val = std::make_tuple(param_name, new_settings);
+        settings.push_back(val);
+      }
+    }
+  }
+
+  return settings;
+}
+
+std::vector<std::tuple<std::string,Settings *>>default_tune_settings(int argc, const char **argv)
+{
+
+  std::vector<std::tuple<std::string,Settings *>> settings;
+
+  std::vector match_settings = std::vector<float>{0.6, 0.7, 0.8, 0.9};
+  std::vector at_settings = std::vector<float>{0.3, 0.4, 0.5, 0.6, 0.7};
+  std::vector repeat_start = std::vector<float>{0.001, 0.01};
+  std::vector repeat_stop = std::vector<float>{0.005, 0.05};
+
+  for (auto match : match_settings) {
+    for (auto at : at_settings) {
+      for (int i = 0; i < 2; ++i) {
+        Settings *new_settings = new Settings();
+        new_settings->prepare_settings();
+        new_settings->parse_input(argc, argv);
+        new_settings->assign_settings();
+
+        // Settings we are searching through
+        new_settings->match_probability = match;
+        new_settings->at = at;
+        new_settings->a_freq = at / 2.0;
+        new_settings->t_freq = at / 2.0;
+        new_settings->c_freq = (1.0 - at) / 2.0;
+        new_settings->g_freq = (1.0 - at) / 2.0;
+        new_settings->transition_nr = repeat_start[i];
+        new_settings->transition_rn = repeat_stop[i];
+
+        // Settings we are forcing
+        new_settings->max_insert = 0;
+        new_settings->max_delete = 0;
+        new_settings->suppress_out = true;
+        new_settings->produce_mask = true;
+        new_settings->out_file = "";
+        new_settings->hide_settings = true;
+        new_settings->no_split = true;
+        new_settings->max_split = 0;
+
+
+        std::string param_name = "-m " + std::to_string(match) + " ";
+        param_name += "--at " + std::to_string(at) + " ";
+        param_name += "--rn " + std::to_string(repeat_start[i]) + " ";
+        param_name += "--nr " + std::to_string(repeat_stop[i]);
+        auto val = std::make_tuple(param_name, new_settings);
+        settings.push_back(val);
+      }
+    }
+  }
+
+  return settings;
+}
+
+std::vector<std::tuple<std::string,Settings *>>large_tune_settings(int argc, const char **argv)
+{
+
+  std::vector<std::tuple<std::string,Settings *>> settings;
+
+  std::vector match_settings = std::vector<float>{0.6, 0.7, 0.8, 0.9};
+  std::vector at_settings = std::vector<float>{0.3, 0.35, 0.4, 0.5, 0.6, 0.65, 0.7};
+  std::vector repeat_start = std::vector<float>{0.001, 0.005, 0.01};
+  std::vector repeat_stop = std::vector<float>{0.005, 0.01, 0.05};
+
+  for (auto match : match_settings) {
+    for (auto at : at_settings) {
+      for (auto rep_start : repeat_start) {
+        for (auto rep_stop : repeat_stop) {
+          Settings *new_settings = new Settings();
+          new_settings->prepare_settings();
+          new_settings->parse_input(argc, argv);
+          new_settings->assign_settings();
+
+          // Settings we are searching through
+          new_settings->match_probability = match;
+          new_settings->at = at;
+          new_settings->a_freq = at / 2.0;
+          new_settings->t_freq = at / 2.0;
+          new_settings->c_freq = (1.0 - at) / 2.0;
+          new_settings->g_freq = (1.0 - at) / 2.0;
+          new_settings->transition_nr = rep_start;
+          new_settings->transition_rn = rep_stop;
+
+          // Settings we are forcing
+          new_settings->max_insert = 0;
+          new_settings->max_delete = 0;
+          new_settings->suppress_out = true;
+          new_settings->produce_mask = true;
+          new_settings->out_file = "";
+          new_settings->hide_settings = true;
+          new_settings->no_split = true;
+          new_settings->max_split = 0;
+
+
+          std::string param_name = "-m " + std::to_string(match) + " ";
+          param_name += "--at " + std::to_string(at) + " ";
+          param_name += "--rn " + std::to_string(rep_start) + " ";
+          param_name += "--nr " + std::to_string(rep_stop);
+          auto val = std::make_tuple(param_name, new_settings);
+          settings.push_back(val);
+        }
+      }
+    }
+  }
+
+  return settings;
+}
+
+std::vector<std::tuple<std::string,Settings *>>tune_settings_for_path(std::string path)
+{
+  std::vector<std::tuple<std::string,Settings *>> settings;
+
+  return settings;
+}

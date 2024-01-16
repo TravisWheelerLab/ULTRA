@@ -68,9 +68,6 @@ public:
                               bool *canBeRepetitive = NULL);
 
   // Clas management
-
-  UModel(UMatrix *matrix);
-
   UModel(int maxPeriod, int maxInsertions, int maxDeletions, int matrixLength);
 
   ~UModel();

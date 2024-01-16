@@ -156,6 +156,10 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     uth->activeReadID = sequence->readID;
   }
 
+  if (shuffleSequence) {
+    ShuffleSequenceWindow(sequence);
+  }
+
   UModel *model = uth->model;
   model->matrix->RestartMatrix();
 
@@ -323,7 +327,25 @@ void Ultra::SortRepeatRegions() {
   std::sort(outRepeats.begin(), outRepeats.end(), CompareRepeatOrder());
 }
 
-Ultra::Ultra(Settings *s, int n) {
+unsigned long long Ultra::Coverage() {
+  unsigned long long coverage = 0;
+
+  // Itterate through each sequence and find the coverage for that sequence
+  for (auto [seq_id, regions] : this->masks_for_seq) {
+    auto cleaned_regions = CleanedMasks(regions);
+
+    for (auto region : *cleaned_regions) {
+      coverage += region.end - region.start;
+    }
+
+    cleaned_regions->clear();
+    delete cleaned_regions;
+
+  }
+  return coverage;
+}
+
+Ultra::Ultra(Settings *s) {
   settings = s;
 
   out = stdout;
@@ -346,13 +368,11 @@ Ultra::Ultra(Settings *s, int n) {
   }
 
   numberOfThreads = settings->threads;
-
   scoreThreshold = settings->min_score;
   outputReadID = settings->show_wid;
   outputRepeatSequence = !settings->hide_seq;
 
   passID = 0;
-  AnalyzingJSON = false;
 
   reader = new FileReader(settings->in_file, settings->windows,
                           settings->window_size, settings->overlap,
@@ -404,7 +424,10 @@ Ultra::Ultra(Settings *s, int n) {
     newThread->model = models[i];
     newThread->repeats.reserve(64);
     newThread->splitter = new SplitWindow();
-    newThread->splitter->AllocateSplitWindow(4, settings->max_period + 1);
+    if (!settings->no_split)
+      newThread->splitter->AllocateSplitWindow(4, settings->max_period + 1);
+    else
+      newThread->splitter->maxPeriod = 0;
     threads.push_back(newThread);
   }
 
@@ -419,6 +442,45 @@ Ultra::Ultra(Settings *s, int n) {
   }
 }
 
+Ultra::~Ultra() {
+  settings = nullptr;
+  delete reader;
+  reader = nullptr;
+
+  delete writer;
+  writer = nullptr;
+
+  if (out != stdout && out != nullptr) {
+    fclose(out);
+    out = nullptr;
+  }
+
+  for (auto& pair : masks_for_seq) {
+    delete pair.second;  // pair.second is a std::vector<mregion> *
+  }
+  masks_for_seq.clear();
+
+  for (auto val : outRepeats) {
+    delete val;  // pair.second is a std::vector<mregion> *
+  }
+  outRepeats.clear();
+
+  for (auto val : models) {
+    delete val;  // pair.second is a std::vector<mregion> *
+  }
+  models.clear();
+
+  for (auto val : threads) {
+    for (auto val2 : val->repeats) {
+      delete val2;
+    }
+    val->splitter->DeallocSplitWindow();
+    delete val->splitter;
+    delete val;  // pair.second is a std::vector<mregion> *
+  }
+  threads.clear();
+}
+
 bool CompareRepeatOrder::operator()(RepeatRegion *lhs, RepeatRegion *rhs) {
   if (lhs->sequenceID != rhs->sequenceID) {
     return lhs->sequenceID > rhs->sequenceID;
@@ -426,3 +488,4 @@ bool CompareRepeatOrder::operator()(RepeatRegion *lhs, RepeatRegion *rhs) {
 
   return lhs->sequenceStart > rhs->sequenceStart;
 }
+
