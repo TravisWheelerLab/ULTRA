@@ -17,6 +17,7 @@ public:
   unsigned long maxSeqLength;
   unsigned long maxOverlapLength;
 
+
   bool multithread = true;
   file_type format = UNKNOWN;
 
@@ -43,6 +44,7 @@ public:
 
   FileReader(std::string JSONFilePath, unsigned long maxSeqLength,
              unsigned long maxOverlapLength, bool multithread);
+  ~FileReader();
 };
 
 #endif /* FileReader_hpp */

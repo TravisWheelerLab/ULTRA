@@ -31,7 +31,7 @@ public:
   symbol *seq;    // The beginning of the entire sequence
 
   unsigned long length;  // How many nucleotides are in this window
-  unsigned long overlap; // The length of sequence shared with this.seqID - 1
+  unsigned long overlap; // The length of sequence shared with (this->seqID - 1)
 
   unsigned long symbolCounts[27];
   double symbolFreqs[27];
@@ -44,7 +44,7 @@ public:
 
   // ReadLine() returns how much of line was read
   // and will returns -1 if the line is a new sequence
-  long long ReadLine(std::string line, long long place);
+  long long ReadLine(std::string line, long long place, unsigned long long &total_seq_length);
   void CopyOverlap(symbol *b);
   void CalculateSymbolFrequencies();
 
@@ -58,5 +58,7 @@ class CompareSequenceWindows {
 public:
   bool operator()(SequenceWindow *lhs, SequenceWindow *rhs);
 };
+
+void ShuffleSequenceWindow(SequenceWindow *window);
 
 #endif /* SequenceWindow_hpp */

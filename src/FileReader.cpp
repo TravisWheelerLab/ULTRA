@@ -31,6 +31,14 @@ FileReader::FileReader(std::string JSONFilePath, unsigned long mSeqLength,
   exit(-1);
 }
 
+FileReader::~FileReader() {
+  if (fastaReader) {
+    delete fastaReader;
+    fastaReader = nullptr;
+  }
+
+}
+
 SequenceWindow *FileReader::GetReadyWindow() {
   if (format == FASTA)
     return fastaReader->GetReadyWindow();

@@ -231,6 +231,11 @@ RepeatRegion::~RepeatRegion() {
     logoMemory = nullptr;
   }
 
+  if (logoNumbers != nullptr) {
+    free(logoNumbers);
+    logoNumbers = nullptr;
+  }
+
   if (lookBack != nullptr) {
     free(lookBack);
     lookBack = nullptr;

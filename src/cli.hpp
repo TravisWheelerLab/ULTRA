@@ -5,7 +5,7 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.0.0 (beta 10)"
+#define ULTRA_VERSION_STRING "1.0.0 (beta 11)"
 
 #include "../lib/CLI11.hpp"
 #include <string>
@@ -53,23 +53,33 @@ struct Settings {
   unsigned long long min_length = 10;
   unsigned long long min_units = 2;
 
+  // Tuning parameters
+
+  double tune_fdr = 0.1;
+  bool tune = false;
+  bool tune_medium = false;
+  bool tune_large = false;
+  bool tune_only = false;
+  bool tune_indels = false;
+  std::string tune_param_path;
+
   // Model parameters
   unsigned long long max_period = 100;
   unsigned long long max_insert = 10;
   unsigned long long max_delete = 10;
 
   // Probability parameters
-  float a_freq = 0.3;
-  float c_freq = 0.2;
-  float g_freq = 0.2;
-  float t_freq = 0.3;
-  std::vector<int> acgt;
-  float at = 0.6;
-  float match_probability = 0.8;
+  float a_freq = 0.25;
+  float c_freq = 0.25;
+  float g_freq = 0.25;
+  float t_freq = 0.25;
+  std::vector<float> acgt;
+  float at = 0.5;
+  float match_probability = 0.7;
 
   float period_decay = 0.85;
-  float transition_nr = 0.001;
-  float transition_rn = 0.005;
+  float transition_nr = 0.01;
+  float transition_rn = 0.05;
   float transition_ri = 0.02;
   float transition_rd = 0.02;
   float transition_ii = 0.02;
@@ -94,11 +104,22 @@ struct Settings {
                "=================================================\n"};
 
   void prepare_settings();
+  void set_multi_option();
   bool parse_input(int argc, const char **argv);
+  bool parse_multi_input(int argc, const char **argv, std::string arg_str);
   int calculate_num_states();
   void assign_settings();
   void print_memory_usage();
   std::string json_string();
 };
+
+
+std::vector<std::string> small_tune_settings();
+std::vector<std::string> medium_tune_settings();
+std::vector<std::string> large_tune_settings();
+std::vector<std::string> tune_settings_for_path(std::string path);
+
+void string_to_args(const std::string& str, int& argc, char**& argv);
+std::tuple<int, char**> combine_args(int argc1, const char** argv1, int argc2, char** argv2);
 
 #endif // ULTRA_CLI_HPP

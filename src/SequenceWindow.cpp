@@ -4,7 +4,7 @@
 //
 
 #include "SequenceWindow.hpp"
-
+#include <random>
 /*
 bool compareSequenceWindows(SequenceWindow *lhs,
                             SequenceWindow *rhs)
@@ -32,7 +32,7 @@ void SequenceWindow::PrepareWindow(std::string seqName, unsigned long sid,
   }
 }
 
-long long SequenceWindow::ReadLine(std::string line, long long place) {
+long long SequenceWindow::ReadLine(std::string line, long long place, unsigned long long &total_seq_length) {
   // printf ("(mem: %llx overlap:%llx newseq: %llx, length: %llu, place %llu)
   // Reading line: %s\n", (unsigned long)seqMem, (unsigned long)overlapSeq,
   // (unsigned long)newSeq, length, place,  line.c_str());
@@ -57,6 +57,7 @@ long long SequenceWindow::ReadLine(std::string line, long long place) {
       symbol s = SymbolForChar(c);
       newSeq[length++] = s;
       symbolCounts[s] += 1;
+      total_seq_length += 1;
     }
   }
 
@@ -154,4 +155,15 @@ bool CompareSequenceWindows::operator()(SequenceWindow *lhs,
                                         SequenceWindow *rhs) {
   // printf("comparing %lli vs %lli\n", lhs->readID, rhs->readID);
   return lhs->readID > rhs->readID;
+}
+
+void ShuffleSequenceWindow(SequenceWindow *window) {
+  std::random_device rd;  // a seed source for the random number engine
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<unsigned long long> dist;
+  for (unsigned long long i = 0; i < window->length; ++i) {
+    unsigned long long j = dist(gen);
+    j = (j % (window->length - i)) + i;
+    std::swap(window->seq[i], window->seq[j]);
+  }
 }
