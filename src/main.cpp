@@ -63,6 +63,8 @@ int main(int argc, const char *argv[]) {
       search_setting.suppress_out = true;
       search_setting.hide_settings = true;
       search_setting.produce_mask = true;
+      search_setting.no_split = true;
+      search_setting.max_split = 0;
 
       // We first get the normal coverage
       auto *ultra = new Ultra(&search_setting);
