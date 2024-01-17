@@ -57,9 +57,10 @@ struct Settings {
 
   double tune_fdr = 0.1;
   bool tune = false;
-  bool tune_small = false;
+  bool tune_medium = false;
   bool tune_large = false;
   bool tune_only = false;
+  bool tune_indels = false;
   std::string tune_param_path;
 
   // Model parameters
@@ -103,7 +104,9 @@ struct Settings {
                "=================================================\n"};
 
   void prepare_settings();
+  void set_multi_option();
   bool parse_input(int argc, const char **argv);
+  bool parse_multi_input(int argc, const char **argv, std::string arg_str);
   int calculate_num_states();
   void assign_settings();
   void print_memory_usage();
@@ -111,9 +114,12 @@ struct Settings {
 };
 
 
-std::vector<std::tuple<std::string,Settings *>> default_tune_settings(int argc, const char **argv);
-std::vector<std::tuple<std::string,Settings *>> large_tune_settings(int argc, const char **argv);
-std::vector<std::tuple<std::string,Settings *>> small_tune_settings(int argc, const char **argv);
-std::vector<std::tuple<std::string,Settings *>> tune_settings_for_path(std::string path);
+std::vector<std::string> small_tune_settings();
+std::vector<std::string> medium_tune_settings();
+std::vector<std::string> large_tune_settings();
+std::vector<std::string> tune_settings_for_path(std::string path);
+
+void string_to_args(const std::string& str, int& argc, char**& argv);
+std::tuple<int, char**> combine_args(int argc1, const char** argv1, int argc2, char** argv2);
 
 #endif // ULTRA_CLI_HPP

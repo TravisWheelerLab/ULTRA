@@ -4,6 +4,8 @@
 
 #include "cli.hpp"
 #include <cstring>
+#include <iostream>
+
 void Settings::prepare_settings() {
 
   app.footer("For additional information see README\n"
@@ -122,20 +124,27 @@ void Settings::prepare_settings() {
   // *************
   // Tune options
   // *************
+
+
   app.add_flag("--tune", this->tune,
-               "Tune parameters before running (see README)")
+               "Tune parameters using a small search grid before running (see README)")
       ->group("Parameter Tuning");
 
-  app.add_flag("--tune_small", this->tune_small,
-               "Tune parameters using a smaller search grid before running (see README)")
+  app.add_flag("--tune_medium", this->tune_medium,
+               "Tune parameters before running (see README)")
       ->group("Parameter Tuning");
 
   app.add_flag("--tune_large", this->tune_large,
                "Tune parameters using a larger search grid before running (see README)")
       ->group("Parameter Tuning");
 
-  app.add_flag("--tune_only", this->tune_only,
-               "Tune parameters and don't run (see README)")
+  app.add_option("--tune_file", this->tune_param_path,
+                 "Use custom parameter search during tuning (see README)")
+      ->default_val("")
+      ->group("Parameter Tuning");
+
+  app.add_flag("--tune_indels", this->tune_indels,
+               "Enable indels while tuning")
       ->group("Parameter Tuning");
 
   app.add_option("--tune_fdr", this->tune_fdr,
@@ -143,9 +152,8 @@ void Settings::prepare_settings() {
       ->default_val("0.1")
       ->group("Parameter Tuning");
 
-  app.add_option("--tune_file", this->tune_param_path,
-                 "Use custom parameter search during tuning (see README)")
-      ->default_val("")
+  app.add_flag("--tune_only", this->tune_only,
+               "Tune parameters and don't run (see README)")
       ->group("Parameter Tuning");
 
   // *************
@@ -242,6 +250,12 @@ void Settings::prepare_settings() {
                  "Minimum repeat split window size")
       ->default_val(this->min_split_window)
       ->group("Splitting and Naming");
+}
+
+void Settings::set_multi_option() {
+  for (auto &opt : app.get_options()) {
+    opt->multi_option_policy(CLI::MultiOptionPolicy::TakeLast);
+  }
 }
 
 bool Settings::parse_input(int argc, const char **argv) {
@@ -405,21 +419,45 @@ bool Settings::parse_input(int argc, const char **argv) {
     passed = false;
   }
 
-  if (this->tune_only || this->tune_small || this->tune_large) {
+  if (this->tune_only || this->tune_medium || this->tune_large) {
     this->tune = true;
   }
 
-  if (this->tune_small && this->tune_large) {
-    printf("Cannot use --tune_small and --tune_large\n");
+  if (this->tune_medium && this->tune_large) {
+    printf("Cannot use both --tune_medium and --tune_large\n");
     passed = false;
   }
 
-  if (!this->tune_param_path.empty() && (this->tune_small || this->tune_large)) {
-    printf("Cannot use --tune_file and (--tune_small or --tune_large).\n");
+  if (!this->tune_param_path.empty() && (this->tune_medium || this->tune_large)) {
+    printf("Cannot use both --tune_file and (--tune_small or --tune_large).\n");
     passed = false;
   }
 
   return passed;
+}
+
+bool Settings::parse_multi_input(int argc, const char **argv, std::string arg_str) {
+  // Create combined arguments
+  int new_argc;
+  char **new_argv;
+  string_to_args(arg_str, new_argc, new_argv);
+  auto [combined_argc, combined_argv] = combine_args(argc, argv, new_argc, new_argv);
+
+  // Parse the combined arguments
+  bool result = parse_input(combined_argc, (const char**)combined_argv);
+
+  // Free the argument memory
+  for (int i = 0; i < new_argc; ++i) {
+    delete[] new_argv[i];
+  }
+  delete[] new_argv;
+
+  for (int i = 0; i < combined_argc; ++i) {
+    delete[] combined_argv[i];
+  }
+  delete[] combined_argv;
+
+  return result;
 }
 
 int Settings::calculate_num_states() {
@@ -650,10 +688,10 @@ std::string Settings::json_string() {
 }
 #undef JSONMACRO
 
-std::vector<std::tuple<std::string,Settings *>>small_tune_settings(int argc, const char **argv)
+std::vector<std::string> small_tune_settings()
 {
 
-  std::vector<std::tuple<std::string,Settings *>> settings;
+  std::vector<std::string> settings;
 
   std::vector match_settings = std::vector<float>{0.6, 0.75, 0.9};
   std::vector at_settings = std::vector<float>{0.4, 0.5, 0.6};
@@ -663,38 +701,11 @@ std::vector<std::tuple<std::string,Settings *>>small_tune_settings(int argc, con
   for (auto match : match_settings) {
     for (auto at : at_settings) {
       for (int i = 0; i < 2; ++i) {
-        Settings *new_settings = new Settings();
-        new_settings->prepare_settings();
-        new_settings->parse_input(argc, argv);
-        new_settings->assign_settings();
-
-        // Settings we are searching through
-        new_settings->match_probability = match;
-        new_settings->at = at;
-        new_settings->a_freq = at / 2.0;
-        new_settings->t_freq = at / 2.0;
-        new_settings->c_freq = (1.0 - at) / 2.0;
-        new_settings->g_freq = (1.0 - at) / 2.0;
-        new_settings->transition_nr = repeat_start[i];
-        new_settings->transition_rn = repeat_stop[i];
-
-        // Settings we are forcing
-        new_settings->max_insert = 0;
-        new_settings->max_delete = 0;
-        new_settings->suppress_out = true;
-        new_settings->produce_mask = true;
-        new_settings->out_file = "";
-        new_settings->hide_settings = true;
-        new_settings->no_split = true;
-        new_settings->max_split = 0;
-
-
         std::string param_name = "-m " + std::to_string(match) + " ";
         param_name += "--at " + std::to_string(at) + " ";
         param_name += "--rn " + std::to_string(repeat_start[i]) + " ";
         param_name += "--nr " + std::to_string(repeat_stop[i]);
-        auto val = std::make_tuple(param_name, new_settings);
-        settings.push_back(val);
+        settings.push_back(param_name);
       }
     }
   }
@@ -702,10 +713,10 @@ std::vector<std::tuple<std::string,Settings *>>small_tune_settings(int argc, con
   return settings;
 }
 
-std::vector<std::tuple<std::string,Settings *>>default_tune_settings(int argc, const char **argv)
+std::vector<std::string> medium_tune_settings()
 {
 
-  std::vector<std::tuple<std::string,Settings *>> settings;
+  std::vector<std::string> settings;
 
   std::vector match_settings = std::vector<float>{0.6, 0.7, 0.8, 0.9};
   std::vector at_settings = std::vector<float>{0.3, 0.4, 0.5, 0.6, 0.7};
@@ -715,38 +726,12 @@ std::vector<std::tuple<std::string,Settings *>>default_tune_settings(int argc, c
   for (auto match : match_settings) {
     for (auto at : at_settings) {
       for (int i = 0; i < 2; ++i) {
-        Settings *new_settings = new Settings();
-        new_settings->prepare_settings();
-        new_settings->parse_input(argc, argv);
-        new_settings->assign_settings();
-
-        // Settings we are searching through
-        new_settings->match_probability = match;
-        new_settings->at = at;
-        new_settings->a_freq = at / 2.0;
-        new_settings->t_freq = at / 2.0;
-        new_settings->c_freq = (1.0 - at) / 2.0;
-        new_settings->g_freq = (1.0 - at) / 2.0;
-        new_settings->transition_nr = repeat_start[i];
-        new_settings->transition_rn = repeat_stop[i];
-
-        // Settings we are forcing
-        new_settings->max_insert = 0;
-        new_settings->max_delete = 0;
-        new_settings->suppress_out = true;
-        new_settings->produce_mask = true;
-        new_settings->out_file = "";
-        new_settings->hide_settings = true;
-        new_settings->no_split = true;
-        new_settings->max_split = 0;
-
 
         std::string param_name = "-m " + std::to_string(match) + " ";
         param_name += "--at " + std::to_string(at) + " ";
         param_name += "--rn " + std::to_string(repeat_start[i]) + " ";
         param_name += "--nr " + std::to_string(repeat_stop[i]);
-        auto val = std::make_tuple(param_name, new_settings);
-        settings.push_back(val);
+        settings.push_back(param_name);
       }
     }
   }
@@ -754,10 +739,10 @@ std::vector<std::tuple<std::string,Settings *>>default_tune_settings(int argc, c
   return settings;
 }
 
-std::vector<std::tuple<std::string,Settings *>>large_tune_settings(int argc, const char **argv)
+std::vector<std::string> large_tune_settings()
 {
 
-  std::vector<std::tuple<std::string,Settings *>> settings;
+  std::vector<std::string> settings;
 
   std::vector match_settings = std::vector<float>{0.6, 0.7, 0.8, 0.9};
   std::vector at_settings = std::vector<float>{0.3, 0.35, 0.4, 0.5, 0.6, 0.65, 0.7};
@@ -768,38 +753,11 @@ std::vector<std::tuple<std::string,Settings *>>large_tune_settings(int argc, con
     for (auto at : at_settings) {
       for (auto rep_start : repeat_start) {
         for (auto rep_stop : repeat_stop) {
-          Settings *new_settings = new Settings();
-          new_settings->prepare_settings();
-          new_settings->parse_input(argc, argv);
-          new_settings->assign_settings();
-
-          // Settings we are searching through
-          new_settings->match_probability = match;
-          new_settings->at = at;
-          new_settings->a_freq = at / 2.0;
-          new_settings->t_freq = at / 2.0;
-          new_settings->c_freq = (1.0 - at) / 2.0;
-          new_settings->g_freq = (1.0 - at) / 2.0;
-          new_settings->transition_nr = rep_start;
-          new_settings->transition_rn = rep_stop;
-
-          // Settings we are forcing
-          new_settings->max_insert = 0;
-          new_settings->max_delete = 0;
-          new_settings->suppress_out = true;
-          new_settings->produce_mask = true;
-          new_settings->out_file = "";
-          new_settings->hide_settings = true;
-          new_settings->no_split = true;
-          new_settings->max_split = 0;
-
-
           std::string param_name = "-m " + std::to_string(match) + " ";
           param_name += "--at " + std::to_string(at) + " ";
           param_name += "--rn " + std::to_string(rep_start) + " ";
           param_name += "--nr " + std::to_string(rep_stop);
-          auto val = std::make_tuple(param_name, new_settings);
-          settings.push_back(val);
+          settings.push_back(param_name);
         }
       }
     }
@@ -808,9 +766,90 @@ std::vector<std::tuple<std::string,Settings *>>large_tune_settings(int argc, con
   return settings;
 }
 
-std::vector<std::tuple<std::string,Settings *>>tune_settings_for_path(std::string path)
-{
-  std::vector<std::tuple<std::string,Settings *>> settings;
+std::vector<std::string> tune_settings_for_path(std::string path) {
+  std::vector<std::string> settings;
+  std::ifstream file(path);
 
+  // Check if the file is opened successfully
+  if (!file.is_open()) {
+    // Handle the error, for example, by logging or throwing an exception
+    std::cerr << "Failed to open settings file: " << path << std::endl;
+    exit(0);
+  }
+
+  std::string line;
+  int line_num = 0;
+  while (std::getline(file, line)) {
+    ++line_num; // we 1 index line numbers
+    // Check if the line is not empty
+    if (!line.empty()) {
+      int argc;
+      char **argv;
+      string_to_args(line, argc, argv);
+      Settings *test_settings = new Settings();
+      test_settings->prepare_settings();
+      if (!test_settings->parse_input(argc, (const char**)argv)) {
+        std::cerr << "Invalid arguments on line " << line_num << " in tune file. \"" << line << "\"" << std::endl;
+        exit(0);
+      }
+
+      for (int i = 0; i < argc; ++i) {
+        delete[] argv[i];
+      }
+      delete[] argv;
+      delete test_settings;
+
+      settings.push_back(line);
+    }
+
+  }
+
+  file.close();
   return settings;
+}
+
+
+
+void string_to_args(const std::string& str, int& argc, char**& argv) {
+  std::istringstream iss(str);
+  std::vector<std::string> tokens;
+  std::string token;
+
+  // Tokenize the string
+  while (iss >> token) {
+    tokens.push_back(token);
+  }
+
+  // Set argc
+  argc = tokens.size();
+
+  // Allocate argv
+  argv = new char*[argc + 1];
+
+  // Copy tokens to argv
+  for (int i = 0; i < argc; ++i) {
+    argv[i] = new char[tokens[i].length() + 1];
+    std::strcpy(argv[i], tokens[i].c_str());
+  }
+
+  // Null-terminate argv
+  argv[argc] = nullptr;
+}
+
+std::tuple<int, char**> combine_args(int argc1, const char** argv1, int argc2, char** argv2) {
+  int combinedArgc = argc1 + argc2;
+  char** combinedArgv = new char*[combinedArgc + 1];
+
+  for (int i = 0; i < argc1; ++i) {
+    combinedArgv[i] = new char[std::strlen(argv1[i]) + 1];
+    std::strcpy(combinedArgv[i], argv1[i]);
+  }
+
+  for (int i = 0; i < argc2; ++i) {
+    combinedArgv[argc1 + i] = new char[std::strlen(argv2[i]) + 1];
+    std::strcpy(combinedArgv[argc1 + i], argv2[i]);
+  }
+
+  combinedArgv[combinedArgc] = nullptr;
+  return std::make_tuple(combinedArgc, combinedArgv);
 }

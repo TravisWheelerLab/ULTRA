@@ -6,15 +6,15 @@
 int main(int argc, const char *argv[]) {
 
   // Prepare settings
-  Settings settings;
-  settings.prepare_settings();
-  if (!settings.parse_input(argc, argv)) {
+  Settings *settings = new Settings();
+  settings->prepare_settings();
+  if (!settings->parse_input(argc, argv)) {
     exit(0);
   }
 
-  settings.assign_settings();
-  if (settings.show_memory) {
-    settings.print_memory_usage();
+  settings->assign_settings();
+  if (settings->show_memory) {
+    settings->print_memory_usage();
     exit(0);
   }
 
@@ -22,20 +22,19 @@ int main(int argc, const char *argv[]) {
   std::vector<unsigned long long> coverage;
   std::vector<unsigned long long> shuffled_coverage;
   std::vector<std::string> param_strings;
-  std::vector<std::tuple<std::string,Settings *>> search_params;
   unsigned long long seq_length = 0;
-  if (settings.tune) {
+  if (settings->tune) {
 
     // Get the parameters we are going to run with
-    if (settings.tune_param_path.empty()) {
-      if (settings.tune_small)
-        search_params = small_tune_settings(argc, argv);
-      else if (settings.tune_large)
-        search_params = large_tune_settings(argc, argv);
+    if (settings->tune_param_path.empty()) {
+      if (settings->tune_medium)
+        param_strings = medium_tune_settings();
+      else if (settings->tune_large)
+        param_strings = large_tune_settings();
       else
-        search_params = default_tune_settings(argc, argv);
+        param_strings = small_tune_settings();
     }else {
-      search_params = tune_settings_for_path(settings.tune_param_path);
+      param_strings = tune_settings_for_path(settings->tune_param_path);
     }
 
     // Run ULTRA on each parameter set
@@ -44,16 +43,29 @@ int main(int argc, const char *argv[]) {
 
     int best_coverage_index = -1;
     double best_coverage = 0.0;
-    for (auto [params, setting] : search_params) {
+    for (auto arg_string : param_strings) {
       unsigned long cvg_tmp;
       double real_coverage = 0;
       double false_coverage = 0;
 
-      // Push back our params
-      param_strings.push_back(params);
+      Settings search_setting;
+      search_setting.prepare_settings();
+      search_setting.set_multi_option();
+      if (!search_setting.parse_multi_input(argc, argv, arg_string)) {
+        exit(0);
+      }
+      search_setting.assign_settings();
+
+      if (!search_setting.tune_indels) {
+        search_setting.max_insert = 0;
+        search_setting.max_delete = 0;
+      }
+      search_setting.suppress_out = true;
+      search_setting.hide_settings = true;
+      search_setting.produce_mask = true;
 
       // We first get the normal coverage
-      auto *ultra = new Ultra(setting);
+      auto *ultra = new Ultra(&search_setting);
       ultra->AnalyzeFile();
       ultra->OutputRepeats(true);
       seq_length = ultra->reader->fastaReader->total_seq_length;
@@ -63,7 +75,7 @@ int main(int argc, const char *argv[]) {
       delete ultra;
 
       // Next we get our shuffled coverage
-      ultra = new Ultra(setting);
+      ultra = new Ultra(&search_setting);
       ultra->shuffleSequence = true;
       ultra->AnalyzeFile();
       ultra->OutputRepeats(true);
@@ -77,16 +89,16 @@ int main(int argc, const char *argv[]) {
         fdr = false_coverage / real_coverage;
       }
 
-      if (fdr <= settings.tune_fdr) {
+      if (fdr <= settings->tune_fdr) {
         if (real_coverage > best_coverage) {
           best_coverage = real_coverage;
-          best_coverage_index = param_strings.size() - 1;
+          best_coverage_index = coverage.size() - 1;
         }
       }
 
-      printf("(%zu/%zu): %g, %g, %s\n",(param_strings.size()),
-             search_params.size(),
-             real_coverage, fdr, params.c_str());
+      printf("(%zu/%zu): %g, %g, %s\n",(coverage.size()),
+             param_strings.size(),
+             real_coverage, fdr, arg_string.c_str());
     }
 
     printf("-----------\n");
@@ -98,26 +110,35 @@ int main(int argc, const char *argv[]) {
       printf("Best coverage within FDR limit: %g, %g, %s\n", real_coverage,
              fdr,
              param_strings[best_coverage_index].c_str());
+
+      delete settings;
+      settings = new Settings();
+      settings->prepare_settings();
+      settings->set_multi_option();
+      if (!settings->parse_multi_input(argc, argv, param_strings[best_coverage_index])) {
+        exit(0);
+      }
+      settings->assign_settings();
     } else {
       printf("No parameters found within FDR limit.\n");
       exit(0);
     }
 
-    if (settings.tune_only) {
+    if (settings->tune_only) {
       exit(0);
     }
   }
 
   // Perform the actual run
-  auto *ultra = new Ultra(&settings);
+  auto *ultra = new Ultra(settings);
   ultra->AnalyzeFile();
   ultra->OutputRepeats(true);
 
   // Check to see if we are making a masked file
-  if (settings.produce_mask) {
-    FILE *f = fopen(settings.mask_file.c_str(), "w");
-    OutputMaskedFASTA(settings.in_file, f, ultra->masks_for_seq,
-                      settings.mask_with_n);
+  if (settings->produce_mask) {
+    FILE *f = fopen(settings->mask_file.c_str(), "w");
+    OutputMaskedFASTA(settings->in_file, f, ultra->masks_for_seq,
+                      settings->mask_with_n);
     fclose(f);
   }
 
