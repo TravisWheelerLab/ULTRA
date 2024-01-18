@@ -18,10 +18,14 @@ void Settings::prepare_settings() {
       ->required(false)
       ->group("Input");
 
-  app.add_flag("-r,--readall", this->read_all,
+  app.add_flag("-r,--read_all", this->read_all,
                "Read entire input file into memory"
                " (disables streaming input)")
       ->group("Input");
+  app.add_flag("--readall", this->read_all,
+               "Read entire input file into memory"
+               " (disables streaming input)")
+      ->group("");
 
   // *************
   // Output options
@@ -41,29 +45,47 @@ void Settings::prepare_settings() {
                "Use JSON outuput format instead of BED")
       ->group("Output");
 
-  app.add_flag("--hideseq", this->hide_seq,
+  app.add_flag("--hide_seq", this->hide_seq,
                "Hide sequence descriptor in JSON output")
       ->group("Output");
+  app.add_flag("--hideseq", this->hide_seq,
+               "Hide sequence descriptor in JSON output")
+      ->group("");
 
-  app.add_flag("--showdelta", this->show_deltas,
+  app.add_flag("--show_delta", this->show_deltas,
                "Show positional score deltas in JSON output")
       ->group("Output");
+  app.add_flag("--showdelta", this->show_deltas,
+               "Show positional score deltas in JSON output")
+      ->group("");
 
-  app.add_flag("--showtrace", this->show_trace,
+  app.add_flag("--show_trace", this->show_trace,
                "Show Viterbi trace in JSON output")
       ->group("Output");
+  app.add_flag("--showtrace", this->show_trace,
+               "Show Viterbi trace in JSON output")
+      ->group("");
 
-  app.add_flag("--showwid", this->show_wid,
+  app.add_flag("--show_wid", this->show_wid,
                "Show sequence window IDs in JSON output")
       ->group("Output");
+  app.add_flag("--showwid", this->show_wid,
+               "Show sequence window IDs in JSON output")
+      ->group("");
 
-  app.add_flag("--showlogo", this->show_logo_nums,
+  app.add_flag("--show_logo", this->show_logo_nums,
                "Show logo numbers in JSON output")
       ->group("Output");
+  app.add_flag("--showlogo", this->show_logo_nums,
+               "Show logo numbers in JSON output")
+      ->group("");
 
-  app.add_flag("--hs, --hidesettings", this->hide_settings,
+  app.add_flag("--hs, --hide_settings", this->hide_settings,
                "Do not output settings")
       ->group("Output");
+  app.add_flag("--hidesettings", this->hide_settings,
+               "Do not output settings")
+      ->group("");
 
   app.add_flag("--suppress", this->suppress_out,
                "Do not output BED or JSON annotation")
@@ -89,9 +111,8 @@ void Settings::prepare_settings() {
   app.add_option("--win_size", this->window_size,
                  "Manually set sequence window size")
       ->group("System");
-  app.add_option("--winsize", this->window_size,
-                 "Manually set sequence window size")
-      ->group("Hidden");
+  app.add_option("--winsize", this->window_size)
+      ->group("");
 
   app.add_option("--overlap", this->overlap,
                  "Manually set sequence window overlap size")
@@ -114,15 +135,23 @@ void Settings::prepare_settings() {
       ->default_str("-100.0")
       ->group("Filter");
 
-  app.add_option("--minlen", this->min_length,
+  app.add_option("--min_length", this->min_length,
                  "Minimum reportable repeat length")
       ->default_val(this->min_length)
       ->group("Filter");
+  app.add_option("--minlen", this->min_length,
+                 "Minimum reportable repeat length")
+      ->default_val(this->min_length)
+      ->group("");
 
-  app.add_option("--minunit", this->min_units,
+  app.add_option("--min_unit", this->min_units,
                  "Minimum reportable number of repeat units")
       ->default_val(this->min_units)
       ->group("Filter");
+  app.add_option("--minunit", this->min_units,
+                 "Minimum reportable number of repeat units")
+      ->default_val(this->min_units)
+      ->group("");
 
   // *************
   // Tune options
@@ -146,9 +175,12 @@ void Settings::prepare_settings() {
       ->default_val("")
       ->group("Parameter Tuning");
 
-  app.add_flag("--tune_indels", this->tune_indels,
+  app.add_flag("--tune_indel", this->tune_indels,
                "Enable indels while tuning")
       ->group("Parameter Tuning");
+  app.add_flag("--tune_indels", this->tune_indels,
+               "Enable indels while tuning")
+      ->group("");
 
   app.add_option("--tune_fdr", this->tune_fdr,
                  "FDR to be tuned against (see README)")
@@ -232,27 +264,44 @@ void Settings::prepare_settings() {
   // Split options
   // *************
 
-  app.add_flag("--nosplit", this->no_split, "Do not perform repeat splitting")
+  app.add_flag("--no_split", this->no_split, "Do not perform repeat splitting")
       ->group("Splitting and Naming");
+  app.add_flag("--nosplit", this->no_split, "Do not perform repeat splitting")
+      ->group("");
 
-  app.add_option("--maxsplit", this->max_split,
+  app.add_option("--max_split", this->max_split,
                  "The maximum repeat period to perform repeat splitting")
       ->default_val(this->max_split)
       ->group("Splitting and Naming");
+  app.add_option("--maxsplit", this->max_split,
+                 "The maximum repeat period to perform repeat splitting")
+      ->default_val(this->max_split)
+      ->group("");
 
-  app.add_option("--splitval", this->split_threshold, "Split threshold value")
+  app.add_option("--split_threshold", this->split_threshold, "Split threshold value")
       ->default_val(this->split_threshold)
       ->group("Splitting and Naming");
+  app.add_option("--splitval", this->split_threshold, "Split threshold value")
+      ->default_val(this->split_threshold)
+      ->group("");
 
-  app.add_option("--splitdepth", this->split_depth,
+  app.add_option("--split_depth", this->split_depth,
                  "Number of repeat units to use in repeat splitting")
       ->default_val(this->split_depth)
       ->group("Splitting and Naming");
+  app.add_option("--splitdepth", this->split_depth,
+                 "Number of repeat units to use in repeat splitting")
+      ->default_val(this->split_depth)
+      ->group("");
 
-  app.add_option("--minsplitwin", this->min_split_window,
+  app.add_option("--min_split_window", this->min_split_window,
                  "Minimum repeat split window size")
       ->default_val(this->min_split_window)
       ->group("Splitting and Naming");
+  app.add_option("--minsplitwin", this->min_split_window,
+                 "Minimum repeat split window size")
+      ->default_val(this->min_split_window)
+      ->group("");
 }
 
 void Settings::set_multi_option() {
