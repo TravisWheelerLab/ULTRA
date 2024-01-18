@@ -80,8 +80,6 @@ long long SequenceWindow::ReadLine(std::string line, long long place, unsigned l
 
 void SequenceWindow::CopyOverlap(symbol *b) {
 
-  // printf("%i %i\n", readID, overlap);
-
   for (unsigned long i = 0; i < overlap; ++i) {
     overlapSeq[i] = b[i];
   }
