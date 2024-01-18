@@ -246,6 +246,7 @@ void Ultra::OutputRepeats(bool flush) {
       if (threads[i]->repeats.size() > 0) {
         outRepeats.insert(outRepeats.end(), threads[i]->repeats.begin(),
                           threads[i]->repeats.end());
+        threads[i]->repeats.clear();
       }
     }
     maxReadID = 100000000;

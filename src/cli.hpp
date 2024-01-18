@@ -80,8 +80,8 @@ struct Settings {
   float period_decay = 0.85;
   float transition_nr = 0.01;
   float transition_rn = 0.05;
-  float transition_ri = 0.02;
-  float transition_rd = 0.02;
+  float transition_ri = 0.002;
+  float transition_rd = 0.002;
   float transition_ii = 0.02;
   float transition_dd = 0.02;
 
