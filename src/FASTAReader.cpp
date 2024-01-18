@@ -130,7 +130,6 @@ bool FASTAReader::ReadWindow(SequenceWindow *window) {
   window->PrepareWindow(sequenceName, sequenceID, symbolsReadInSeq,
                         overlapLength);
   while (true) {
-
     if (linePlace >= 0 && linePlace < READ_ALL) {
       linePlace = window->ReadLine(line, linePlace, total_seq_length);
 
