@@ -86,9 +86,12 @@ void Settings::prepare_settings() {
       ->default_str("1")
       ->group("System");
 
-  app.add_option("--winsize", this->window_size,
+  app.add_option("--win_size", this->window_size,
                  "Manually set sequence window size")
       ->group("System");
+  app.add_option("--winsize", this->window_size,
+                 "Manually set sequence window size")
+      ->group("Hidden");
 
   app.add_option("--overlap", this->overlap,
                  "Manually set sequence window overlap size")
