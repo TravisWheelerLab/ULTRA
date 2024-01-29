@@ -129,6 +129,10 @@ bool FASTAReader::ReadWindow(SequenceWindow *window) {
 
   window->PrepareWindow(sequenceName, sequenceID, symbolsReadInSeq,
                         overlapLength);
+
+  if (overlapLength > 0)
+    window->CopyOverlap(overlapBuffer);
+
   while (true) {
     if (linePlace >= 0 && linePlace < READ_ALL) {
       linePlace = window->ReadLine(line, linePlace, total_seq_length);
@@ -178,7 +182,7 @@ bool FASTAReader::ReadWindow(SequenceWindow *window) {
     CopyOverlapBufferFromWindow(window, maxOverlapLength);
 
   window->readID = readID++;
-  window->CopyOverlap(overlapBuffer);
+
 
   return true;
 }
