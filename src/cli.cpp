@@ -5,6 +5,7 @@
 #include "cli.hpp"
 #include <cstring>
 #include <iostream>
+#include <vector>
 
 void Settings::prepare_settings() {
 
@@ -493,8 +494,9 @@ bool Settings::parse_multi_input(int argc, const char **argv, std::string arg_st
   int new_argc;
   char **new_argv;
   string_to_args(arg_str, new_argc, new_argv);
-  auto [combined_argc, combined_argv] = combine_args(argc, argv, new_argc, new_argv);
-
+  auto pair = combine_args(argc, argv, new_argc, new_argv);
+  auto combined_argc = pair.first;
+  auto combined_argv = pair.second;
   // Parse the combined arguments
   bool result = parse_input(combined_argc, (const char**)combined_argv);
 
@@ -745,10 +747,10 @@ std::vector<std::string> small_tune_settings()
 
   std::vector<std::string> settings;
 
-  std::vector match_settings = std::vector<float>{0.6, 0.75, 0.9};
-  std::vector at_settings = std::vector<float>{0.4, 0.5, 0.6};
-  std::vector repeat_start = std::vector<float>{0.001, 0.01};
-  std::vector repeat_stop = std::vector<float>{0.005, 0.05};
+  std::vector<float> match_settings = std::vector<float>{0.6, 0.75, 0.9};
+  std::vector<float> at_settings = std::vector<float>{0.4, 0.5, 0.6};
+  std::vector<float> repeat_start = std::vector<float>{0.001, 0.01};
+  std::vector<float> repeat_stop = std::vector<float>{0.005, 0.05};
 
   for (auto match : match_settings) {
     for (auto at : at_settings) {
@@ -770,10 +772,10 @@ std::vector<std::string> medium_tune_settings()
 
   std::vector<std::string> settings;
 
-  std::vector match_settings = std::vector<float>{0.6, 0.7, 0.8, 0.9};
-  std::vector at_settings = std::vector<float>{0.3, 0.4, 0.5, 0.6, 0.7};
-  std::vector repeat_start = std::vector<float>{0.001, 0.01};
-  std::vector repeat_stop = std::vector<float>{0.005, 0.05};
+  std::vector<float> match_settings = std::vector<float>{0.6, 0.7, 0.8, 0.9};
+  std::vector<float> at_settings = std::vector<float>{0.3, 0.4, 0.5, 0.6, 0.7};
+  std::vector<float> repeat_start = std::vector<float>{0.001, 0.01};
+  std::vector<float> repeat_stop = std::vector<float>{0.005, 0.05};
 
   for (auto match : match_settings) {
     for (auto at : at_settings) {
@@ -796,10 +798,10 @@ std::vector<std::string> large_tune_settings()
 
   std::vector<std::string> settings;
 
-  std::vector match_settings = std::vector<float>{0.6, 0.7, 0.8, 0.9};
-  std::vector at_settings = std::vector<float>{0.3, 0.35, 0.4, 0.5, 0.6, 0.65, 0.7};
-  std::vector repeat_start = std::vector<float>{0.001, 0.005, 0.01};
-  std::vector repeat_stop = std::vector<float>{0.005, 0.01, 0.05};
+  std::vector<float> match_settings = std::vector<float>{0.6, 0.7, 0.8, 0.9};
+  std::vector<float> at_settings = std::vector<float>{0.3, 0.35, 0.4, 0.5, 0.6, 0.65, 0.7};
+  std::vector<float> repeat_start = std::vector<float>{0.001, 0.005, 0.01};
+  std::vector<float> repeat_stop = std::vector<float>{0.005, 0.01, 0.05};
 
   for (auto match : match_settings) {
     for (auto at : at_settings) {
@@ -888,7 +890,7 @@ void string_to_args(const std::string& str, int& argc, char**& argv) {
   argv[argc] = nullptr;
 }
 
-std::tuple<int, char**> combine_args(int argc1, const char** argv1, int argc2, char** argv2) {
+std::pair<int, char**> combine_args(int argc1, const char** argv1, int argc2, char** argv2) {
   int combinedArgc = argc1 + argc2;
   char** combinedArgv = new char*[combinedArgc + 1];
 
@@ -903,5 +905,5 @@ std::tuple<int, char**> combine_args(int argc1, const char** argv1, int argc2, c
   }
 
   combinedArgv[combinedArgc] = nullptr;
-  return std::make_tuple(combinedArgc, combinedArgv);
+  return std::make_pair(combinedArgc, combinedArgv);
 }

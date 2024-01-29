@@ -5,7 +5,7 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.0.0 (beta 12b)"
+#define ULTRA_VERSION_STRING "1.0.0 (beta 13)"
 
 
 #include "../lib/CLI11.hpp"
@@ -121,6 +121,6 @@ std::vector<std::string> large_tune_settings();
 std::vector<std::string> tune_settings_for_path(std::string path);
 
 void string_to_args(const std::string& str, int& argc, char**& argv);
-std::tuple<int, char**> combine_args(int argc1, const char** argv1, int argc2, char** argv2);
+std::pair<int, char**> combine_args(int argc1, const char** argv1, int argc2, char** argv2);
 
 #endif // ULTRA_CLI_HPP
