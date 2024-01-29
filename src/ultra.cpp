@@ -332,7 +332,9 @@ unsigned long long Ultra::Coverage() {
   unsigned long long coverage = 0;
 
   // Itterate through each sequence and find the coverage for that sequence
-  for (auto [seq_id, regions] : this->masks_for_seq) {
+  for (auto tup : this->masks_for_seq) {
+    auto seq_id = tup.first;
+    auto regions = tup.second;
     auto cleaned_regions = CleanedMasks(regions);
 
     for (auto region : *cleaned_regions) {
