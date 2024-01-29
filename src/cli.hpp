@@ -7,6 +7,7 @@
 
 #define ULTRA_VERSION_STRING "1.0.0 (beta 12b)"
 
+
 #include "../lib/CLI11.hpp"
 #include <string>
 #include <vector>
