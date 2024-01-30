@@ -17,24 +17,24 @@ void *UltraThreadLaunch(void *dat) {
 void Ultra::AnalyzeFile() {
 
   if (numberOfThreads <= 0) {
-    printf("Number of threads must be set greater than 0.\n");
+    fprintf(stderr, "Number of threads must be greater than 0.\n");
     exit(-1);
   }
 
   reader->FillWindows();
 
   if (pthread_mutex_init(&outerLock, nullptr) != 0) {
-    printf("Failed to create outer mutex lock. Exiting.\n");
+    fprintf(stderr, "Failed to create outer mutex lock. Exiting.\n");
     exit(-1);
   }
 
   if (pthread_mutex_init(&innerLock, nullptr) != 0) {
-    printf("Failed to create inner mutex lock. Exiting.\n");
+    fprintf(stderr, "Failed to create inner mutex lock. Exiting.\n");
     exit(-1);
   }
 
   if (pthread_mutex_init(&repeatLock, nullptr) != 0) {
-    printf("Failed to create repeat lock. Exiting.\n");
+    fprintf(stderr, "Failed to create repeat lock. Exiting.\n");
     exit(-1);
   }
 

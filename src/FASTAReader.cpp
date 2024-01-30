@@ -287,12 +287,12 @@ FASTAReader::FASTAReader(std::string filePath, int mxWindows,
   G_pctg = 0.2;
 
   if (pthread_mutex_init(&waitingLock, NULL) != 0) {
-    printf("Failed to create waiting mutex. Exiting.\n");
+    fprintf(stderr, "Failed to create waiting mutex. Exiting.\n");
     exit(-1);
   }
 
   if (pthread_mutex_init(&readyLock, NULL) != 0) {
-    printf("Failed to create ready mutex. Exiting.\n");
+    fprintf(stderr, "Failed to create ready mutex. Exiting.\n");
     exit(-1);
   }
 
@@ -329,7 +329,7 @@ FASTAReader::FASTAReader(std::string filePath, int mxWindows,
 
   file.open(filePath, std::ios::in);
   if (!file.is_open()) {
-    printf("Unable to open file: %s\n", filePath.c_str());
+    fprintf(stderr, "Unable to open file: %s\n", filePath.c_str());
     exit(-1);
   }
 
@@ -358,12 +358,12 @@ FASTAReader::FASTAReader(unsigned long rn, int maxWindows,
   srand(seed);
 
   if (pthread_mutex_init(&waitingLock, NULL) != 0) {
-    printf("Failed to create waiting mutex. Exiting.\n");
+    fprintf(stderr, "Failed to create waiting mutex. Exiting.\n");
     exit(-1);
   }
 
   if (pthread_mutex_init(&readyLock, NULL) != 0) {
-    printf("Failed to create ready mutex. Exiting.\n");
+    fprintf(stderr, "Failed to create ready mutex. Exiting.\n");
     exit(-1);
   }
 
