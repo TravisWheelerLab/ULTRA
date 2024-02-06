@@ -6,7 +6,7 @@
 #include <cmath>
 
 #include "ultra.hpp"
-
+#include <cmath>
 void *UltraThreadLaunch(void *dat) {
   uthread *uth = (uthread *)dat;
 
@@ -135,17 +135,11 @@ void Ultra::AnalyzeFileWithThread(void *dat) {
   }
 }
 
-float Ultra::Log2PvalForScore(float score, float period) const {
-  float loc =
-      (settings->pval_exponent_loc_m * period) + settings->pval_exponent_loc_b;
-  float scale = (settings->pval_exponent_scale_m * period) +
-                settings->pval_exponent_scale_b;
-
-  // Cap location
-  if (loc < 0.2)
-    loc = 0.2;
-
-  return (-1.0 * (score - loc) / scale) / log2(2.71828);
+double Ultra::Log2PvalForScore(float score, float period) const {
+  double loc = settings->p_value_loc;
+  double scale = settings->p_value_scale;
+  double freq = settings->p_value_freq;
+  return log2(exp(-1.0 * (score - loc) / scale) * freq);
 }
 
 void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {

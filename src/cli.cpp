@@ -685,10 +685,9 @@ std::string Settings::json_string() {
 
   JSONMACRO(out_file);
   JSONMACRO(pval);
-  JSONMACRO(pval_exponent_loc_m);
-  JSONMACRO(pval_exponent_loc_b);
-  JSONMACRO(pval_exponent_scale_m);
-  JSONMACRO(pval_exponent_scale_b);
+  JSONMACRO(p_value_loc);
+  JSONMACRO(p_value_scale);
+  JSONMACRO(p_value_freq);
 
   JSONMACRO(json);
   JSONMACRO(hide_seq);
