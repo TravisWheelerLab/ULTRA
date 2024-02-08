@@ -179,6 +179,10 @@ bool FASTAReader::ReadWindow(SequenceWindow *window) {
   if (resetSymbolCount)
     symbolsReadInSeq = 0;
 
+  if (shuffle) {
+    ShuffleSequenceWindow(window);
+  }
+
   if (symbolsReadInSeq >= maxOverlapLength)
     CopyOverlapBufferFromWindow(window, maxOverlapLength);
 

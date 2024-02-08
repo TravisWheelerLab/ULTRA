@@ -20,7 +20,7 @@ void Ultra::AnalyzeFile() {
     fprintf(stderr, "Number of threads must be greater than 0.\n");
     exit(-1);
   }
-
+  reader->fastaReader->shuffle = shuffleSequence;
   reader->FillWindows();
 
   if (pthread_mutex_init(&outerLock, nullptr) != 0) {
@@ -148,10 +148,6 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
   if (uth->repeats.size() == 0) {
     uth->activeReadID = sequence->readID;
-  }
-
-  if (shuffleSequence) {
-    ShuffleSequenceWindow(sequence);
   }
 
   UModel *model = uth->model;
@@ -374,6 +370,7 @@ Ultra::Ultra(Settings *s) {
   reader = new FileReader(settings->in_file, settings->windows,
                           settings->window_size, settings->overlap,
                           settings->threads > 1);
+  reader->fastaReader->shuffle = shuffleSequence;
 
   int leng = settings->window_size + (settings->overlap + 2);
   storeTraceAndSequence = true;
