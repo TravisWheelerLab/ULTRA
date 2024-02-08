@@ -35,17 +35,6 @@ bool UMatrix::MoveMatrixForward() {
   currentTracebackColumn = tracebackColumns[currentColumnIndex];
   previousTracebackColumn = tracebackColumns[previousColumnIndex];
 
-  if (wrap == true) {
-    printf("%llu %llu\n", currentColumnIndex, length);
-    printf("*****8WRAP**\n");
-    printf("*****8WRAP**\n");
-    printf("*****8WRAP**\n");
-    printf("*****8WRAP**\n");
-    printf("*****8WRAP**\n");
-    printf("*****8WRAP**\n");
-    printf("*****8WRAP**\n");
-    printf("*****8WRAP**\n");
-  }
 
   return wrap;
 }

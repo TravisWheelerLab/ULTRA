@@ -92,7 +92,7 @@ public:
 
   void CorrectOverlap(int maxReadID);
 
-  float Log2PvalForScore(float score, float period) const;
+  double Log2PvalForScore(float score, float period) const;
 
   SequenceWindow *GetSequenceWindow(SequenceWindow *seq);
 

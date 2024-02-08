@@ -6,7 +6,7 @@
 #include <cmath>
 
 #include "ultra.hpp"
-
+#include <cmath>
 void *UltraThreadLaunch(void *dat) {
   uthread *uth = (uthread *)dat;
 
@@ -17,24 +17,24 @@ void *UltraThreadLaunch(void *dat) {
 void Ultra::AnalyzeFile() {
 
   if (numberOfThreads <= 0) {
-    printf("Number of threads must be set greater than 0.\n");
+    fprintf(stderr, "Number of threads must be greater than 0.\n");
     exit(-1);
   }
-
+  reader->fastaReader->shuffle = shuffleSequence;
   reader->FillWindows();
 
   if (pthread_mutex_init(&outerLock, nullptr) != 0) {
-    printf("Failed to create outer mutex lock. Exiting.\n");
+    fprintf(stderr, "Failed to create outer mutex lock. Exiting.\n");
     exit(-1);
   }
 
   if (pthread_mutex_init(&innerLock, nullptr) != 0) {
-    printf("Failed to create inner mutex lock. Exiting.\n");
+    fprintf(stderr, "Failed to create inner mutex lock. Exiting.\n");
     exit(-1);
   }
 
   if (pthread_mutex_init(&repeatLock, nullptr) != 0) {
-    printf("Failed to create repeat lock. Exiting.\n");
+    fprintf(stderr, "Failed to create repeat lock. Exiting.\n");
     exit(-1);
   }
 
@@ -135,17 +135,11 @@ void Ultra::AnalyzeFileWithThread(void *dat) {
   }
 }
 
-float Ultra::Log2PvalForScore(float score, float period) const {
-  float loc =
-      (settings->pval_exponent_loc_m * period) + settings->pval_exponent_loc_b;
-  float scale = (settings->pval_exponent_scale_m * period) +
-                settings->pval_exponent_scale_b;
-
-  // Cap location
-  if (loc < 0.2)
-    loc = 0.2;
-
-  return (-1.0 * (score - loc) / scale) / log2(2.71828);
+double Ultra::Log2PvalForScore(float score, float period) const {
+  double loc = settings->p_value_loc;
+  double scale = settings->p_value_scale;
+  double freq = settings->p_value_freq;
+  return log2(exp(-1.0 * (score - loc) / scale) * freq);
 }
 
 void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
@@ -154,10 +148,6 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
   if (uth->repeats.size() == 0) {
     uth->activeReadID = sequence->readID;
-  }
-
-  if (shuffleSequence) {
-    ShuffleSequenceWindow(sequence);
   }
 
   UModel *model = uth->model;
@@ -380,6 +370,7 @@ Ultra::Ultra(Settings *s) {
   reader = new FileReader(settings->in_file, settings->windows,
                           settings->window_size, settings->overlap,
                           settings->threads > 1);
+  reader->fastaReader->shuffle = shuffleSequence;
 
   int leng = settings->window_size + (settings->overlap + 2);
   storeTraceAndSequence = true;

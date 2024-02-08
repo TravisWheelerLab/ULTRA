@@ -79,10 +79,10 @@ long long SequenceWindow::ReadLine(std::string line, long long place, unsigned l
 }
 
 void SequenceWindow::CopyOverlap(symbol *b) {
-
   for (unsigned long i = 0; i < overlap; ++i) {
     overlapSeq[i] = b[i];
   }
+  newSeq = &seq[overlap];
 }
 
 void SequenceWindow::CalculateSymbolFrequencies() {
@@ -162,6 +162,6 @@ void ShuffleSequenceWindow(SequenceWindow *window) {
   for (unsigned long long i = 0; i < window->length; ++i) {
     unsigned long long j = dist(gen);
     j = (j % (window->length - i)) + i;
-    std::swap(window->seq[i], window->seq[j]);
+    std::swap(window->newSeq[i], window->newSeq[j]);
   }
 }

@@ -13,6 +13,7 @@ endif()
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(
         LIB_CPP_FILES
 
@@ -65,6 +66,9 @@ add_executable(
         ${CPP_FILES}
 )
 target_link_libraries(ultra PRIVATE Threads::Threads)
+
+target_include_directories(ultra SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/lib)
+
 install(TARGETS ultra RUNTIME)
 
 add_custom_target(

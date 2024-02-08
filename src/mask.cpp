@@ -7,7 +7,7 @@ void OutputMaskedFASTA(
     bool n_mask) {
   std::ifstream in_file(in_path);
   if (!in_file.is_open()) {
-    printf("Unable to open %s\n", in_path.c_str());
+    fprintf(stderr, "Unable to open %s\n", in_path.c_str());
     return;
   }
 

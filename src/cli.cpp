@@ -323,9 +323,9 @@ bool Settings::parse_input(int argc, const char **argv) {
     if (strlen(argv[i]) >= 3) {
       if (argv[i][0] == '-') {
         if (isalpha(argv[i][1])) {
-          printf("Argument '%s' is not allowed (long arguments begin with --, "
-                 "filenames may not begin with -)\n",
-                 argv[i]);
+          fprintf(stderr, "Argument '%s' is not allowed (long arguments begin with --, "
+                          "filenames may not begin with -)\n",
+                  argv[i]);
           return false;
         }
       }
@@ -344,65 +344,65 @@ bool Settings::parse_input(int argc, const char **argv) {
 
   bool passed = true;
   if (this->in_file.empty() && !this->show_memory) {
-    printf("Input file required.\n");
+    fprintf(stderr, "Input file required.\n");
     passed = false;
   }
 
   if (!this->json) {
     if (this->hide_seq) {
-      printf("--hideseq is only available with --json\n");
+      fprintf(stderr, "--hideseq is only available with --json\n");
       passed = false;
     }
 
     if (this->show_deltas) {
-      printf("--showdelta is only available with --json\n");
+      fprintf(stderr, "--showdelta is only available with --json\n");
       passed = false;
     }
 
     if (this->show_trace) {
-      printf("--showtrace is only available with --json\n");
+      fprintf(stderr, "--showtrace is only available with --json\n");
       passed = false;
     }
 
     if (this->show_logo_nums) {
-      printf("--showlogo is only available with --json\n");
+      fprintf(stderr, "--showlogo is only available with --json\n");
       passed = false;
     }
   }
 
   if (this->json && this->suppress_out) {
-    printf("--suppress is incompatible with --json\n"
-           "--suppress disables both JSON and BED output\n");
+    fprintf(stderr, "--suppress is incompatible with --json\n"
+                    "--suppress disables both JSON and BED output\n");
     passed = false;
   }
 
   if (this->mask_file.empty() && this->mask_with_n) {
-    printf("--maskn requires an output file path provided to --mask\n");
+    fprintf(stderr, "--maskn requires an output file path provided to --mask\n");
     passed = false;
   }
 
   if (this->threads < 1) {
-    printf("--threads must be at least 1.\n");
+    fprintf(stderr, "--threads must be at least 1.\n");
     passed = false;
   }
 
   if (this->window_size != -1 && this->window_size < this->max_period) {
-    printf("--winsize cannot be smaller than --period\n");
+    fprintf(stderr, "--winsize cannot be smaller than --period\n");
     passed = false;
   }
 
   if (this->windows < this->threads) {
-    printf("--windows must be at least as large as --threads\n");
+    fprintf(stderr, "--windows must be at least as large as --threads\n");
     passed = false;
   }
 
   if (this->max_period < 1) {
-    printf("--period must be at least 1\n");
+    fprintf(stderr, "--period must be at least 1\n");
     passed = false;
   }
 
   if (this->at < 0.0 || this->at > 1.0) {
-    printf("--at must be >= 0.0 and <= 1.0\n");
+    fprintf(stderr, "--at must be >= 0.0 and <= 1.0\n");
     passed = false;
   }
 
@@ -411,64 +411,64 @@ bool Settings::parse_input(int argc, const char **argv) {
     for (int i = 0; i < 4; ++i) {
       sum += this->acgt[i];
       if (this->acgt[i] < 0 || this->acgt[i] > 1.0) {
-        printf("--acgt argument [%i] must be >= 0.0 and <= 1.0\n", i);
+        fprintf(stderr, "--acgt argument [%i] must be >= 0.0 and <= 1.0\n", i);
         passed = false;
       }
     }
 
     if (abs(1.0 - sum) > 0.001) {
-      printf("--acgt arguments must sum to 1.0 ± 0.001\n");
+      fprintf(stderr, "--acgt arguments must sum to 1.0 ± 0.001\n");
       passed = false;
     }
   }
 
   if (this->match_probability <= 0.0 || this->match_probability > 1.0) {
-    printf("--match must be > 0.0 and <= 1.0\n");
+    fprintf(stderr, "--match must be > 0.0 and <= 1.0\n");
     passed = false;
   }
 
   if (this->period_decay <= 0.0 || this->period_decay > 1.0) {
-    printf("--decay must be > 0.0 and <= 1.0\n");
+    fprintf(stderr, "--decay must be > 0.0 and <= 1.0\n");
     passed = false;
   }
 
   if (this->transition_nr < 0.0 || this->transition_nr > 1.0) {
-    printf("--nr must be >= 0.0 and <= 1.0\n");
+    fprintf(stderr, "--nr must be >= 0.0 and <= 1.0\n");
     passed = false;
   }
 
   if (this->transition_rn < 0.0 || this->transition_rn > 1.0) {
-    printf("--rn must be >= 0.0 and <= 1.0\n");
+    fprintf(stderr, "--rn must be >= 0.0 and <= 1.0\n");
     passed = false;
   }
 
   if (this->transition_ri < 0.0 || this->transition_ri > 1.0) {
-    printf("--ri must be >= 0.0 and <= 1.0\n");
+    fprintf(stderr, "--ri must be >= 0.0 and <= 1.0\n");
     passed = false;
   }
 
   if (this->transition_rd < 0.0 || this->transition_rd > 1.0) {
-    printf("--rd must be >= 0.0 and <= 1.0\n");
+    fprintf(stderr, "--rd must be >= 0.0 and <= 1.0\n");
     passed = false;
   }
 
   if (this->transition_ii < 0.0 || this->transition_ii > 1.0) {
-    printf("--ii must be >= 0.0 and <= 1.0\n");
+    fprintf(stderr, "--ii must be >= 0.0 and <= 1.0\n");
     passed = false;
   }
 
   if (this->transition_dd < 0.0 || this->transition_dd > 1.0) {
-    printf("--dd must be >= 0.0 and <= 1.0\n");
+    fprintf(stderr, "--dd must be >= 0.0 and <= 1.0\n");
     passed = false;
   }
 
   if (this->split_threshold <= 0) {
-    printf("--splitval must be > 0.0\n");
+    fprintf(stderr, "--splitval must be > 0.0\n");
     passed = false;
   }
 
   if (tune_fdr < 0.0 || tune_fdr > 1.0) {
-    printf("--tune_fdr must be >= 0 and <= 1.0\n");
+    fprintf(stderr, "--tune_fdr must be >= 0 and <= 1.0\n");
     passed = false;
   }
 
@@ -477,12 +477,12 @@ bool Settings::parse_input(int argc, const char **argv) {
   }
 
   if (this->tune_medium && this->tune_large) {
-    printf("Cannot use both --tune_medium and --tune_large\n");
+    fprintf(stderr, "Cannot use both --tune_medium and --tune_large\n");
     passed = false;
   }
 
   if (!this->tune_param_path.empty() && (this->tune_medium || this->tune_large)) {
-    printf("Cannot use both --tune_file and (--tune_small or --tune_large).\n");
+    fprintf(stderr, "Cannot use both --tune_file and (--tune_small or --tune_large).\n");
     passed = false;
   }
 
@@ -685,10 +685,9 @@ std::string Settings::json_string() {
 
   JSONMACRO(out_file);
   JSONMACRO(pval);
-  JSONMACRO(pval_exponent_loc_m);
-  JSONMACRO(pval_exponent_loc_b);
-  JSONMACRO(pval_exponent_scale_m);
-  JSONMACRO(pval_exponent_scale_b);
+  JSONMACRO(p_value_loc);
+  JSONMACRO(p_value_scale);
+  JSONMACRO(p_value_freq);
 
   JSONMACRO(json);
   JSONMACRO(hide_seq);

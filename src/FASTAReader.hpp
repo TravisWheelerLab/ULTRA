@@ -35,6 +35,7 @@ public:
 
   // If readWholeFile is set to true, then maxWindows is ignored
   bool readWholeFile;
+  bool shuffle = false;
   int maxWindows;
   unsigned long maxSeqLength;
   unsigned long maxOverlapLength;

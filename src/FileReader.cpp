@@ -27,7 +27,7 @@ FileReader::FileReader(std::string JSONFilePath, unsigned long mSeqLength,
   multithread = mthread;
 
   format = JSON;
-  printf("JSON input no longer allowed.\n");
+  fprintf(stderr, "JSON input no longer allowed.\n");
   exit(-1);
 }
 
@@ -44,7 +44,7 @@ SequenceWindow *FileReader::GetReadyWindow() {
     return fastaReader->GetReadyWindow();
 
   else {
-    printf("SequenceWindow Error, invalid format type\n");
+    fprintf(stderr, "SequenceWindow Error, invalid format type\n");
     exit(-1);
   }
 

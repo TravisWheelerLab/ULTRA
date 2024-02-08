@@ -29,6 +29,7 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
     }
   }
 
+  // Columns 1 (name) 2(start) 3 (end)
   fprintf(owner->out, "%s\t%lu\t%lu", name.c_str(), repeat->sequenceStart,
           repeat->sequenceStart + repeat->repeatLength);
 
@@ -37,7 +38,8 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
   std::string rep_con = ".";
   if (!repeat->string_consensus.empty())
     rep_con = repeat->string_consensus;
-  fprintf(owner->out, "\t%s\t%lu\t%lu\t0,0,0\t", rep_con.c_str(),
+  // Columns 4 (name) 5 (score) 6 (strand=.) 7 thickstart 8 thickend 9 rgb
+  fprintf(owner->out, "\t%s\t%f\t.\t%lu\t%lu\t0,0,0\t", rep_con.c_str(), repeat->regionScore,
           repeat->sequenceStart, repeat->sequenceStart + repeat->repeatLength);
 
   if (owner->settings->max_split > 0) {
