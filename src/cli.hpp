@@ -5,7 +5,7 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.0.0 (beta 14)"
+#define ULTRA_VERSION_STRING "1.0.0 (beta 15)"
 
 
 #include "../lib/CLI11.hpp"
@@ -90,7 +90,7 @@ struct Settings {
   unsigned long long max_split = 10;
   float split_threshold = 3.5;
   unsigned long long split_depth = 5;
-  unsigned long long min_split_window = 10;
+  unsigned long long min_split_window = 15;
   // TODO
   //  implement these
   unsigned long long max_namable_period = 50;

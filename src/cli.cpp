@@ -42,6 +42,14 @@ void Settings::prepare_settings() {
                "Use p-values instead of scores in BED output")
       ->group("Output");
 
+  app.add_flag("--pval_loc", this->p_value_loc,
+               "The exponential location used for converting scores to p-values.")
+      ->group("Output");
+
+  app.add_flag("--pval_scale", this->p_value_scale,
+               "The exponential scale used for converting scores to p-values.")
+      ->group("Output");
+
   app.add_flag("-j,--json", this->json,
                "Use JSON outuput format instead of BED")
       ->group("Output");

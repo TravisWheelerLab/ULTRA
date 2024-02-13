@@ -664,7 +664,7 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos) {
 
   unsigned long seqLength = window->length + window->overlap;
 
-  RepeatRegion *region = NULL;
+  RepeatRegion *region = nullptr;
 
   for (i = *pos; i < seqLength; ++i) {
 
@@ -715,7 +715,7 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos) {
 
   *pos = i;
 
-  if (region != NULL) {
+  if (region != nullptr) {
     region->readID = window->readID;
     region->CreateLogo(window, matrix);
     region->CreateConsensusFromLogo();
@@ -845,24 +845,6 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
     // Copy from repeat 2
     for (int j = 0; j < r2->repeatLength; ++j) {
       joint_rep->logoNumbers[i] = r2->logoNumbers[j];
-      ++i;
-    }
-  }
-
-  // Check to see if we have to join scores
-  if (r1->scores != nullptr && r2->scores != nullptr) {
-    joint_rep->scores =
-        (float *)malloc(sizeof(float) * joint_rep->repeatLength);
-
-    // copy from repeat 1
-    int i = 0;
-    for (; i < s1_seq_len; ++i) {
-      joint_rep->scores[i] = r1->scores[i];
-    }
-
-    // Copy from repeat 2
-    for (int j = 0; j < r2->repeatLength; ++j) {
-      joint_rep->scores[i] = r2->scores[j];
       ++i;
     }
   }

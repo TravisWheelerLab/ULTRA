@@ -39,7 +39,7 @@ std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index,
   repeatString += "\"Start\": ";
   repeatString += std::to_string(start);
   repeatString += ",\n\"End\": ";
-  repeatString += std::to_string(end + start);
+  repeatString += std::to_string(end);
   repeatString += ",\n\"Score\": ";
   repeatString += std::to_string(subScore);
   repeatString += ",\n\"Consensus\": \"";
