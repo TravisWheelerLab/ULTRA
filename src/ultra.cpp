@@ -165,9 +165,7 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   RepeatRegion *r = GetNextRepeat(sequence, model->matrix, &i);
 
   while (r != nullptr) {
-
     // Calculate P val
-
     r->logPVal = Log2PvalForScore(r->regionScore, r->repeatPeriod);
 
     if (storeTraceAndSequence) {
@@ -198,14 +196,7 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
       }
     }
 
-    // Make sure we have at least 1 unit of repeat here...
-    if (r->repeatLength >= r->repeatPeriod)
-      uth->repeats.push_back(r);
-    else {
-      delete r;
-      r = nullptr;
-    }
-
+    uth->repeats.push_back(r);
     r = GetNextRepeat(sequence, model->matrix, &i);
   }
 
