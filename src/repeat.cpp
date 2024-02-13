@@ -664,7 +664,7 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos) {
 
   unsigned long seqLength = window->length + window->overlap;
 
-  RepeatRegion *region = NULL;
+  RepeatRegion *region = nullptr;
 
   for (i = *pos; i < seqLength; ++i) {
 
@@ -715,7 +715,7 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos) {
 
   *pos = i;
 
-  if (region != NULL) {
+  if (region != nullptr) {
     region->readID = window->readID;
     region->CreateLogo(window, matrix);
     region->CreateConsensusFromLogo();

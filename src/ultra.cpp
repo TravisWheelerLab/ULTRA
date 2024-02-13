@@ -256,6 +256,8 @@ void Ultra::OutputRepeats(bool flush) {
         r = joint_repeat_region(r, outRepeats.back());
         if (r->splits != nullptr)
           ValidateSplits(r->consensi, r->splits, 0.85);
+
+        delete outRepeats.back();
         outRepeats.pop_back();
       }
 
