@@ -253,10 +253,12 @@ void Ultra::OutputRepeats(bool flush) {
       }
 
       if (repeats_overlap(r, outRepeats.back())) {
+        auto old_r = r;
         r = joint_repeat_region(r, outRepeats.back());
         if (r->splits != nullptr)
           ValidateSplits(r->consensi, r->splits, 0.85);
 
+        delete old_r;
         delete outRepeats.back();
         outRepeats.pop_back();
       }
