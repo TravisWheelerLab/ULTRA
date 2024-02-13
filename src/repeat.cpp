@@ -849,24 +849,6 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
     }
   }
 
-  // Check to see if we have to join scores
-  if (r1->scores != nullptr && r2->scores != nullptr) {
-    joint_rep->scores =
-        (float *)malloc(sizeof(float) * joint_rep->repeatLength);
-
-    // copy from repeat 1
-    int i = 0;
-    for (; i < s1_seq_len; ++i) {
-      joint_rep->scores[i] = r1->scores[i];
-    }
-
-    // Copy from repeat 2
-    for (int j = 0; j < r2->repeatLength; ++j) {
-      joint_rep->scores[i] = r2->scores[j];
-      ++i;
-    }
-  }
-
   // We have to join score
   // Perform weighted average of scores
   float pct_seq1 = (float)s1_seq_len / (float)joint_rep->repeatLength;
