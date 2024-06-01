@@ -76,7 +76,6 @@ SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq, uthread *uth) {
   }
 
   if (shouldRead) {
-
     reader->FillWindows();
     reader->SetIsReading(false);
 
@@ -97,11 +96,14 @@ int Ultra::SmallestReadID() {
   int smallest = 100000000;
 
   for (int i = 0; i < threads.size(); ++i) {
+    //printf("%i: %i\n", i, threads[i]->smallestReadID);
     if (threads[i]->smallestReadID < smallest) {
       smallest = threads[i]->smallestReadID;
     }
   }
-
+  /*
+  printf("%i\n", smallest);
+  printf("====================\n");*/
   return smallest;
 }
 
@@ -198,7 +200,6 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   }
 
   if (primaryThread == uth->id) {
-
     outRepeats.insert(outRepeats.end(), uth->repeats.begin(),
                       uth->repeats.end());
     uth->repeats.clear();
@@ -218,6 +219,8 @@ void Ultra::OutputRepeats(bool flush) {
   if (!flush && settings->disable_streaming_out)
     return;
   int maxReadID = SmallestReadID() - (3 * numberOfThreads);
+  if (maxReadID < 0)
+    maxReadID = 0;
 
   if (flush) {
     for (int i = 0; i < numberOfThreads; ++i) {
@@ -229,6 +232,8 @@ void Ultra::OutputRepeats(bool flush) {
     }
     maxReadID = 100000000;
   }
+
+
 
   SortRepeatRegions();
 
