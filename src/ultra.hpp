@@ -94,7 +94,7 @@ public:
 
   double Log2PvalForScore(float score, float period) const;
 
-  SequenceWindow *GetSequenceWindow(SequenceWindow *seq);
+  SequenceWindow *GetSequenceWindow(SequenceWindow *seq, uthread *uth);
 
   int SmallestReadID();
 

@@ -53,7 +53,7 @@ void Ultra::AnalyzeFile() {
 
 void Ultra::InitializeWriter() { writer->InitializeWriter(this); }
 
-SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq) {
+SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq, uthread *uth) {
 
   SequenceWindow *retval = nullptr;
   bool shouldRead = false;
@@ -68,28 +68,24 @@ SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq) {
 
   if (!reader->DoneReadingFile()) {
     if (!reader->IsReading()) {
-      if (reader->ReadyWindowsSize() < minReaderSize) {
+      if (reader->ReadyWindowsSize() == 0) {
         shouldRead = true;
         reader->SetIsReading(true);
       }
     }
   }
 
-  if (multithreading)
-    pthread_mutex_unlock(&outerLock);
-
   if (shouldRead) {
-    if (multithreading)
-      pthread_mutex_lock(&innerLock);
 
     reader->FillWindows();
     reader->SetIsReading(false);
 
-    if (multithreading)
-      pthread_mutex_unlock(&innerLock);
   }
 
   retval = reader->GetReadyWindow();
+
+  if (multithreading)
+    pthread_mutex_unlock(&outerLock);
 
   return retval;
 }
@@ -114,12 +110,12 @@ void Ultra::AnalyzeFileWithThread(void *dat) {
   uthread *uth = (uthread *)dat;
   int tid = uth->id;
 
-  SequenceWindow *currentWindow = GetSequenceWindow(nullptr);
+  SequenceWindow *currentWindow = GetSequenceWindow(nullptr, uth);
   while (currentWindow != nullptr || !reader->DoneReadingFile()) {
     if (currentWindow != nullptr)
       AnalyzeSequenceWindow(currentWindow, uth);
 
-    currentWindow = GetSequenceWindow(currentWindow);
+    currentWindow = GetSequenceWindow(currentWindow, uth);
   }
 
   if (multithreading) {
@@ -201,7 +197,6 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   }
 
   if (primaryThread == uth->id) {
-
     uth->activeReadID = sequence->readID;
     outRepeats.insert(outRepeats.end(), uth->repeats.begin(),
                       uth->repeats.end());
