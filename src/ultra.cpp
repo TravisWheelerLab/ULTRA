@@ -97,8 +97,8 @@ int Ultra::SmallestReadID() {
   int smallest = 100000000;
 
   for (int i = 0; i < threads.size(); ++i) {
-    if (threads[i]->activeReadID < smallest) {
-      smallest = threads[i]->activeReadID;
+    if (threads[i]->smallestReadID < smallest) {
+      smallest = threads[i]->smallestReadID;
     }
   }
 
@@ -140,11 +140,12 @@ double Ultra::Log2PvalForScore(float score, float period) const {
 
 void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
+
   int sleng = (int)sequence->length + (int)sequence->overlap;
 
-  if (uth->repeats.size() == 0) {
-    uth->activeReadID = sequence->readID;
-  }
+  uth->activeReadID = sequence->readID;
+  if (uth->activeReadID < uth->smallestReadID)
+    uth->smallestReadID = uth->activeReadID;
 
   UModel *model = uth->model;
   model->matrix->RestartMatrix();
@@ -197,10 +198,11 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   }
 
   if (primaryThread == uth->id) {
-    uth->activeReadID = sequence->readID;
+
     outRepeats.insert(outRepeats.end(), uth->repeats.begin(),
                       uth->repeats.end());
     uth->repeats.clear();
+    uth->smallestReadID = uth->activeReadID;
 
     if (outRepeats.size() > repeatBuffer && !this->settings->disable_streaming_out) {
       OutputRepeats();

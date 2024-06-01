@@ -33,6 +33,7 @@ typedef struct s_uthread {
   UModel *model;
   std::vector<RepeatRegion *> repeats{};
   int activeReadID = 0;
+  int smallestReadID = 0;
   SplitWindow *splitter;
 } uthread;
 
