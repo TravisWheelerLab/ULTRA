@@ -53,7 +53,7 @@ void Ultra::AnalyzeFile() {
 
 void Ultra::InitializeWriter() { writer->InitializeWriter(this); }
 
-SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq) {
+SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq, uthread *uth) {
 
   SequenceWindow *retval = nullptr;
   bool shouldRead = false;
@@ -68,28 +68,23 @@ SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq) {
 
   if (!reader->DoneReadingFile()) {
     if (!reader->IsReading()) {
-      if (reader->ReadyWindowsSize() < minReaderSize) {
+      if (reader->ReadyWindowsSize() == 0) {
         shouldRead = true;
         reader->SetIsReading(true);
       }
     }
   }
 
-  if (multithreading)
-    pthread_mutex_unlock(&outerLock);
-
   if (shouldRead) {
-    if (multithreading)
-      pthread_mutex_lock(&innerLock);
-
     reader->FillWindows();
     reader->SetIsReading(false);
 
-    if (multithreading)
-      pthread_mutex_unlock(&innerLock);
   }
 
   retval = reader->GetReadyWindow();
+
+  if (multithreading)
+    pthread_mutex_unlock(&outerLock);
 
   return retval;
 }
@@ -101,11 +96,14 @@ int Ultra::SmallestReadID() {
   int smallest = 100000000;
 
   for (int i = 0; i < threads.size(); ++i) {
-    if (threads[i]->activeReadID < smallest) {
-      smallest = threads[i]->activeReadID;
+    //printf("%i: %i\n", i, threads[i]->smallestReadID);
+    if (threads[i]->smallestReadID < smallest) {
+      smallest = threads[i]->smallestReadID;
     }
   }
-
+  /*
+  printf("%i\n", smallest);
+  printf("====================\n");*/
   return smallest;
 }
 
@@ -114,12 +112,12 @@ void Ultra::AnalyzeFileWithThread(void *dat) {
   uthread *uth = (uthread *)dat;
   int tid = uth->id;
 
-  SequenceWindow *currentWindow = GetSequenceWindow(nullptr);
+  SequenceWindow *currentWindow = GetSequenceWindow(nullptr, uth);
   while (currentWindow != nullptr || !reader->DoneReadingFile()) {
     if (currentWindow != nullptr)
       AnalyzeSequenceWindow(currentWindow, uth);
 
-    currentWindow = GetSequenceWindow(currentWindow);
+    currentWindow = GetSequenceWindow(currentWindow, uth);
   }
 
   if (multithreading) {
@@ -144,11 +142,12 @@ double Ultra::Log2PvalForScore(float score, float period) const {
 
 void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
+
   int sleng = (int)sequence->length + (int)sequence->overlap;
 
-  if (uth->repeats.size() == 0) {
-    uth->activeReadID = sequence->readID;
-  }
+  uth->activeReadID = sequence->readID;
+  if (uth->activeReadID < uth->smallestReadID)
+    uth->smallestReadID = uth->activeReadID;
 
   UModel *model = uth->model;
   model->matrix->RestartMatrix();
@@ -201,11 +200,10 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   }
 
   if (primaryThread == uth->id) {
-
-    uth->activeReadID = sequence->readID;
     outRepeats.insert(outRepeats.end(), uth->repeats.begin(),
                       uth->repeats.end());
     uth->repeats.clear();
+    uth->smallestReadID = uth->activeReadID;
 
     if (outRepeats.size() > repeatBuffer && !this->settings->disable_streaming_out) {
       OutputRepeats();
@@ -221,6 +219,8 @@ void Ultra::OutputRepeats(bool flush) {
   if (!flush && settings->disable_streaming_out)
     return;
   int maxReadID = SmallestReadID() - (3 * numberOfThreads);
+  if (maxReadID < 0)
+    maxReadID = 0;
 
   if (flush) {
     for (int i = 0; i < numberOfThreads; ++i) {
@@ -232,6 +232,8 @@ void Ultra::OutputRepeats(bool flush) {
     }
     maxReadID = 100000000;
   }
+
+
 
   SortRepeatRegions();
 
