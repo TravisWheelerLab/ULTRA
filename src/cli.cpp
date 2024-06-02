@@ -588,12 +588,12 @@ void Settings::assign_settings() {
     }
 
     // medium models use less than 1 GB per thread
-    else if (cmem <= 5000000) {
+    else if (cmem <= 2000000) {
       this->window_size = 50 * this->max_period;
     }
 
     // Large models use less than 4 GB per thread
-    else if (cmem <= 80000000) {
+    else if (cmem <= 20000000) {
       this->window_size = 10 * this->max_period;
     }
 
