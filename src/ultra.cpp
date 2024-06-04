@@ -297,6 +297,20 @@ void Ultra::OutputULTRASettings() {
 }
 
 void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
+
+  if (r->readID > last_read_id) {
+    last_rep_end = 0;
+  }
+
+  auto rep_start = r->sequenceStart;
+  if (rep_start < last_rep_end) {
+    rep_start = last_rep_end;
+  }
+
+  if (rep_start < r->sequenceStart + r->repeatLength) {
+    total_coverage += (r->sequenceStart + r->repeatLength) - rep_start;
+  }
+
   if (!settings->suppress_out)
     writer->WriteRepeat(r);
   if (settings->produce_mask) {
@@ -316,23 +330,7 @@ void Ultra::SortRepeatRegions() {
 }
 
 unsigned long long Ultra::Coverage() {
-  unsigned long long coverage = 0;
-
-  // Itterate through each sequence and find the coverage for that sequence
-  for (auto tup : this->masks_for_seq) {
-    auto seq_id = tup.first;
-    auto regions = tup.second;
-    auto cleaned_regions = CleanedMasks(regions);
-
-    for (auto region : *cleaned_regions) {
-      coverage += region.end - region.start;
-    }
-
-    cleaned_regions->clear();
-    delete cleaned_regions;
-
-  }
-  return coverage;
+    return total_coverage;
 }
 
 Ultra::Ultra(Settings *s) {

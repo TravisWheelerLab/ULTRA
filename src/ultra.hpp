@@ -67,6 +67,10 @@ public:
   bool firstRepeat = true;
   unsigned long repeatBuffer = 2000;
 
+  unsigned long long total_coverage;
+  int last_read_id = 0;
+  unsigned long long last_rep_end = 0;
+
   bool storeTraceAndSequence = false;
 
 

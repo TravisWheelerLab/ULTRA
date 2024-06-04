@@ -133,10 +133,13 @@ int main(int argc, const char *argv[]) {
   }
 
   // Perform the actual run
+
+
   auto *ultra = new Ultra(settings);
   ultra->AnalyzeFile();
   ultra->OutputRepeats(true);
-
+  unsigned long long true_coverage = ultra->Coverage();
+  unsigned long long shuff_coverage = 0;
   // Check to see if we are making a masked file
   if (settings->produce_mask) {
     FILE *f = fopen(settings->mask_file.c_str(), "w");
@@ -146,6 +149,21 @@ int main(int argc, const char *argv[]) {
   }
 
   delete ultra;
+  if (settings->estimate_fdr) {
+    settings->suppress_out = true;
+    settings->hide_settings = true;
+    settings->produce_mask = true;
+    settings->no_split = true;
+    settings->max_split = 0;
+    settings->json = false;
+    ultra = new Ultra(settings);
+    ultra->shuffleSequence = true;
+    ultra->AnalyzeFile();
+    ultra->OutputRepeats(true);
+    shuff_coverage = ultra->Coverage();
+    float fdr = (float)shuff_coverage / (float)true_coverage;
+    printf("Estimated false discovery rate: %g = (%llu / %llu)\n", fdr, shuff_coverage, true_coverage);
+  }
 
   return 0;
 }
