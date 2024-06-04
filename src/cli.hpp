@@ -5,7 +5,7 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.0.0 (beta 18)"
+#define ULTRA_VERSION_STRING "1.0.0 (beta 19)"
 
 
 #include "../lib/CLI11.hpp"
