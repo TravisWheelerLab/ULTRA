@@ -100,6 +100,10 @@ void Settings::prepare_settings() {
                "Do not output BED or JSON annotation")
       ->group("Output");
 
+  app.add_flag("--fdr", this->estimate_fdr,
+               "Estimate the False Discovery rate (runtime will be twice as long)")
+      ->group("Output");
+
   // *************
   // Mask options
   // *************
@@ -480,7 +484,7 @@ bool Settings::parse_input(int argc, const char **argv) {
     passed = false;
   }
 
-  if (this->tune_only || this->tune_medium || this->tune_large) {
+  if (this->tune_only || this->tune_medium || this->tune_large || this->tune_indels) {
     this->tune = true;
   }
 

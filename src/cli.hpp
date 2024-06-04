@@ -26,6 +26,7 @@ struct Settings {
   float p_value_loc = 4.27294921875;
   float p_value_scale = 1.8913602828979492;
   float p_value_freq = 0.000330256;
+  bool estimate_fdr = false;
 
   bool json = false;
   bool hide_seq = false;
