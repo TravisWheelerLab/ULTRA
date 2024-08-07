@@ -27,6 +27,10 @@ void TabFileWriter::InitializeWriter(Ultra *ultra, FILE *out_f) {
       fprintf(out, "\tSubrepeatConsensi");
   }
 
+  if (owner->settings->show_seq) {
+    fprintf(out, "\tSequence");
+  }
+
   fprintf(out, "\n");
 
 }
@@ -129,6 +133,9 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
     }
   }
 
+  if (owner->settings->show_seq) {
+    fprintf(out, "\t%s", repeat->sequence.c_str());
+  }
   fprintf(out, "\n");
 }
 

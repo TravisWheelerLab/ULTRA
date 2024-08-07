@@ -38,7 +38,7 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
   if (owner->settings->max_consensus_period >= repeat->repeatPeriod && !repeat->string_consensus.empty())
     rep_con = repeat->string_consensus;
 
-  fprintf(out, "\t%s\t%f\n", rep_con.c_str(), repeat->regionScore);
+  fprintf(out, "\t%s\n", rep_con.c_str());
 }
 
 void BEDFileWriter::EndWriter() {}
