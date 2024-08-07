@@ -29,6 +29,7 @@ struct Settings {
   bool estimate_fdr = false;
 
   bool json = false;
+  int max_consensus_period = 1000000;
   bool hide_seq = false;
   bool show_deltas = false;
   bool show_trace = false;

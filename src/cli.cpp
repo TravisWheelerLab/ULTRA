@@ -47,15 +47,19 @@ void Settings::prepare_settings() {
       ->group("Output");
 
   app.add_flag("--pval_scale", this->p_value_scale,
-               "The exponential scale used for converting scores to p-values.")
+               "The exponential scale used for converting scores to p-values")
       ->group("Output");
 
   app.add_flag("-j,--json", this->json,
                "Use JSON outuput format instead of BED")
       ->group("Output");
 
+  app.add_flag("--max_consensus", this->max_consensus_period,
+               "The maximum length of consensus pattern to include in output")
+      ->group("Output");
+
   app.add_flag("--hide_seq", this->hide_seq,
-               "Hide sequence descriptor in JSON output")
+               "Do not output repetitive regions")
       ->group("Output");
   app.add_flag("--hideseq", this->hide_seq,
                "Hide sequence descriptor in JSON output")
