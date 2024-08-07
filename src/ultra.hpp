@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "BEDFileWriter.hpp"
+#include "TabFileWriter.hpp"
 #include "FASTAReader.hpp"
 #include "FileReader.hpp"
 #include "JSONFileWriter.hpp"

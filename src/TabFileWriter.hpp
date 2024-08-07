@@ -1,9 +1,9 @@
 //
-// Created by Daniel Olson on 3/10/22.
+// Created by Daniel Olson on 08/07/24.
 //
 
-#ifndef ULTRA_BEDFILEWRITER_HPP
-#define ULTRA_BEDFILEWRITER_HPP
+#ifndef ULTRA_TABFILEWRITER_HPP
+#define ULTRA_TABFILEWRITER_HPP
 #include "RepeatFileWriter.hpp"
 
 class RepeatRegion;
@@ -19,4 +19,4 @@ public:
   void EndWriter();
 };
 
-#endif // ULTRA_BEDFILEWRITER_HPP
+#endif // ULTRA_TABFILEWRITER_HPP

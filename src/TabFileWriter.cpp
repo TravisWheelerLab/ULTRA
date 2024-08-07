@@ -1,5 +1,5 @@
 //
-// Created by Daniel Olson on 3/10/22.
+// Created by Daniel Olson on 08/07/24.
 //
 
 #include "TabFileWriter.hpp"
@@ -7,7 +7,28 @@
 #include "ultra.hpp"
 #include <algorithm>
 #include <iostream>
-void TabFileWriter::InitializeWriter(Ultra *ultra) { owner = ultra; }
+
+void TabFileWriter::InitializeWriter(Ultra *ultra) {
+  owner = ultra;
+  fprintf(owner->out, "SeqID");
+  fprintf(owner->out, "\tStart");
+  fprintf(owner->out, "\tEnd");
+  fprintf(owner->out, "\tPeriod");
+  fprintf(owner->out, "\tScore");
+  if (owner->settings->pval)
+    fprintf(owner->out, ",PValue");
+  if (owner->settings->max_consensus_period != 0)
+    fprintf(owner->out, "\tConsensus");
+  if (owner->settings->max_split > 0) {
+    fprintf(owner->out, "\t#Subrepeats");
+    fprintf(owner->out, "\tSubrepeatStarts");
+    if (owner->settings->max_consensus_period != 0)
+      fprintf(owner->out, "\tSubrepeatConsensi");
+  }
+
+  fprintf(owner->out, "\n");
+
+}
 
 void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
@@ -36,7 +57,7 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
   fprintf(owner->out, "%s\t%lu\t%lu\t%i\t%f", name.c_str(), repeat->sequenceStart,
           repeat->sequenceStart + repeat->repeatLength, repeat->repeatPeriod, repeat->regionScore);
   if (owner->settings->pval) {
-    fprintf(owner->out, ",%f", owner->PvalForScore(repeat->regionScore));
+    fprintf(owner->out, ",%g", owner->PvalForScore(repeat->regionScore));
   }
 
   // We need to decide what to do with the overall sequence
@@ -62,25 +83,28 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
         if (split_i > 0) {
           if (numberOfValidSplits > 0) {
             sizes.push_back(',');
-            consensi.push_back(',');
           }
 
           sizes += std::to_string(split_i - cstart);
           starts.push_back(',');
           starts += std::to_string(split_i);
 
-          if (owner->settings->max_consensus_period != 0) {
-            std::string con = ".";
-            if (owner->settings->max_consensus_period >= repeat->repeatPeriod) {
-              if (repeat->consensi->size() > i) {
-                con = repeat->consensi->at(i);
-              }
-            }
-            consensi += con;
-          }
-
           ++numberOfValidSplits;
           cstart = split_i;
+        }
+      }
+
+      if (owner->settings->max_consensus_period != 0) {
+        for (int i = 0; i < repeat->consensi->size(); ++i) {
+          std::string con = ".";
+          if (owner->settings->max_consensus_period >= repeat->repeatPeriod) {
+            if (repeat->consensi != nullptr && repeat->consensi->size() > i) {
+              con = repeat->consensi->at(i);
+            }
+          }
+          if (i > 0)
+            consensi.push_back(',');
+          consensi += con;
         }
       }
 
@@ -88,7 +112,7 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
         sizes.push_back(',');
       sizes += std::to_string(repeat->repeatLength - cstart);
 
-      fprintf(owner->out, "%i\t%s\t%s", numberOfValidSplits + 1, sizes.c_str(),
+      fprintf(owner->out, "\t%i\t%s", numberOfValidSplits + 1,
               starts.c_str());
       if (owner->settings->max_consensus_period != 0) {
         fprintf(owner->out, "\t%s", consensi.c_str());
@@ -97,7 +121,7 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
     }
 
     else {
-      fprintf(owner->out, "1\t%lu\t0", repeat->repeatLength);
+      fprintf(owner->out, "\t1\t0");
       if (owner->settings->max_consensus_period != 0) {
         fprintf(owner->out, "\t%s", rep_con.c_str());
       }

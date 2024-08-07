@@ -171,8 +171,6 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   RepeatRegion *r = GetNextRepeat(sequence, model->matrix, &i);
 
   while (r != nullptr) {
-    // Calculate P val
-    r->logPVal = Log2PvalForScore(r->regionScore, r->repeatPeriod);
 
     if (storeTraceAndSequence) {
       // printf("Storing trace...\n");
@@ -355,12 +353,14 @@ Ultra::Ultra(Settings *s) {
     }
   }
 
-  if (settings->json) {
+
+
+  if (settings->) {
     writer = new JSONFileWriter();
   }
 
   else {
-    writer = new BEDFileWriter();
+    writer = new TabFileWriter();
   }
 
   numberOfThreads = settings->threads;

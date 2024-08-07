@@ -50,12 +50,21 @@ void Settings::prepare_settings() {
                "The exponential scale used for converting scores to p-values")
       ->group("Output");
 
-  app.add_flag("-j,--json", this->json,
-               "Use JSON outuput format instead of BED")
+  app.add_flag("--ultra", this->json_out,
+               "Use ULTRA output format")
       ->group("Output");
 
-  app.add_flag("--max_consensus", this->max_consensus_period,
+  app.add_flag("--json", this->json_out,
+               "Use JSON output format")
+      ->group("Output");
+
+  app.add_flag("--bed", this->json_out,
+               "Use BED output format")
+      ->group("Output");
+
+  app.add_option("--max_consensus", this->max_consensus_period,
                "The maximum length of consensus pattern to include in output")
+      ->default_val(this->max_consensus_period)
       ->group("Output");
 
   app.add_flag("--hide_seq", this->hide_seq,
@@ -364,7 +373,7 @@ bool Settings::parse_input(int argc, const char **argv) {
     passed = false;
   }
 
-  if (!this->json) {
+  if (!this->json_out) {
     if (this->hide_seq) {
       fprintf(stderr, "--hideseq is only available with --json\n");
       passed = false;
@@ -386,9 +395,8 @@ bool Settings::parse_input(int argc, const char **argv) {
     }
   }
 
-  if (this->json && this->suppress_out) {
-    fprintf(stderr, "--suppress is incompatible with --json\n"
-                    "--suppress disables both JSON and BED output\n");
+  if ((this->ultra_out || this->json_out || this->bed_out) && this->suppress_out) {
+    fprintf(stderr, "--suppress is incompatible with --ultra, --json, and --bed\n");
     passed = false;
   }
 
@@ -500,6 +508,18 @@ bool Settings::parse_input(int argc, const char **argv) {
   if (!this->tune_param_path.empty() && (this->tune_medium || this->tune_large)) {
     fprintf(stderr, "Cannot use both --tune_file and (--tune_small or --tune_large).\n");
     passed = false;
+  }
+
+  int c = 0;
+  if (this->ultra_out) c++;
+  if (this->json_out) c++;
+  if (this->bed_out) c++;
+
+  if (c > 1) {
+    if (this->out_file.empty()) {
+      fprintf(stderr, "Output file path must be provided when using multiple output formats .\n");
+      passed = false;
+    }
   }
 
   return passed;
@@ -705,7 +725,10 @@ std::string Settings::json_string() {
   JSONMACRO(p_value_scale);
   JSONMACRO(p_value_freq);
 
-  JSONMACRO(json);
+  JSONMACRO(ultra_out);
+  JSONMACRO(json_out);
+  JSONMACRO(bed_out);
+  JSONMACRO(max_consensus_period);
   JSONMACRO(hide_seq);
   JSONMACRO(show_deltas);
   JSONMACRO(show_trace);

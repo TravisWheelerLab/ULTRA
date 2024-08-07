@@ -90,7 +90,8 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
   this->OutputJSONKeyValue("Period", std::to_string(repeat->repeatPeriod));
   this->OutputJSONKeyValue("Score", std::to_string(repeat->regionScore));
   if (owner->settings->pval) {
-    this->OutputJSONKeyValue("Log2PVal", std::to_string(repeat->logPVal));
+    double pval = owner->PvalForScore(repeat->regionScore);
+    this->OutputJSONKeyValue("PVal", std::to_string(pval));
   }
 
   this->OutputJSONKeyValue("Substitutions", std::to_string(repeat->mismatches));

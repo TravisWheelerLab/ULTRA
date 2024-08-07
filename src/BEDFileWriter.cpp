@@ -16,16 +16,15 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
   for (int i = 0; i < name.size(); ++i) {
     if ((name[i] >= 'a' && name[i] <= 'z') ||
         (name[i] >= 'A' && name[i] <= 'Z') ||
-        (name[i] >= '0' && name[i] <= '9')) {
+        (name[i] >= '0' && name[i] <= '9') || name[i] == '-' ||
+        name[i] == '_' || name[i] == '.' || name[i] == ':' || name[i] == '*' ||
+        name[i] == '#') {
       continue;
     }
 
-    else if (name[i] == ' ') {
-      name[i] = '\0';
-    }
-
     else {
-      name[i] = '_';
+      name = name.substr(0, i);
+      break;
     }
   }
 
@@ -35,12 +34,11 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
   // We need to decide what to do with the overall sequence
 
-  std::string rep_con = ".";
-  if (!repeat->string_consensus.empty())
+  std::string rep_con = std::to_string(repeat->repeatPeriod);
+  if (owner->settings->max_consensus_period >= repeat->repeatPeriod && !repeat->string_consensus.empty())
     rep_con = repeat->string_consensus;
-  // Columns 4 (name) 5 (score) 6 (strand=.) 7 thickstart 8 thickend 9 rgb
-  fprintf(owner->out, "\t%s\t%f", rep_con.c_str(), repeat->regionScore);
-  fprintf(owner->out, "\n");
+
+  fprintf(owner->out, "\t%s\t%f\n", rep_con.c_str(), repeat->regionScore);
 }
 
 void BEDFileWriter::EndWriter() {}

@@ -28,8 +28,11 @@ struct Settings {
   float p_value_freq = 0.000330256;
   bool estimate_fdr = false;
 
-  bool json = false;
   int max_consensus_period = 1000000;
+  bool ultra_out = false;
+  bool bed_out = false;
+  bool json_out = false;
+
   bool hide_seq = false;
   bool show_deltas = false;
   bool show_trace = false;

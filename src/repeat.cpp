@@ -193,8 +193,6 @@ RepeatRegion::RepeatRegion() {
   insertions = 0;
   deletions = 0;
 
-  logPVal = 0;
-
   winOverlapSize = 0;
   overlapCorrection = OC_NONE;
 
