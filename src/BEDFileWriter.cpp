@@ -7,7 +7,7 @@
 #include "ultra.hpp"
 #include <algorithm>
 #include <iostream>
-void BEDFileWriter::InitializeWriter(Ultra *ultra) { owner = ultra; }
+void BEDFileWriter::InitializeWriter(Ultra *ultra, FILE *out_file) { owner = ultra; out=out_file; }
 
 void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
@@ -29,7 +29,7 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
   }
 
   // Columns 1 (name) 2(start) 3 (end)
-  fprintf(owner->out, "%s\t%lu\t%lu", name.c_str(), repeat->sequenceStart,
+  fprintf(out, "%s\t%lu\t%lu", name.c_str(), repeat->sequenceStart,
           repeat->sequenceStart + repeat->repeatLength);
 
   // We need to decide what to do with the overall sequence
@@ -38,7 +38,7 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
   if (owner->settings->max_consensus_period >= repeat->repeatPeriod && !repeat->string_consensus.empty())
     rep_con = repeat->string_consensus;
 
-  fprintf(owner->out, "\t%s\t%f\n", rep_con.c_str(), repeat->regionScore);
+  fprintf(out, "\t%s\t%f\n", rep_con.c_str(), repeat->regionScore);
 }
 
 void BEDFileWriter::EndWriter() {}

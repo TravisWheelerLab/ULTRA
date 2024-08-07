@@ -33,7 +33,7 @@ struct Settings {
   bool bed_out = false;
   bool json_out = false;
 
-  bool hide_seq = false;
+  bool show_seq = false;
   bool show_deltas = false;
   bool show_trace = false;
   bool show_wid = false;

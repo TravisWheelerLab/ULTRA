@@ -11,13 +11,13 @@ class RepeatRegion;
 class Ultra;
 class JSONFileWriter : virtual public RepeatFileWriter {
   int repeatsOutput = 0;
-
+  FILE *out;
   void OutputJSONKeyValue(std::string key, std::string value,
                           bool quotes = false);
 
 public:
   Ultra *owner;
-  void InitializeWriter(Ultra *ultra);
+  void InitializeWriter(Ultra *ultra, FILE *out);
   void WriteRepeat(RepeatRegion *repeat);
   void EndWriter();
   std::string StringForSubRepeat(RepeatRegion *r, int split_index,

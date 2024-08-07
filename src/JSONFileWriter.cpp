@@ -9,14 +9,15 @@
 void JSONFileWriter::OutputJSONKeyValue(std::string key, std::string value,
                                         bool quotes) {
   if (!quotes)
-    fprintf(owner->out, ",\n\"%s\": %s", key.c_str(), value.c_str());
+    fprintf(out, ",\n\"%s\": %s", key.c_str(), value.c_str());
   else
-    fprintf(owner->out, ",\n\"%s\": \"%s\"", key.c_str(), value.c_str());
+    fprintf(out, ",\n\"%s\": \"%s\"", key.c_str(), value.c_str());
 }
 
-void JSONFileWriter::InitializeWriter(Ultra *ultra) {
+void JSONFileWriter::InitializeWriter(Ultra *ultra, FILE *out_f) {
   owner = ultra;
-  fprintf(owner->out, "{\"Repeats\": [\n");
+  out = out_f;
+  fprintf(out, "{\"Repeats\": [\n");
 }
 
 std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index,
@@ -77,12 +78,12 @@ std::string JSONFileWriter::SubRepeatsString(RepeatRegion *r) {
 void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
   if (this->repeatsOutput > 0) {
-    fprintf(owner->out, ",\n\n");
+    fprintf(out, ",\n\n");
   }
 
   ++this->repeatsOutput;
 
-  fprintf(owner->out, "{\"SequenceName\": \"%s\"",
+  fprintf(out, "{\"SequenceName\": \"%s\"",
           repeat->sequenceName.c_str());
 
   this->OutputJSONKeyValue("Start", std::to_string(repeat->sequenceStart));
@@ -99,12 +100,7 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
   this->OutputJSONKeyValue("Deletions", std::to_string(repeat->deletions));
   this->OutputJSONKeyValue("Consensus", repeat->string_consensus, true);
 
-  if (owner->outputReadID) {
-    this->OutputJSONKeyValue("ReadID", std::to_string(repeat->readID));
-    this->OutputJSONKeyValue("OC", std::to_string(repeat->overlapCorrection));
-  }
-
-  if (owner->outputRepeatSequence) {
+  if (owner->settings->show_seq) {
     this->OutputJSONKeyValue("Sequence", repeat->sequence, true);
   }
 
@@ -148,7 +144,7 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
     std::string subRepeats = SubRepeatsString(repeat);
     this->OutputJSONKeyValue("SubRepeats", subRepeats);
   }
-  fprintf(owner->out, "}");
+  fprintf(out, "}");
 }
 
-void JSONFileWriter::EndWriter() { fprintf(owner->out, "]\n}"); }
+void JSONFileWriter::EndWriter() { fprintf(out, "]\n}"); }

@@ -50,7 +50,7 @@ void Settings::prepare_settings() {
                "The exponential scale used for converting scores to p-values")
       ->group("Output");
 
-  app.add_flag("--ultra", this->json_out,
+  app.add_flag("--ultra", this->ultra_out,
                "Use ULTRA output format")
       ->group("Output");
 
@@ -58,7 +58,7 @@ void Settings::prepare_settings() {
                "Use JSON output format")
       ->group("Output");
 
-  app.add_flag("--bed", this->json_out,
+  app.add_flag("--bed", this->bed_out,
                "Use BED output format")
       ->group("Output");
 
@@ -67,12 +67,9 @@ void Settings::prepare_settings() {
       ->default_val(this->max_consensus_period)
       ->group("Output");
 
-  app.add_flag("--hide_seq", this->hide_seq,
-               "Do not output repetitive regions")
+  app.add_flag("--show_seq", this->show_seq,
+               "Output repetitive region")
       ->group("Output");
-  app.add_flag("--hideseq", this->hide_seq,
-               "Hide sequence descriptor in JSON output")
-      ->group("");
 
   app.add_flag("--show_delta", this->show_deltas,
                "Show positional score deltas in JSON output")
@@ -374,23 +371,19 @@ bool Settings::parse_input(int argc, const char **argv) {
   }
 
   if (!this->json_out) {
-    if (this->hide_seq) {
-      fprintf(stderr, "--hideseq is only available with --json\n");
-      passed = false;
-    }
 
     if (this->show_deltas) {
-      fprintf(stderr, "--showdelta is only available with --json\n");
+      fprintf(stderr, "--show_delta is only available with --json\n");
       passed = false;
     }
 
     if (this->show_trace) {
-      fprintf(stderr, "--showtrace is only available with --json\n");
+      fprintf(stderr, "--show_trace is only available with --json\n");
       passed = false;
     }
 
     if (this->show_logo_nums) {
-      fprintf(stderr, "--showlogo is only available with --json\n");
+      fprintf(stderr, "--show_logo is only available with --json\n");
       passed = false;
     }
   }
@@ -520,6 +513,10 @@ bool Settings::parse_input(int argc, const char **argv) {
       fprintf(stderr, "Output file path must be provided when using multiple output formats .\n");
       passed = false;
     }
+  }
+
+  if (!(this->ultra_out || this->json_out || this->bed_out)) {
+    this->ultra_out = true;
   }
 
   return passed;
@@ -729,7 +726,7 @@ std::string Settings::json_string() {
   JSONMACRO(json_out);
   JSONMACRO(bed_out);
   JSONMACRO(max_consensus_period);
-  JSONMACRO(hide_seq);
+  JSONMACRO(show_seq);
   JSONMACRO(show_deltas);
   JSONMACRO(show_trace);
   JSONMACRO(show_wid);

@@ -11,10 +11,9 @@ class Ultra;
 class TabFileWriter : virtual public RepeatFileWriter {
 public:
   Ultra *owner;
+  FILE *out;
 
-  bool outputMultilineSplitRepeats = false;
-
-  void InitializeWriter(Ultra *ultra);
+  void InitializeWriter(Ultra *ultra, FILE *out);
   void WriteRepeat(RepeatRegion *repeat);
   void EndWriter();
 };

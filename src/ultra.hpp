@@ -43,13 +43,13 @@ public:
   Settings *settings = NULL;
 
   FileReader *reader = NULL;
-  RepeatFileWriter *writer = NULL;
+  std::vector<RepeatFileWriter *> writers;
+  std::vector<FILE *> outs;
 
   int numberOfThreads = 1;
   int minReaderSize = 100;
   int primaryThread = 0;
 
-  FILE *out;
   FILE *settings_out;
 
   float scoreThreshold = 0.0;
