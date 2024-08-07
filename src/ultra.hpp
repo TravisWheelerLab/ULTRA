@@ -98,6 +98,7 @@ public:
   void CorrectOverlap(int maxReadID);
 
   double Log2PvalForScore(float score, float period) const;
+  double PvalForScore(float score) const;
 
   SequenceWindow *GetSequenceWindow(SequenceWindow *seq, uthread *uth);
 

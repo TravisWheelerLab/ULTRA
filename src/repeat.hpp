@@ -65,7 +65,6 @@ public:
 
   int overlapCorrection;
 
-  float logPVal;
 
   void CreateLogo(SequenceWindow *window, UMatrix *matrix);
   void CreateLogoWithoutMatrix(); // Requires traceback + sequence + lookBack

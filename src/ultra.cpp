@@ -140,6 +140,13 @@ double Ultra::Log2PvalForScore(float score, float period) const {
   return log2(exp(-1.0 * (score - loc) / scale) * freq);
 }
 
+double Ultra::PvalForScore(float score) const {
+  double loc = settings->p_value_loc;
+  double scale = settings->p_value_scale;
+  double freq = settings->p_value_freq;
+  return exp(-1.0 * (score - loc) / scale) * freq;
+}
+
 void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
 
@@ -313,6 +320,7 @@ void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
 
   if (!settings->suppress_out)
     writer->WriteRepeat(r);
+
   if (settings->produce_mask) {
     this->StoreMaskForRegion(r);
   }
