@@ -50,8 +50,8 @@ void Settings::prepare_settings() {
                "The exponential scale used for converting scores to p-values")
       ->group("Output");
 
-  app.add_flag("--ultra", this->ultra_out,
-               "Use ULTRA output format")
+  app.add_flag("--tsv", this->ultra_out,
+               "Use TSV output format")
       ->group("Output");
 
   app.add_flag("--json", this->json_out,
@@ -389,7 +389,7 @@ bool Settings::parse_input(int argc, const char **argv) {
   }
 
   if ((this->ultra_out || this->json_out || this->bed_out) && this->suppress_out) {
-    fprintf(stderr, "--suppress is incompatible with --ultra, --json, and --bed\n");
+    fprintf(stderr, "--suppress is incompatible with --tsv, --json, and --bed\n");
     passed = false;
   }
 
