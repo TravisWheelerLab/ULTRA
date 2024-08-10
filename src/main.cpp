@@ -65,7 +65,9 @@ int main(int argc, const char *argv[]) {
       search_setting.produce_mask = true;
       search_setting.no_split = true;
       search_setting.max_split = 0;
-      search_setting.json = false;
+      search_setting.ultra_out = false;
+      search_setting.json_out = false;
+      search_setting.bed_out = false;
 
       // We first get the normal coverage
       auto *ultra = new Ultra(&search_setting);
@@ -155,7 +157,9 @@ int main(int argc, const char *argv[]) {
     settings->produce_mask = true;
     settings->no_split = true;
     settings->max_split = 0;
-    settings->json = false;
+    settings->ultra_out = false;
+    settings->json_out = false;
+    settings->bed_out = false;
     ultra = new Ultra(settings);
     ultra->shuffleSequence = true;
     ultra->AnalyzeFile();

@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "BEDFileWriter.hpp"
+#include "TabFileWriter.hpp"
 #include "FASTAReader.hpp"
 #include "FileReader.hpp"
 #include "JSONFileWriter.hpp"
@@ -42,13 +43,13 @@ public:
   Settings *settings = NULL;
 
   FileReader *reader = NULL;
-  RepeatFileWriter *writer = NULL;
+  std::vector<RepeatFileWriter *> writers;
+  std::vector<FILE *> outs;
 
   int numberOfThreads = 1;
   int minReaderSize = 100;
   int primaryThread = 0;
 
-  FILE *out;
   FILE *settings_out;
 
   float scoreThreshold = 0.0;
@@ -98,6 +99,7 @@ public:
   void CorrectOverlap(int maxReadID);
 
   double Log2PvalForScore(float score, float period) const;
+  double PvalForScore(float score) const;
 
   SequenceWindow *GetSequenceWindow(SequenceWindow *seq, uthread *uth);
 

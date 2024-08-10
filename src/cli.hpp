@@ -5,7 +5,7 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.0.0 (beta 18)"
+#define ULTRA_VERSION_STRING "1.0.0 (beta 19)"
 
 
 #include "../lib/CLI11.hpp"
@@ -28,8 +28,12 @@ struct Settings {
   float p_value_freq = 0.000330256;
   bool estimate_fdr = false;
 
-  bool json = false;
-  bool hide_seq = false;
+  int max_consensus_period = 1000000;
+  bool ultra_out = false;
+  bool bed_out = false;
+  bool json_out = false;
+
+  bool show_seq = false;
   bool show_deltas = false;
   bool show_trace = false;
   bool show_wid = false;

@@ -51,7 +51,11 @@ void Ultra::AnalyzeFile() {
   UltraThreadLaunch(threads[0]);
 }
 
-void Ultra::InitializeWriter() { writer->InitializeWriter(this); }
+void Ultra::InitializeWriter() {
+  for (int i = 0; i < writers.size(); ++i) {
+    writers[i]->InitializeWriter(this, outs[i]);
+  }
+}
 
 SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq, uthread *uth) {
 
@@ -140,6 +144,13 @@ double Ultra::Log2PvalForScore(float score, float period) const {
   return log2(exp(-1.0 * (score - loc) / scale) * freq);
 }
 
+double Ultra::PvalForScore(float score) const {
+  double loc = settings->p_value_loc;
+  double scale = settings->p_value_scale;
+  double freq = settings->p_value_freq;
+  return exp(-1.0 * (score - loc) / scale) * freq;
+}
+
 void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
 
@@ -164,8 +175,6 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   RepeatRegion *r = GetNextRepeat(sequence, model->matrix, &i);
 
   while (r != nullptr) {
-    // Calculate P val
-    r->logPVal = Log2PvalForScore(r->regionScore, r->repeatPeriod);
 
     if (storeTraceAndSequence) {
       // printf("Storing trace...\n");
@@ -278,11 +287,13 @@ void Ultra::OutputRepeats(bool flush) {
   }
 
   if (flush) {
-    writer->EndWriter();
+    for (auto writer : writers)
+      writer->EndWriter();
     // fprintf(out, "]\n}\n");
   }
 
-  fflush(out);
+  for (auto out : outs)
+    fflush(out);
 }
 
 void Ultra::OutputULTRASettings() {
@@ -312,7 +323,9 @@ void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
   }
 
   if (!settings->suppress_out)
-    writer->WriteRepeat(r);
+    for (auto writer : writers)
+      writer->WriteRepeat(r);
+
   if (settings->produce_mask) {
     this->StoreMaskForRegion(r);
   }
@@ -336,29 +349,90 @@ unsigned long long Ultra::Coverage() {
 Ultra::Ultra(Settings *s) {
   settings = s;
 
-  out = stdout;
   settings_out = stdout;
 
   if (!settings->out_file.empty()) {
-    out = fopen(settings->out_file.c_str(), "w");
+
+    int c = 0;
+    if (settings->ultra_out) c++;
+    if (settings->json_out) c++;
+    if (settings->bed_out) c++;
+    if (c > 1) {
+      if (settings->ultra_out) {
+        std::string ultra_path = settings->out_file + ".ultra";
+        FILE *out = fopen(ultra_path.c_str(), "w");
+        if (out == NULL) {
+          fprintf(stderr, "Unable to open output file %s\n", ultra_path.c_str());
+          exit(-1);
+        }
+        outs.push_back(out);
+        writers.push_back(new TabFileWriter());
+      }
+
+      if (settings->json_out) {
+        std::string json_path = settings->out_file + ".json";
+        FILE *out = fopen(json_path.c_str(), "w");
+        if (out == NULL) {
+          fprintf(stderr, "Unable to open output file %s\n", json_path.c_str());
+          exit(-1);
+        }
+        outs.push_back(out);
+        writers.push_back(new JSONFileWriter());
+      }
+
+      if (settings->bed_out) {
+        std::string bed_path = settings->out_file + ".bed";
+        FILE *out = fopen(bed_path.c_str(), "w");
+        if (out == NULL) {
+          fprintf(stderr, "Unable to open output file %s\n", bed_path.c_str());
+          exit(-1);
+        }
+        outs.push_back(out);
+        writers.push_back(new BEDFileWriter());
+      }
+    }
+
+    else {
+      FILE *out = fopen(settings->out_file.c_str(), "w");
+      if (out == NULL) {
+        fprintf(stderr, "Unable to open output file %s\n", settings->out_file.c_str());
+        exit(-1);
+      }
+      outs.push_back(out);
+      if (settings->ultra_out)
+        writers.push_back(new TabFileWriter());
+      else if (settings->json_out)
+        writers.push_back(new JSONFileWriter());
+      else if (settings->bed_out)
+        writers.push_back(new BEDFileWriter());
+
+    }
+
     std::string settings_file_path = settings->out_file + ".settings";
     if (!settings->hide_settings) {
       settings_out = fopen(settings_file_path.c_str(), "w");
+      if (settings_out == NULL) {
+        fprintf(stderr, "Unable to open settings output file %s\n", settings_file_path.c_str());
+        exit(-1);
+      }
     }
+
+  }else {
+    if (settings->ultra_out)
+      writers.push_back(new TabFileWriter());
+    else if (settings->json_out)
+      writers.push_back(new JSONFileWriter());
+    else if (settings->bed_out)
+      writers.push_back(new BEDFileWriter());
+    outs.push_back(stdout);
   }
 
-  if (settings->json) {
-    writer = new JSONFileWriter();
-  }
 
-  else {
-    writer = new BEDFileWriter();
-  }
 
   numberOfThreads = settings->threads;
   scoreThreshold = settings->min_score;
   outputReadID = settings->show_wid;
-  outputRepeatSequence = !settings->hide_seq;
+  outputRepeatSequence = settings->show_seq;
 
   passID = 0;
 
@@ -436,13 +510,17 @@ Ultra::~Ultra() {
   delete reader;
   reader = nullptr;
 
-  delete writer;
-  writer = nullptr;
-
-  if (out != stdout && out != nullptr) {
-    fclose(out);
-    out = nullptr;
+  for (auto writer : writers) {
+    delete writer;
   }
+  writers.clear();
+
+  for (auto out : outs) {
+    if (out != stdout && out != nullptr) {
+      fclose(out);
+    }
+  }
+  outs.clear();
 
   for (auto& pair : masks_for_seq) {
     delete pair.second;  // pair.second is a std::vector<mregion> *

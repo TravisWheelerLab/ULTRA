@@ -32,6 +32,7 @@ set(
         src/umodel.hpp
         src/umodeldriver.hpp
         src/BEDFileWriter.hpp
+        src/TabFileWriter.hpp
         src/RepeatFileWriter.hpp
         src/JSONFileWriter.hpp
         src/RepeatSplitter.hpp
@@ -52,10 +53,11 @@ set(
         src/umodel.cpp
         src/umodeldriver.cpp
         src/BEDFileWriter.cpp
+        src/TabFileWriter.cpp
         src/JSONFileWriter.cpp
         src/RepeatSplitter.cpp
         src/mask.cpp
-        src/cli.cpp)
+        src/cli.cpp src/TabFileWriter.hpp)
 
 find_package(Threads REQUIRED)
 

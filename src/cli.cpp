@@ -47,19 +47,29 @@ void Settings::prepare_settings() {
       ->group("Output");
 
   app.add_flag("--pval_scale", this->p_value_scale,
-               "The exponential scale used for converting scores to p-values.")
+               "The exponential scale used for converting scores to p-values")
       ->group("Output");
 
-  app.add_flag("-j,--json", this->json,
-               "Use JSON outuput format instead of BED")
+  app.add_flag("--ultra", this->ultra_out,
+               "Use ULTRA output format")
       ->group("Output");
 
-  app.add_flag("--hide_seq", this->hide_seq,
-               "Hide sequence descriptor in JSON output")
+  app.add_flag("--json", this->json_out,
+               "Use JSON output format")
       ->group("Output");
-  app.add_flag("--hideseq", this->hide_seq,
-               "Hide sequence descriptor in JSON output")
-      ->group("");
+
+  app.add_flag("--bed", this->bed_out,
+               "Use BED output format")
+      ->group("Output");
+
+  app.add_option("--max_consensus", this->max_consensus_period,
+               "The maximum length of consensus pattern to include in output")
+      ->default_val(this->max_consensus_period)
+      ->group("Output");
+
+  app.add_flag("--show_seq", this->show_seq,
+               "Output repetitive region")
+      ->group("Output");
 
   app.add_flag("--show_delta", this->show_deltas,
                "Show positional score deltas in JSON output")
@@ -360,31 +370,26 @@ bool Settings::parse_input(int argc, const char **argv) {
     passed = false;
   }
 
-  if (!this->json) {
-    if (this->hide_seq) {
-      fprintf(stderr, "--hideseq is only available with --json\n");
-      passed = false;
-    }
+  if (!this->json_out) {
 
     if (this->show_deltas) {
-      fprintf(stderr, "--showdelta is only available with --json\n");
+      fprintf(stderr, "--show_delta is only available with --json\n");
       passed = false;
     }
 
     if (this->show_trace) {
-      fprintf(stderr, "--showtrace is only available with --json\n");
+      fprintf(stderr, "--show_trace is only available with --json\n");
       passed = false;
     }
 
     if (this->show_logo_nums) {
-      fprintf(stderr, "--showlogo is only available with --json\n");
+      fprintf(stderr, "--show_logo is only available with --json\n");
       passed = false;
     }
   }
 
-  if (this->json && this->suppress_out) {
-    fprintf(stderr, "--suppress is incompatible with --json\n"
-                    "--suppress disables both JSON and BED output\n");
+  if ((this->ultra_out || this->json_out || this->bed_out) && this->suppress_out) {
+    fprintf(stderr, "--suppress is incompatible with --ultra, --json, and --bed\n");
     passed = false;
   }
 
@@ -496,6 +501,22 @@ bool Settings::parse_input(int argc, const char **argv) {
   if (!this->tune_param_path.empty() && (this->tune_medium || this->tune_large)) {
     fprintf(stderr, "Cannot use both --tune_file and (--tune_small or --tune_large).\n");
     passed = false;
+  }
+
+  int c = 0;
+  if (this->ultra_out) c++;
+  if (this->json_out) c++;
+  if (this->bed_out) c++;
+
+  if (c > 1) {
+    if (this->out_file.empty()) {
+      fprintf(stderr, "Output file path must be provided when using multiple output formats .\n");
+      passed = false;
+    }
+  }
+
+  if (!(this->ultra_out || this->json_out || this->bed_out)) {
+    this->ultra_out = true;
   }
 
   return passed;
@@ -701,8 +722,11 @@ std::string Settings::json_string() {
   JSONMACRO(p_value_scale);
   JSONMACRO(p_value_freq);
 
-  JSONMACRO(json);
-  JSONMACRO(hide_seq);
+  JSONMACRO(ultra_out);
+  JSONMACRO(json_out);
+  JSONMACRO(bed_out);
+  JSONMACRO(max_consensus_period);
+  JSONMACRO(show_seq);
   JSONMACRO(show_deltas);
   JSONMACRO(show_trace);
   JSONMACRO(show_wid);
