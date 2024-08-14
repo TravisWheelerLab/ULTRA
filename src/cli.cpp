@@ -595,37 +595,33 @@ void Settings::assign_settings() {
 
   if (this->window_size == -1) {
     int num_states = this->calculate_num_states();
-    unsigned long cmem = num_states * this->max_period;
+    unsigned long period_memory = num_states * this->max_period;
 
     // itty bitty models use ~40 mb per thread
-    if (cmem <= 1000) {
+    if (period_memory <= 1000) {
       this->window_size = 10000 * this->max_period;
     }
 
     // tiny models use 80 mb per thread
-    else if (cmem <= 10000) {
+    else if (period_memory <= 10000) {
       this->window_size = 2000 * this->max_period;
     }
 
     // Small models use less than 160 mb per thread
-    else if (cmem <= 200000) {
-      this->window_size = 200 * this->max_period;
+    else if (period_memory <= 200000) {
+      this->window_size = 400 * this->max_period;
     }
 
     // medium models use less than 1 GB per thread
-    else if (cmem <= 2000000) {
-      this->window_size = 50 * this->max_period;
+    else if (period_memory <= 2000000) {
+      this->window_size = 100 * this->max_period;
     }
 
     // Large models use less than 4 GB per thread
-    else if (cmem <= 20000000) {
-      this->window_size = 10 * this->max_period;
+    else {
+      this->window_size = 50 * this->max_period;
     }
 
-    // Massive models use a lot of memory
-    else {
-      this->window_size = 2 * this->max_period;
-    }
   }
 
   this->a_freq = this->at / 2.0;
