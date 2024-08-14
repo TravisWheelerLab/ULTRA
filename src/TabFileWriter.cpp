@@ -18,12 +18,12 @@ void TabFileWriter::InitializeWriter(Ultra *ultra, FILE *out_f) {
   fprintf(out, "\tScore");
   if (owner->settings->pval)
     fprintf(out, ",PValue");
-  if (owner->settings->max_consensus_period != 0)
+  if (owner->settings->max_consensus_period >= 0)
     fprintf(out, "\tConsensus");
-  if (owner->settings->max_split > 0) {
+  if (owner->settings->max_split >= 0) {
     fprintf(out, "\t#Subrepeats");
     fprintf(out, "\tSubrepeatStarts");
-    if (owner->settings->max_consensus_period != 0)
+    if (owner->settings->max_consensus_period >= 0)
       fprintf(out, "\tSubrepeatConsensi");
   }
 
@@ -75,7 +75,7 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
     fprintf(out, "\t%s", rep_con.c_str());
   }
 
-  if (owner->settings->max_split > 0) {
+  if (owner->settings->max_split >= 0) {
     std::string sizes = "";
     std::string starts = "0";
     std::string consensi = "";
@@ -99,11 +99,13 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
         }
       }
 
-      if (owner->settings->max_consensus_period != 0) {
+      if (owner->settings->max_consensus_period >= 0) {
         for (int i = 0; i < repeat->consensi->size(); ++i) {
           std::string con = ".";
           if (owner->settings->max_consensus_period >= repeat->repeatPeriod) {
             if (repeat->consensi != nullptr && repeat->consensi->size() > i) {
+              if (i > 0 && repeat->consensi->at(i) == repeat->consensi->at(i - 1))
+                continue;
               con = repeat->consensi->at(i);
             }
           }
@@ -119,7 +121,7 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
       fprintf(out, "\t%i\t%s", numberOfValidSplits + 1,
               starts.c_str());
-      if (owner->settings->max_consensus_period != 0) {
+      if (owner->settings->max_consensus_period >= 0) {
         fprintf(out, "\t%s", consensi.c_str());
       }
 
@@ -127,7 +129,7 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
     else {
       fprintf(out, "\t1\t0");
-      if (owner->settings->max_consensus_period != 0) {
+      if (owner->settings->max_consensus_period >= 0) {
         fprintf(out, "\t%s", rep_con.c_str());
       }
     }
