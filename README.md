@@ -78,6 +78,7 @@ period_1000_repeat  0 17999 1000  22938.433594  . 1 0 .
 </details>
 <details>
 <summary>Example 3 - Tuning and FDR</summary>
+  
 `examples/example_3.fa` contains randomly generated 80% AT rich sequence along with two inserted tandem repeats (an "AAAGC" repeat and an "AAAATAC" repeat). The large AT bias is far outside ULTRA's default expectation, and as a result ULTRA will have a high false discovery rate, as seen by running:
 ```
 ultra --fdr -o examples/example_3_def.tsv examples/example_3.fa
