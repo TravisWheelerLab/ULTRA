@@ -23,7 +23,7 @@ A list of all flags and options can be seen with `ultra -h`. To annotate tandem 
 ultra examples/example_1.fa
 ```
 
-Running the above command will cause ULTRA to output (to stdout) the settings being used followed by a TSV formatted annotation of the repeats found within `examples/example_1.fa`.
+The above command will cause ULTRA to output (to stdout) the settings used by ULTRA followed by a TSV formatted annotation of the repeats found within `examples/example_1.fa`.
 ULTRA annotations can be directed to an output file using the `-o <output file path>` option. For example:
 
 ```
