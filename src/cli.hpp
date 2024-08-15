@@ -92,7 +92,7 @@ struct Settings {
 
   // Split and naming parameters
   bool no_split = false;
-  unsigned long long max_split = 10;
+  int max_split = 10;
   float split_threshold = 3.5;
   unsigned long long split_depth = 5;
   unsigned long long min_split_window = 15;

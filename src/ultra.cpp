@@ -359,7 +359,7 @@ Ultra::Ultra(Settings *s) {
     if (settings->bed_out) c++;
     if (c > 1) {
       if (settings->ultra_out) {
-        std::string ultra_path = settings->out_file + ".ultra";
+        std::string ultra_path = settings->out_file + ".tsv";
         FILE *out = fopen(ultra_path.c_str(), "w");
         if (out == NULL) {
           fprintf(stderr, "Unable to open output file %s\n", ultra_path.c_str());

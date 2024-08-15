@@ -24,7 +24,7 @@ std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index,
                                                int start_pos) {
   std::string repeatString = "{";
 
-  int start = start_pos + r->sequenceStart;
+  int start = start_pos;
   int end = r->repeatLength;
 
   int consensusPosition = r->splits->size();
@@ -39,10 +39,6 @@ std::string JSONFileWriter::StringForSubRepeat(RepeatRegion *r, int split_index,
 
   repeatString += "\"Start\": ";
   repeatString += std::to_string(start);
-  repeatString += ",\n\"End\": ";
-  repeatString += std::to_string(end);
-  repeatString += ",\n\"Score\": ";
-  repeatString += std::to_string(subScore);
   repeatString += ",\n\"Consensus\": \"";
   // Converting to a c string is important.
   // ...Dunno why, but here we are
