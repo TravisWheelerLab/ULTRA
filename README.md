@@ -53,6 +53,7 @@ By default ULTRA will use lower-case masking, although ULTRA will use N-masking 
 
 <details>
 <summary>Example 2 - Large period repeats</summary>
+  
 `examples/example_2.fa` contains a period 1000 repeat, which is larger than ULTRA's default maximum detectable repetitive period (100). To find the large period repeat we must adjust ULTRA's maximum detectable repetitive period using the `-p <max repeat period>` option.
 
 `ultra -o examples/example_2_ultra.tsv -p 1000 examples/example_2.fa`
