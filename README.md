@@ -120,10 +120,12 @@ Repeats that contain subrepeats will have a "Subrepeats" array, each object in t
 </details>
 <details>
 <summary>BED format</summary>
+  
 Using ULTRA with `--bed`will result in a BED file with four columns (`Sequence ID`, `Start`, `End`,  `Consensus`).
 </details>
 <details>
 <summary>Multiformat output</summary>
+  
 When using the `-o <file path>` option for saving output it is possible to provide ULTRA with multiple output formats. For example:
 ```
 ultra  --tsv --json --bed -o examples/example_1_multi examples/at_repeat.fa
@@ -140,6 +142,7 @@ Note that when using multiple output formats ULTRA will automatically choose the
 
 <details>
   <summary>Tuning guide</summary>
+  
 ULTRA's automatic parameter tuning (via `--tune`) can greatly improve annotation performance by testing several parameter sets and then using the parameter set that achieved the highest coverage within some threshold of estimated false discovery rate (by default 0.05, and adjusted with `--tune_fdr <fdr threshold>`) . By default `--tune` will test 18 parameter sets, `--tune_medium` will test 40 parameter sets, and `--tune_large` will test 252 parameter sets.  Each parameter contains different emission probabilities and transition probabilities, but does not affect the repeat period. By default tuning will disable indel states in order to decrease the overall runtime. Best tuning performance will be achieved by tuning with indel states, using the `--tune_indel` flag. 
 
 Users can also specify their own parameter sets to tune ULTRA against by using the `--tune_file <tune file path>` option. Each line in the tune file should contain arguments to run ULTRA against. An example can be seen in `examples/tune_file` which contains:
