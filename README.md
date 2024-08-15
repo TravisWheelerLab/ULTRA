@@ -83,7 +83,7 @@ period_1000_repeat  0 17999 1000  22938.433594  . 1 0 .
 ```
 ultra --fdr -o examples/example_3_def.tsv examples/example_3.fa
 ```
-After this command runs, ULTRA will print to standard out: `Estimated false discovery rate: 0.576698`, meaning that ULTRA expects 58% of the repeats annotated in `examples/example_3_def.tsv` to be a result of sequence bias.  ULTRA uses random sequence shuffling to estimate false discovery rate (see the tuning section of [our paper](https://www.biorxiv.org/content/10.1101/2024.06.03.597269v1)), and as a result the exact number you see will be different. 
+After this command runs, ULTRA will print to standard out: `Estimated false discovery rate: 0.58`, meaning that ULTRA expects 58% of the repetitive coverage in `examples/example_3_def.tsv` to be falsely labeled. The high false discovery rate is caused by the % AT-content in `examples/example_3.fa` being much higher than ULTRA expects by default. Note that ULTRA uses random sequence shuffling to estimate false discovery rate (see the tuning section of [our paper](https://www.biorxiv.org/content/10.1101/2024.06.03.597269v1)), and so the exact estimated false discovery will be different each time the command is ran. 
 
 We can improve our results by automatically tuning ULTRA's parameters using the `--tune` flag:
 ```
