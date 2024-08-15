@@ -60,7 +60,7 @@ struct Settings {
 
   // Tuning parameters
 
-  double tune_fdr = 0.1;
+  double tune_fdr = 0.05;
   bool tune = false;
   bool tune_medium = false;
   bool tune_large = false;

@@ -16,8 +16,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(
         LIB_CPP_FILES
-
-        lib/json11.cpp
 )
 set(
         HPP_FILES
@@ -57,7 +55,8 @@ set(
         src/JSONFileWriter.cpp
         src/RepeatSplitter.cpp
         src/mask.cpp
-        src/cli.cpp src/TabFileWriter.hpp)
+        src/cli.cpp
+        )
 
 find_package(Threads REQUIRED)
 
