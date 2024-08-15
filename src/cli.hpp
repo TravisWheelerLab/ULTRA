@@ -15,6 +15,9 @@
 struct Settings {
   std::string args = "";
 
+  // Are we displaying the citation text?
+  bool cite = false;
+
   // Input settings
   std::string in_file = "";
   bool read_all = false;
@@ -105,7 +108,8 @@ struct Settings {
                "=================================================\n"
                "(U)ltra (L)ocates (T)andemly (R)epetitive (A)reas\n"
                "     Daniel R. Olson and Travis J. Wheeler\n"
-               "            Version " ULTRA_VERSION_STRING "\n"
+               "                 Version " ULTRA_VERSION_STRING "\n"
+               "     Use '--cite' for citation instructions\n"
                "=================================================\n"};
 
   void prepare_settings();

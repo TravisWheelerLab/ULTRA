@@ -324,6 +324,8 @@ void Settings::prepare_settings() {
                  "Minimum repeat split window size")
       ->default_val(this->min_split_window)
       ->group("");
+
+  app.add_flag("--cite", this->cite)->group("");
 }
 
 void Settings::set_multi_option() {
@@ -361,6 +363,22 @@ bool Settings::parse_input(int argc, const char **argv) {
   } catch (const CLI::CallForHelp &e) {
     std::cout << this->app.help();
     exit(0); // or any other error handling
+  }
+
+  if (this->cite) {
+    printf("BibTeX: \n"
+           "@article {Olson2024ultra,\n"
+           "  author = {Olson, Daniel R. and Wheeler, Travis J.},\n"
+           "  title = {ULTRA-Effective Labeling of Repetitive Genomic Sequence},\n"
+           "  elocation-id = {2024.06.03.597269},\n"
+           "  year = {2024},\n"
+           "  doi = {10.1101/2024.06.03.597269},\n"
+           "  publisher = {Cold Spring Harbor Laboratory},\n"
+           "  URL = {https://www.biorxiv.org/content/early/2024/06/04/2024.06.03.597269},\n"
+           "  eprint = {https://www.biorxiv.org/content/early/2024/06/04/2024.06.03.597269.full.pdf},\n"
+           "  journal = {bioRxiv}\n"
+           "}\n");
+    exit(0);
   }
 
   bool passed = true;
