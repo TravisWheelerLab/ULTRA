@@ -13,7 +13,7 @@ cmake .
 make
 ```
 ## Basic usage
-A list of all flags and options can be seen with `ultra -h`. To annotate tandem repeats with ULTRA use `ultra [options] <path to FASTA file>`.  The following examples some common use cases.
+A list of all flags and options can be seen with `ultra -h`. To annotate tandem repeats with ULTRA use `ultra [options] <path to FASTA file>`.  The following examples demonstrate common use cases.
   
 <details>
 <summary>Example 1 - Default settings</summary>
