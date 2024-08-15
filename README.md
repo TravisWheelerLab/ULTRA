@@ -114,6 +114,7 @@ Using `--show_seq` will include an additional `Sequence` column containing the c
 </details>
 <details>
 <summary>JSON format</summary>
+  
 Using ULTRA with `--json` will result in JSON formatted output. The JSON output will contain an objects with a `Repeats` array. Each object in the `Repeats` array will contain descriptive fields such as "Start", "Length",  "Period", "Score",  "Substitutions" (the number of mismatches), "Insertions" (the number of insertions), "Deletions" (the number of deletions), "Consensus", and additional fields depending on the specific settings being used. 
 
 Repeats that contain subrepeats will have a "Subrepeats" array, each object in the array containing a "Start" field (that describes the subrepeat's starting location relative to the overall repeat), and a "Consensus" field.
