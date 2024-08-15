@@ -70,7 +70,7 @@ The large consensus can be cumbersome and some users may prefer ULTRA's output t
 ultra -o examples/example_2_ultra.tsv -p 1000 --max_consensus 10 examples/example_2.fa
 ```
 
-This command will result in the following output:
+results in the following output:
 ```
 SeqID Start End Period  Score Consensus #Subrepeats SubrepeatStarts SubrepeatConsensi
 period_1000_repeat  0 17999 1000  22938.433594  . 1 0 .
