@@ -14,7 +14,5 @@ run_one() {
   echo ""
 }
 
-run_one examples/ex1.fa
-run_one examples/ex2.fa
-run_one examples/ex3.fa
-run_one examples/ex4.fa
+run_one examples/example_1.fa
+run_one examples/example_2.fa

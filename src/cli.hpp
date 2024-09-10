@@ -5,7 +5,7 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.0.0 (beta 19)"
+#define ULTRA_VERSION_STRING "1.0.0"
 
 
 #include "../lib/CLI11.hpp"
@@ -14,6 +14,9 @@
 
 struct Settings {
   std::string args = "";
+
+  // Are we displaying the citation text?
+  bool cite = false;
 
   // Input settings
   std::string in_file = "";
@@ -60,7 +63,7 @@ struct Settings {
 
   // Tuning parameters
 
-  double tune_fdr = 0.1;
+  double tune_fdr = 0.05;
   bool tune = false;
   bool tune_medium = false;
   bool tune_large = false;
@@ -92,7 +95,7 @@ struct Settings {
 
   // Split and naming parameters
   bool no_split = false;
-  unsigned long long max_split = 10;
+  int max_split = 10;
   float split_threshold = 3.5;
   unsigned long long split_depth = 5;
   unsigned long long min_split_window = 15;
@@ -105,7 +108,8 @@ struct Settings {
                "=================================================\n"
                "(U)ltra (L)ocates (T)andemly (R)epetitive (A)reas\n"
                "     Daniel R. Olson and Travis J. Wheeler\n"
-               "            Version " ULTRA_VERSION_STRING "\n"
+               "                 Version " ULTRA_VERSION_STRING "\n"
+               "     Use '--cite' for citation instructions\n"
                "=================================================\n"};
 
   void prepare_settings();

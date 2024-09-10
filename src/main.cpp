@@ -160,13 +160,14 @@ int main(int argc, const char *argv[]) {
     settings->ultra_out = false;
     settings->json_out = false;
     settings->bed_out = false;
+    settings->out_file = "";
     ultra = new Ultra(settings);
     ultra->shuffleSequence = true;
     ultra->AnalyzeFile();
     ultra->OutputRepeats(true);
     shuff_coverage = ultra->Coverage();
     float fdr = (float)shuff_coverage / (float)true_coverage;
-    printf("Estimated false discovery rate: %g = (%llu / %llu)\n", fdr, shuff_coverage, true_coverage);
+    printf("Estimated false discovery rate: %g\n", fdr);
   }
 
   return 0;

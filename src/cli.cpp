@@ -50,8 +50,8 @@ void Settings::prepare_settings() {
                "The exponential scale used for converting scores to p-values")
       ->group("Output");
 
-  app.add_flag("--ultra", this->ultra_out,
-               "Use ULTRA output format")
+  app.add_flag("--tsv", this->ultra_out,
+               "Use TSV output format")
       ->group("Output");
 
   app.add_flag("--json", this->json_out,
@@ -207,7 +207,6 @@ void Settings::prepare_settings() {
 
   app.add_option("--tune_fdr", this->tune_fdr,
                  "FDR to be tuned against (see README)")
-      ->default_val("0.1")
       ->group("Parameter Tuning");
 
   app.add_flag("--tune_only", this->tune_only,
@@ -325,6 +324,8 @@ void Settings::prepare_settings() {
                  "Minimum repeat split window size")
       ->default_val(this->min_split_window)
       ->group("");
+
+  app.add_flag("--cite", this->cite)->group("");
 }
 
 void Settings::set_multi_option() {
@@ -364,6 +365,22 @@ bool Settings::parse_input(int argc, const char **argv) {
     exit(0); // or any other error handling
   }
 
+  if (this->cite) {
+    printf("BibTeX: \n"
+           "@article {Olson2024ultra,\n"
+           "  author = {Olson, Daniel R. and Wheeler, Travis J.},\n"
+           "  title = {ULTRA-Effective Labeling of Repetitive Genomic Sequence},\n"
+           "  elocation-id = {2024.06.03.597269},\n"
+           "  year = {2024},\n"
+           "  doi = {10.1101/2024.06.03.597269},\n"
+           "  publisher = {Cold Spring Harbor Laboratory},\n"
+           "  URL = {https://www.biorxiv.org/content/early/2024/06/04/2024.06.03.597269},\n"
+           "  eprint = {https://www.biorxiv.org/content/early/2024/06/04/2024.06.03.597269.full.pdf},\n"
+           "  journal = {bioRxiv}\n"
+           "}\n");
+    exit(0);
+  }
+
   bool passed = true;
   if (this->in_file.empty() && !this->show_memory) {
     fprintf(stderr, "Input file required.\n");
@@ -389,7 +406,7 @@ bool Settings::parse_input(int argc, const char **argv) {
   }
 
   if ((this->ultra_out || this->json_out || this->bed_out) && this->suppress_out) {
-    fprintf(stderr, "--suppress is incompatible with --ultra, --json, and --bed\n");
+    fprintf(stderr, "--suppress is incompatible with --tsv, --json, and --bed\n");
     passed = false;
   }
 
@@ -595,37 +612,33 @@ void Settings::assign_settings() {
 
   if (this->window_size == -1) {
     int num_states = this->calculate_num_states();
-    unsigned long cmem = num_states * this->max_period;
+    unsigned long period_memory = num_states * this->max_period;
 
     // itty bitty models use ~40 mb per thread
-    if (cmem <= 1000) {
+    if (period_memory <= 1000) {
       this->window_size = 10000 * this->max_period;
     }
 
     // tiny models use 80 mb per thread
-    else if (cmem <= 10000) {
+    else if (period_memory <= 10000) {
       this->window_size = 2000 * this->max_period;
     }
 
     // Small models use less than 160 mb per thread
-    else if (cmem <= 200000) {
-      this->window_size = 200 * this->max_period;
+    else if (period_memory <= 200000) {
+      this->window_size = 400 * this->max_period;
     }
 
     // medium models use less than 1 GB per thread
-    else if (cmem <= 2000000) {
-      this->window_size = 50 * this->max_period;
+    else if (period_memory <= 2000000) {
+      this->window_size = 100 * this->max_period;
     }
 
     // Large models use less than 4 GB per thread
-    else if (cmem <= 20000000) {
-      this->window_size = 10 * this->max_period;
+    else {
+      this->window_size = 50 * this->max_period;
     }
 
-    // Massive models use a lot of memory
-    else {
-      this->window_size = 2 * this->max_period;
-    }
   }
 
   this->a_freq = this->at / 2.0;
