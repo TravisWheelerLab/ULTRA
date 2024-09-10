@@ -13,7 +13,7 @@ cmake .
 make
 ```
 ## Basic usage
-A list of all flags and options can be seen with `ultra -h`. To annotate tandem repeats with ULTRA use `ultra [options] <path to FASTA file>`.  The following examples some common use cases.
+A list of all flags and options can be seen with `ultra -h`. To annotate tandem repeats with ULTRA use `ultra [options] <path to FASTA file>`.  The following examples demonstrate common use cases.
   
 <details>
 <summary>Example 1 - Default settings</summary>
@@ -23,7 +23,7 @@ A list of all flags and options can be seen with `ultra -h`. To annotate tandem 
 ultra examples/example_1.fa
 ```
 
-Running the above command will cause ULTRA to output (to stdout) the settings being used followed by a TSV formatted annotation of the repeats found within `examples/example_1.fa`.
+The above command will cause ULTRA to output (to stdout) the settings used by ULTRA followed by a TSV formatted annotation of the repeats found within `examples/example_1.fa`.
 ULTRA annotations can be directed to an output file using the `-o <output file path>` option. For example:
 
 ```
@@ -53,6 +53,7 @@ By default ULTRA will use lower-case masking, although ULTRA will use N-masking 
 
 <details>
 <summary>Example 2 - Large period repeats</summary>
+  
 `examples/example_2.fa` contains a period 1000 repeat, which is larger than ULTRA's default maximum detectable repetitive period (100). To find the large period repeat we must adjust ULTRA's maximum detectable repetitive period using the `-p <max repeat period>` option.
 
 `ultra -o examples/example_2_ultra.tsv -p 1000 examples/example_2.fa`
@@ -69,7 +70,7 @@ The large consensus can be cumbersome and some users may prefer ULTRA's output t
 ultra -o examples/example_2_ultra.tsv -p 1000 --max_consensus 10 examples/example_2.fa
 ```
 
-This command will result in the following output:
+results in the following output:
 ```
 SeqID Start End Period  Score Consensus #Subrepeats SubrepeatStarts SubrepeatConsensi
 period_1000_repeat  0 17999 1000  22938.433594  . 1 0 .
@@ -77,11 +78,12 @@ period_1000_repeat  0 17999 1000  22938.433594  . 1 0 .
 </details>
 <details>
 <summary>Example 3 - Tuning and FDR</summary>
+  
 `examples/example_3.fa` contains randomly generated 80% AT rich sequence along with two inserted tandem repeats (an "AAAGC" repeat and an "AAAATAC" repeat). The large AT bias is far outside ULTRA's default expectation, and as a result ULTRA will have a high false discovery rate, as seen by running:
 ```
 ultra --fdr -o examples/example_3_def.tsv examples/example_3.fa
 ```
-After this command runs, ULTRA will print to standard out: `Estimated false discovery rate: 0.576698`, meaning that ULTRA expects 58% of the repeats annotated in `examples/example_3_def.tsv` to be a result of sequence bias.  ULTRA uses random sequence shuffling to estimate false discovery rate (see the tuning section of [our paper](https://www.biorxiv.org/content/10.1101/2024.06.03.597269v1)), and as a result the exact number you see will be different. 
+After this command runs, ULTRA will print to standard out: `Estimated false discovery rate: 0.58`, meaning that ULTRA expects 58% of the repetitive coverage in `examples/example_3_def.tsv` to be falsely labeled. The high false discovery rate is caused by the % AT-content in `examples/example_3.fa` being much higher than ULTRA expects by default. Note that ULTRA uses random sequence shuffling to estimate false discovery rate (see the tuning section of [our paper](https://www.biorxiv.org/content/10.1101/2024.06.03.597269v1)), and so the exact estimated false discovery will be different each time the command is ran. 
 
 We can improve our results by automatically tuning ULTRA's parameters using the `--tune` flag:
 ```
@@ -112,16 +114,19 @@ Using `--show_seq` will include an additional `Sequence` column containing the c
 </details>
 <details>
 <summary>JSON format</summary>
+  
 Using ULTRA with `--json` will result in JSON formatted output. The JSON output will contain an objects with a `Repeats` array. Each object in the `Repeats` array will contain descriptive fields such as "Start", "Length",  "Period", "Score",  "Substitutions" (the number of mismatches), "Insertions" (the number of insertions), "Deletions" (the number of deletions), "Consensus", and additional fields depending on the specific settings being used. 
 
 Repeats that contain subrepeats will have a "Subrepeats" array, each object in the array containing a "Start" field (that describes the subrepeat's starting location relative to the overall repeat), and a "Consensus" field.
 </details>
 <details>
 <summary>BED format</summary>
+  
 Using ULTRA with `--bed`will result in a BED file with four columns (`Sequence ID`, `Start`, `End`,  `Consensus`).
 </details>
 <details>
 <summary>Multiformat output</summary>
+  
 When using the `-o <file path>` option for saving output it is possible to provide ULTRA with multiple output formats. For example:
 ```
 ultra  --tsv --json --bed -o examples/example_1_multi examples/at_repeat.fa
@@ -138,6 +143,7 @@ Note that when using multiple output formats ULTRA will automatically choose the
 
 <details>
   <summary>Tuning guide</summary>
+  
 ULTRA's automatic parameter tuning (via `--tune`) can greatly improve annotation performance by testing several parameter sets and then using the parameter set that achieved the highest coverage within some threshold of estimated false discovery rate (by default 0.05, and adjusted with `--tune_fdr <fdr threshold>`) . By default `--tune` will test 18 parameter sets, `--tune_medium` will test 40 parameter sets, and `--tune_large` will test 252 parameter sets.  Each parameter contains different emission probabilities and transition probabilities, but does not affect the repeat period. By default tuning will disable indel states in order to decrease the overall runtime. Best tuning performance will be achieved by tuning with indel states, using the `--tune_indel` flag. 
 
 Users can also specify their own parameter sets to tune ULTRA against by using the `--tune_file <tune file path>` option. Each line in the tune file should contain arguments to run ULTRA against. An example can be seen in `examples/tune_file` which contains:
