@@ -2,9 +2,10 @@
 #include "mask.hpp"
 #include "ultra.hpp"
 #include <string>
+#include <new>  // for std::bad_alloc
 
-int main(int argc, const char *argv[]) {
 
+int main_wrapper(int argc, const char * argv[]) {
   // Prepare settings
   Settings *settings = new Settings();
   settings->prepare_settings();
@@ -13,8 +14,8 @@ int main(int argc, const char *argv[]) {
   }
 
   settings->assign_settings();
+  settings->print_memory_usage();
   if (settings->show_memory) {
-    settings->print_memory_usage();
     exit(0);
   }
 
@@ -171,4 +172,31 @@ int main(int argc, const char *argv[]) {
   }
 
   return 0;
+}
+
+
+int main(int argc, const char *argv[]) {
+
+  char *reserve_memory = (char *)malloc(65536);
+  try {
+    int r = main_wrapper(argc, argv);
+    return r;
+  }
+  catch (const std::bad_alloc& e) {
+    // This block is executed if memory allocation fails
+    free(reserve_memory); // May be necessary in order to print
+    std::cerr << "Memory allocation failed: " << e.what() << std::endl;
+    std::cerr << "Your model may be too large to fit in memory"  << std::endl;
+    std::cerr << "Try running: ultra --mem <your arguments> to see expected memory usage" << std::endl;
+  }
+  catch (const std::exception& e) {
+    // This block is executed for any other standard exceptions
+    std::cerr << "Standard exception caught: " << e.what() << std::endl;
+  }
+  catch (...) {
+    // This block catches any other non-standard exceptions
+    std::cerr << "Unknown exception caught!" << std::endl;
+  }
+
+  return -1;
 }

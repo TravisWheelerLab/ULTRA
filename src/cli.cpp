@@ -634,9 +634,14 @@ void Settings::assign_settings() {
       this->window_size = 100 * this->max_period;
     }
 
+    // medium models use less than 1 GB per thread
+    else if (period_memory <= 4000000) {
+      this->window_size = 50 * this->max_period;
+    }
+
     // Large models use less than 4 GB per thread
     else {
-      this->window_size = 50 * this->max_period;
+      this->window_size = 25 * this->max_period;
     }
 
   }
@@ -670,7 +675,7 @@ void Settings::print_memory_usage() {
   dp_size *= (unsigned long long)(this->window_size + (2 * this->overlap));
   printf("----------------------------\n");
   printf("Maximum repeat period: %llu\n", this->max_period);
-  printf("Number of states: %i\n", num_states);
+  printf("Number of model states: %i\n", num_states);
   printf("Total sequence window size: %lli\n",
          (this->window_size + 2 * this->overlap));
   printf("DP matrix cells: %llu\n", dp_size);
@@ -689,6 +694,7 @@ void Settings::print_memory_usage() {
 
   printf("*Actual memory usage will be slightly greater due to "
          "output repeat queue and repeat split matrices\n");
+  printf("============================\n");
 }
 
 // This could be done in less code with templates. Yikcy wicky yucky wucky.
