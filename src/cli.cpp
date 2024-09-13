@@ -63,7 +63,7 @@ void Settings::prepare_settings() {
       ->group("Output");
 
   app.add_option("--max_consensus", this->max_consensus_period,
-               "The maximum length of consensus pattern to include in output")
+                 "The maximum length of consensus pattern to include in output")
       ->default_val(this->max_consensus_period)
       ->group("Output");
 
@@ -626,21 +626,25 @@ void Settings::assign_settings() {
 
     // Small models use less than 160 mb per thread
     else if (period_memory <= 200000) {
-      this->window_size = 400 * this->max_period;
+      this->window_size = 1000 * this->max_period;
     }
 
     // medium models use less than 1 GB per thread
     else if (period_memory <= 2000000) {
-      this->window_size = 100 * this->max_period;
+      this->window_size = 500 * this->max_period;
     }
 
     // medium models use less than 1 GB per thread
-    else if (period_memory <= 4000000) {
+    else if (period_memory <= 20000000) {
+      this->window_size = 100 * this->max_period;
+    }
+
+    else if (period_memory <= 50000000) {
       this->window_size = 50 * this->max_period;
     }
 
     // Large models use less than 4 GB per thread
-    else {
+    else  {
       this->window_size = 25 * this->max_period;
     }
 
