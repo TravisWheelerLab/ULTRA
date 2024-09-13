@@ -5,7 +5,13 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.0.2"
+#define ULTRA_VERSION_STRING "1.0.2b"
+#define DEBUG_STRING ""
+#ifdef DEBUG_PRAGMA
+#undef DEBUG_STRING
+#define DEBUG_STRING " **WARNING** BUILT WITHOUT RELEASE OPTIMIZATION **WARNING** \n"
+#endif
+
 
 
 #include "../lib/CLI11.hpp"
@@ -109,6 +115,7 @@ struct Settings {
                "(U)ltra (L)ocates (T)andemly (R)epetitive (A)reas\n"
                "     Daniel R. Olson and Travis J. Wheeler\n"
                "                 Version " ULTRA_VERSION_STRING "\n"
+               DEBUG_STRING
                "     Use '--cite' for citation instructions\n"
                "=================================================\n"};
 
