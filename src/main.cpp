@@ -14,8 +14,8 @@ int main_wrapper(int argc, const char * argv[]) {
   }
 
   settings->assign_settings();
+  settings->print_memory_usage();
   if (settings->show_memory) {
-    settings->print_memory_usage();
     exit(0);
   }
 
@@ -178,7 +178,6 @@ int main_wrapper(int argc, const char * argv[]) {
 int main(int argc, const char *argv[]) {
 
   char *reserve_memory = (char *)malloc(65536);
-
   try {
     int r = main_wrapper(argc, argv);
     return r;
