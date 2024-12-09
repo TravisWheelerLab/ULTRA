@@ -38,6 +38,11 @@ void Settings::prepare_settings() {
                "Disables streaming output; no output will be created until all analysis has been completed")
       ->group("Output");
 
+  app.add_flag("-c, --show_counts",
+               this->show_counts,
+               "Output #copies, #substitutions, #insertions, #deletions")
+      ->group("Output");
+
   app.add_flag("--pval", this->pval,
                "Use p-values instead of scores in BED output")
       ->group("Output");

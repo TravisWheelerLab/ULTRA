@@ -91,9 +91,16 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
     this->OutputJSONKeyValue("PVal", std::to_string(pval));
   }
 
-  this->OutputJSONKeyValue("Substitutions", std::to_string(repeat->mismatches));
-  this->OutputJSONKeyValue("Insertions", std::to_string(repeat->insertions));
-  this->OutputJSONKeyValue("Deletions", std::to_string(repeat->deletions));
+
+  if (owner->settings->show_counts) {
+    auto copies = (repeat->repeatLength - repeat->insertions + repeat->deletions) / repeat->repeatPeriod;
+    this->OutputJSONKeyValue("Copies", std::to_string(copies));
+    this->OutputJSONKeyValue("Substitutions",
+                             std::to_string(repeat->mismatches));
+    this->OutputJSONKeyValue("Insertions", std::to_string(repeat->insertions));
+    this->OutputJSONKeyValue("Deletions", std::to_string(repeat->deletions));
+  }
+
   this->OutputJSONKeyValue("Consensus", repeat->string_consensus, true);
 
   if (owner->settings->show_seq) {
