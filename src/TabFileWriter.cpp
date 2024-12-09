@@ -20,6 +20,11 @@ void TabFileWriter::InitializeWriter(Ultra *ultra, FILE *out_f) {
     fprintf(out, ",PValue");
   if (owner->settings->max_consensus_period >= 0)
     fprintf(out, "\tConsensus");
+
+  if (owner->settings->show_counts) {
+    fprintf(out, "\t#copies\t#substitutions\t#insertions\t#deletions");
+  }
+
   if (owner->settings->max_split >= 0) {
     fprintf(out, "\t#Subrepeats");
     fprintf(out, "\tSubrepeatStarts");
@@ -30,6 +35,7 @@ void TabFileWriter::InitializeWriter(Ultra *ultra, FILE *out_f) {
   if (owner->settings->show_seq) {
     fprintf(out, "\tSequence");
   }
+
 
   fprintf(out, "\n");
 
@@ -73,6 +79,12 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
       rep_con = repeat->string_consensus;
 
     fprintf(out, "\t%s", rep_con.c_str());
+  }
+
+  if (owner->settings->show_counts) {
+    auto copies = (repeat->repeatLength - repeat->insertions + repeat->deletions) / repeat->repeatPeriod;
+
+    fprintf(out, "\t%lu\t%d\t%d\t%d", copies, repeat->mismatches, repeat->insertions, repeat->deletions);
   }
 
   if (owner->settings->max_split >= 0) {
@@ -138,6 +150,8 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
   if (owner->settings->show_seq) {
     fprintf(out, "\t%s", repeat->sequence.c_str());
   }
+
+
   fprintf(out, "\n");
 }
 
