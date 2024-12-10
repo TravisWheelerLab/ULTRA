@@ -2,7 +2,7 @@
 
 **U**LTRA **L**ocates **T**andemly **R**epetitive **A**reas
 ## About
-ULTRA is a tool for finding and annotating tandem repeats within genomic sequence. Model details and evaluation can be found in our release paper, [ULTRA-Effective Labeling of Tandem Repeats in Genomic Sequence](https://www.biorxiv.org/content/10.1101/2024.06.03.597269v1)
+ULTRA is a tool for finding and annotating tandem repeats within genomic sequence. Model details and evaluation can be found in our release paper, [ULTRA-Effective Labeling of Tandem Repeats in Genomic Sequence](https://academic.oup.com/bioinformaticsadvances/article/4/1/vbae149/7816237)
 
 ## Building
 ULTRA requires a compiler supporting C++11 or higher and CMake 3.12 or higher.  To download and build ULTRA run the following commands:
@@ -162,15 +162,18 @@ Here `examples/tune_file` tests different repeat periods (`-p <repeat period>`),
 
 ## Citing
 ```
-@article {Olson2024ultra,
-  author = {Olson, Daniel R. and Wheeler, Travis J.},
-  title = {ULTRA-Effective Labeling of Repetitive Genomic Sequence},
-  elocation-id = {2024.06.03.597269},
-  year = {2024},
-  doi = {10.1101/2024.06.03.597269},
-  publisher = {Cold Spring Harbor Laboratory},
-  URL = {https://www.biorxiv.org/content/early/2024/06/04/2024.06.03.597269},
-  eprint = {https://www.biorxiv.org/content/early/2024/06/04/2024.06.03.597269.full.pdf},
-  journal = {bioRxiv}
+@article{10.1093/bioadv/vbae149,
+    author = {Olson, Daniel R and Wheeler, Travis J},
+    title = {ULTRA-effective labeling of tandem repeats in genomic sequence},
+    journal = {Bioinformatics Advances},
+    volume = {4},
+    number = {1},
+    pages = {vbae149},
+    year = {2024},
+    month = {10},
+    issn = {2635-0041},
+    doi = {10.1093/bioadv/vbae149},
+    url = {https://doi.org/10.1093/bioadv/vbae149},
+    eprint = {https://academic.oup.com/bioinformaticsadvances/article-pdf/4/1/vbae149/60779841/vbae149.pdf},
 }
 ```

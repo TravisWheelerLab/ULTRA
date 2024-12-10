@@ -5,7 +5,7 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.0.2b"
+#define ULTRA_VERSION_STRING "1.0.3"
 #define DEBUG_STRING ""
 #ifdef DEBUG_PRAGMA
 #undef DEBUG_STRING
@@ -42,6 +42,8 @@ struct Settings {
   bool bed_out = false;
   bool json_out = false;
 
+
+  bool show_counts = false;
   bool show_seq = false;
   bool show_deltas = false;
   bool show_trace = false;

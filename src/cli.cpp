@@ -38,6 +38,11 @@ void Settings::prepare_settings() {
                "Disables streaming output; no output will be created until all analysis has been completed")
       ->group("Output");
 
+  app.add_flag("-c, --show_counts",
+               this->show_counts,
+               "Output #copies, #substitutions, #insertions, #deletions")
+      ->group("Output");
+
   app.add_flag("--pval", this->pval,
                "Use p-values instead of scores in BED output")
       ->group("Output");
@@ -367,16 +372,19 @@ bool Settings::parse_input(int argc, const char **argv) {
 
   if (this->cite) {
     printf("BibTeX: \n"
-           "@article {Olson2024ultra,\n"
-           "  author = {Olson, Daniel R. and Wheeler, Travis J.},\n"
-           "  title = {ULTRA-Effective Labeling of Repetitive Genomic Sequence},\n"
-           "  elocation-id = {2024.06.03.597269},\n"
-           "  year = {2024},\n"
-           "  doi = {10.1101/2024.06.03.597269},\n"
-           "  publisher = {Cold Spring Harbor Laboratory},\n"
-           "  URL = {https://www.biorxiv.org/content/early/2024/06/04/2024.06.03.597269},\n"
-           "  eprint = {https://www.biorxiv.org/content/early/2024/06/04/2024.06.03.597269.full.pdf},\n"
-           "  journal = {bioRxiv}\n"
+           "@article{10.1093/bioadv/vbae149,\n"
+           "    author = {Olson, Daniel R and Wheeler, Travis J},\n"
+           "    title = {ULTRA-effective labeling of tandem repeats in genomic sequence},\n"
+           "    journal = {Bioinformatics Advances},\n"
+           "    volume = {4},\n"
+           "    number = {1},\n"
+           "    pages = {vbae149},\n"
+           "    year = {2024},\n"
+           "    month = {10},\n"
+           "    issn = {2635-0041},\n"
+           "    doi = {10.1093/bioadv/vbae149},\n"
+           "    url = {https://doi.org/10.1093/bioadv/vbae149},\n"
+           "    eprint = {https://academic.oup.com/bioinformaticsadvances/article-pdf/4/1/vbae149/60779841/vbae149.pdf},\n"
            "}\n");
     exit(0);
   }
