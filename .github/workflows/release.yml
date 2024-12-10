@@ -27,7 +27,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake
+          cmake .
           make
           mkdir -p installation/usr/local/bin
           cd src && make install DESTDIR=../installation
