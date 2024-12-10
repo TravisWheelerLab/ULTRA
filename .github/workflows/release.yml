@@ -30,7 +30,7 @@ jobs:
           cmake .
           make
           mkdir -p installation/usr/local/bin
-          cd src && make install DESTDIR=../installation
+          make install DESTDIR=installation
 
       - name: Extract version from github.ref
         id: extract_version
