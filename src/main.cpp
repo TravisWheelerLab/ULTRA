@@ -136,8 +136,6 @@ int main_wrapper(int argc, const char * argv[]) {
   }
 
   // Perform the actual run
-
-
   auto ultra = new Ultra(settings);
   ultra->AnalyzeFile();
   ultra->OutputRepeats(true);
