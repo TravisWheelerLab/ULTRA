@@ -71,7 +71,7 @@ int main_wrapper(int argc, const char * argv[]) {
       search_setting.bed_out = false;
 
       // We first get the normal coverage
-      auto *ultra = new Ultra(&search_setting);
+      auto ultra = new Ultra(&search_setting);
       ultra->AnalyzeFile();
       ultra->OutputRepeats(true);
       seq_length = ultra->reader->fastaReader->total_seq_length;
@@ -138,7 +138,7 @@ int main_wrapper(int argc, const char * argv[]) {
   // Perform the actual run
 
 
-  auto *ultra = new Ultra(settings);
+  auto ultra = new Ultra(settings);
   ultra->AnalyzeFile();
   ultra->OutputRepeats(true);
   unsigned long long true_coverage = ultra->Coverage();
