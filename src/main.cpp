@@ -102,7 +102,7 @@ int main_wrapper(int argc, const char * argv[]) {
         }
       }
 
-      printf("(%zu/%zu): %g, %g, %s\n",(coverage.size()),
+      printf("(%zu/%zu): %.5f, %.5f, %s\n",(coverage.size()),
              param_strings.size(),
              real_coverage, fdr, arg_string.c_str());
     }
@@ -113,7 +113,7 @@ int main_wrapper(int argc, const char * argv[]) {
       double false_coverage = (double)shuffled_coverage[best_coverage_index] / (double)seq_length;
       double fdr = false_coverage / real_coverage;
 
-      printf("Best coverage within FDR limit: %g, %g, %s\n", real_coverage,
+      printf("Best coverage within FDR limit: %.5f, %.5f, %s\n", real_coverage,
              fdr,
              param_strings[best_coverage_index].c_str());
 
