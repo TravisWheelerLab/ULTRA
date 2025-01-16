@@ -25,8 +25,8 @@ public:
   std::ifstream file;
 
   std::string line;
-  long long linePlace;
-  unsigned long long total_seq_length;
+  long long linePlace = 0;
+  unsigned long long total_seq_length = 0;
 
   // change to queues
   std::vector<SequenceWindow *> windows;
@@ -46,12 +46,12 @@ public:
   double G_pctg;
 
   symbol *overlapBuffer;          //    = NULL;
-  unsigned long overlapLength;    //    = 0;
+  unsigned long overlapLength = 0;    //    = 0;
 
-  std::string sequenceName;       // = "";
-  unsigned long sequenceID;       // = 0;
-  unsigned long readID;           // = 0; // read id's may not be contiguous
-  unsigned long symbolsReadInSeq; // = 0;
+  std::string sequenceName = "";       // = "";
+  unsigned long sequenceID = 0;       // = 0;
+  unsigned long readID = 0;           // = 0; // read id's may not be contiguous
+  unsigned long symbolsReadInSeq = 0; // = 0;
 
   bool doneReadingFile;           //  = false;
   bool isReading;

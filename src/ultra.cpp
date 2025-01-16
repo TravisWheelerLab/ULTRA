@@ -322,6 +322,10 @@ void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
     total_coverage += (r->sequenceStart + r->repeatLength) - rep_start;
   }
 
+  if (r->sequenceStart + r->repeatLength > last_rep_end) {
+    last_rep_end = r->sequenceStart + r->repeatLength;
+  }
+
   if (!settings->suppress_out)
     for (auto writer : writers)
       writer->WriteRepeat(r);
