@@ -5,7 +5,7 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.0.4"
+#define ULTRA_VERSION_STRING "1.1.0"
 #define DEBUG_STRING ""
 #ifdef DEBUG_PRAGMA
 #undef DEBUG_STRING
