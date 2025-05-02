@@ -70,7 +70,6 @@ struct Settings {
   unsigned long long min_units = 2;
 
   // Tuning parameters
-
   double tune_fdr = 0.05;
   bool tune = false;
   bool tune_medium = false;
@@ -111,6 +110,8 @@ struct Settings {
   //  implement these
   unsigned long long max_namable_period = 50;
   unsigned long long max_highfi_naming = 20;
+
+  bool run_without_reader = false;
 
   CLI::App app{"\n"
                "=================================================\n"

@@ -151,7 +151,7 @@ double Ultra::PvalForScore(float score) const {
   return exp(-1.0 * (score - loc) / scale) * freq;
 }
 
-std::vector<RepeatRegion *>* Ultra::GetRepeatsForSequence(const std::string &seq) {
+std::vector<RepeatRegion *>* Ultra::FindRepeatsInString(const std::string &seq) {
   // Make sure that the seq window can fit in the DP matrix
   uthread *uth = this->threads[0];
   if (seq.length() > uth->model->matrix->length) {
@@ -215,6 +215,7 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   for (int i = 0; i < sleng; ++i) {
     model->CalculateCurrentColumn(sequence, i);
   }
+  model->CalculateCurrentColumnWithoutEmission();
 
   // WE'RE RIGHT HERE
   // GOING TO TRY TO PUSH ALL THE CODE IN !!!
@@ -488,11 +489,12 @@ Ultra::Ultra(Settings *s) {
   outputRepeatSequence = settings->show_seq;
 
   passID = 0;
-
-  reader = new FileReader(settings->in_file, settings->windows,
-                          settings->window_size, settings->overlap,
-                          settings->threads > 1);
-  reader->fastaReader->shuffle = shuffleSequence;
+  if (!settings->run_without_reader) {
+    reader = new FileReader(settings->in_file, settings->windows,
+                            settings->window_size, settings->overlap,
+                            settings->threads > 1);
+    reader->fastaReader->shuffle = shuffleSequence;
+  }
 
   int leng = settings->window_size + (settings->overlap + 2);
   storeTraceAndSequence = true;
@@ -509,7 +511,7 @@ Ultra::Ultra(Settings *s) {
     // We now are making the v_maxPeriod setting more intuitive, by adding 1 to
     // it. This makes a v_maxPeriod of 10 able to detect repeats of length 10.
     UModel *mod = new UModel(settings->max_period + 1, settings->max_insert,
-                             settings->max_delete, leng);
+                             settings->max_delete, leng + 1);
 
     mod->periodDecay = settings->period_decay;
 
@@ -548,18 +550,23 @@ Ultra::Ultra(Settings *s) {
   }
 
   if (numberOfThreads == 1) {
-    reader->multithread = false;
+    if (!settings->run_without_reader) {
+      reader->multithread = false;
+    }
     multithreading = false;
   }
 
   else {
-    reader->multithread = true;
+    if (!settings->run_without_reader) {
+      reader->multithread = true;
+    }
     multithreading = true;
   }
 }
 
 Ultra::~Ultra() {
   settings = nullptr;
+
   delete reader;
   reader = nullptr;
 

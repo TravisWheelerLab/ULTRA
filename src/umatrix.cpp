@@ -218,13 +218,20 @@ int *UMatrix::ForwardTraceback(int *traceArray, int windowLength, int row) {
 }
 
 // This has not been debugged yet
-void UMatrix::CalculateTraceback(int startColumn) {
+void UMatrix::CalculateTraceback(unsigned long long startColumn) {
   // Assume best row is 0
-  int row = 0;
+  unsigned long long row = 0;
+  float best_value = scoreColumns[startColumn][0];
 
+  for (unsigned long long i = 1; i < cellsPerColumn; ++i) {
+    if (cellDescriptions[i].type == CT_MATCH)
+      if (scoreColumns[startColumn][i] > best_value) {
+        row = i;
+        best_value = scoreColumns[startColumn][i];
+      }
+  }
   // Do the normal calculations
-
-  for (int i = 0; i <= startColumn; ++i) {
+  for (unsigned long long i = 0; i <= startColumn; ++i) {
 
     cell desc = cellDescriptions[row];
     int rowOrder = desc.order;

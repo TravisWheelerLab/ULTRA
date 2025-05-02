@@ -390,7 +390,7 @@ bool Settings::parse_input(int argc, const char **argv) {
   }
 
   bool passed = true;
-  if (this->in_file.empty() && !this->show_memory) {
+  if (this->in_file.empty() && !this->show_memory && !this->run_without_reader) {
     fprintf(stderr, "Input file required.\n");
     passed = false;
   }

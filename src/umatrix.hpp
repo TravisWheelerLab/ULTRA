@@ -92,7 +92,7 @@ public:
   int *ForwardTraceback(int *traceArray, int windowLength, int row);
 
   void RestartMatrix();
-  void CalculateTraceback(int startColumn);
+  void CalculateTraceback(unsigned long long startColumn);
 
   // Class management
   void CreateMatrix();
