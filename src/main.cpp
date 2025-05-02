@@ -194,6 +194,5 @@ int main(int argc, const char *argv[]) {
     // This block catches any other non-standard exceptions
     std::cerr << "Unknown exception caught!" << std::endl;
   }
-
   return -1;
 }
