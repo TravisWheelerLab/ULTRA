@@ -93,6 +93,8 @@ public:
   void OutputRepeats(bool flush = false);
   void OutputRepeat(RepeatRegion *r, bool isSubRep = false);
 
+  std::vector<RepeatRegion *>* GetRepeatsForSequence(const std::string &s);
+
   void OutputULTRASettings();
   void InitializeWriter();
 

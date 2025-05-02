@@ -95,7 +95,7 @@ SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq, uthread *uth) {
 
 // NOTE:
 // THIS IS NOT THREAD SAFE
-// WE ASSUME THATS OK (FOR NOW)
+// WE ASSUME THAT'S OK (FOR NOW)
 int Ultra::SmallestReadID() {
   int smallest = 100000000;
 
@@ -149,6 +149,15 @@ double Ultra::PvalForScore(float score) const {
   double scale = settings->p_value_scale;
   double freq = settings->p_value_freq;
   return exp(-1.0 * (score - loc) / scale) * freq;
+}
+
+std::vector<RepeatRegion *>* GetRepeatsForSequence(const std::string &s) {
+  // Create sequence window from the string
+  // Store and change primary thread
+  // Run AnalyzeSequenceWindow
+  // Change back primary thread to stored value
+  // Steal the repeat array from the uth thread and give the uth thread a new one
+  // Return the repeat array
 }
 
 void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
