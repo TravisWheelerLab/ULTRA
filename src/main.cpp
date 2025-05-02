@@ -206,8 +206,6 @@ int main_wrapper(int argc, const char * argv[]) {
 
 
 int main(int argc, const char *argv[]) {
-  return test_lib(argc, argv);
-
   char *reserve_memory = (char *)malloc(65536);
   try {
     int r = main_wrapper(argc, argv);
