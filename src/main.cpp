@@ -5,38 +5,6 @@
 #include <new>  // for std::bad_alloc
 
 
-int test_lib(int argc, const char * argv[]) {
-  printf("Starting test.\n");
-  Settings *settings = new Settings();
-
-  settings->run_without_reader = true;
-  settings->windows=1;
-  settings->window_size = 1000000;
-  settings->overlap = 0;
-  settings->max_period=25;
-  settings->max_insert=3;
-  settings->max_delete=3;
-
-  settings->prepare_settings();
-  if (!settings->parse_input(argc, argv)) {
-    exit(0);
-  }
-  settings->assign_settings();
-
-  printf("%llu + %llu\n", settings->window_size,
-                                  settings->overlap);
-
-  auto ultra = new Ultra(settings);
-
-  auto repeats = ultra->FindRepeatsInString("aaaaaaaaaaaaaaaaaaaaaaaaaa");
-  printf("%llu\n", repeats->size());
-  for (int i= 0; i < repeats->size(); ++i) {
-    auto r = repeats->at(i);
-    printf("%lu %lu %i\n", r->windowStart, r->repeatLength, r->repeatPeriod);
-  }
-  return 0;
-}
-
 int main_wrapper(int argc, const char * argv[]) {
   // Prepare settings
   Settings *settings = new Settings();
