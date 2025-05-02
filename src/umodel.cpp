@@ -91,110 +91,7 @@ void UModel::CalculateScores() {
     bscore[i] = log2(backgroundProbabilties[i]);
   }
 
-  /*if (adjustMatchMismatchMatrix) {
-
-      for (int i = 0; i < 256; ++i) {
-
-          float at = (float)i / 256.0;
-          float cg = 1.0 - at;
-
-          float a = at / 2.0;
-          float t = a;
-          float c = cg / 2.0;
-          float g = c;
-
-          backgroundScores[i][0] = 0.25;
-          backgroundScores[i][N_A] = a;
-          backgroundScores[i][N_T] = t;
-          backgroundScores[i][N_C] = c;
-          backgroundScores[i][N_G] = g;
-
-          //  printf("%f %f %f %f\n", backgroundScores[i][N_A],
-  backgroundScores[i][N_T], backgroundScores[i][N_C],
-  backgroundScores[i][N_G]);
-
-          for (int x = 0; x < 5; ++x) {
-              float s = 0.0;
-              for (int y = 0; y < 5; ++y) {
-                  matchScores[i][x][y] = log2(backgroundScores[i][x] *
-  backgroundScores[i][y] + 0.0001) * matchProbabilities[x][y]; s +=
-  matchScores[i][x][y];
-              }
-
-              for (int y = 0; y < 5; ++y) {
-                  //    printf("%f=", matchScores[i][x][y] / s);
-                  matchScores[i][x][y] = log2(matchScores[i][x][y] / s);
-                  //     printf("%f  ", matchScores[i][x][y]);
-              }
-              //  printf("\n");
-          }
-
-          for (int x = 0; x < 5; ++x) {
-
-              backgroundScores[i][x] = log2(backgroundScores[i][x] + 0.0001);
-          }
-
-
-      }
-  }
-
-  else {
-
-      for (int i = 0; i < 256; ++i) {
-
-          float at = (float)i / 256.0;
-          float cg = 1.0 - at;
-
-          float a = at / 2.0;
-          float t = a;
-          float c = cg / 2.0;
-          float g = c;
-
-          backgroundScores[i][0] = 0.25;
-          backgroundScores[i][N_A] = a;
-          backgroundScores[i][N_T] = t;
-          backgroundScores[i][N_C] = c;
-          backgroundScores[i][N_G] = g;
-
-          //  printf("%f %f %f %f\n", backgroundScores[i][N_A],
-  backgroundScores[i][N_T], backgroundScores[i][N_C],
-  backgroundScores[i][N_G]);
-
-          for (int x = 0; x < 5; ++x) {
-              for (int y = 0; y < 5; ++y) {
-                  matchScores[i][x][y] = log2(matchProbabilities[x][y]);
-              }
-
-          }
-
-          for (int x = 0; x < 5; ++x) {
-
-              backgroundScores[i][x] = log2(backgroundScores[i][x] + 0.0001);
-          }
-
-
-      }
-  }
-  */
 }
-
-/*void UModel::CalculateEmissionScores (unsigned char symbolFreq) {
-
-    // Do linear mixing of background probabilities with window frequencies
-
-    int at = symbolFreq;
-
-    for (int i = 0; i < 5; ++i) {
-        for (int j = 0; j < 5; ++j) {
-            mscore[i][j] = matchScores[at][i][j];
-
-        }
-        bscore[i] = backgroundScores[at][i];
-    }
-
-}*/
-
-/*** UMODEL SCORE CALCULATION ***/
 
 // This does not check if index - d > 0
 float UModel::PreviousEmissionScore(SequenceWindow *seq, int index, int order,
@@ -202,33 +99,10 @@ float UModel::PreviousEmissionScore(SequenceWindow *seq, int index, int order,
 
   int p = index - d;
   float b = bscore[seq->seq[p]];
-  // symbol s = seq->seq[p];
-  // printf("%i, %i %i %i, %f\n", p, order, p-order, (int)seq->seq[p],
-  // mscore[p-order][seq->seq[p]]);
 
   float v = mscore[seq->seq[p - order]][seq->seq[p]];
 
   return v - b;
-  // return emissionScore(seq, index, order)
-
-  // Calculate emission scores for index - d
-  /*int p = index - d;
-
-  int at = seq->symbolFreqs[p];
-
-  float mp[5][5];
-  float b = backgroundScores[at][seq->seq[p]];
-
-  for (int i = 0; i < 5; ++i) {
-      for (int j = 0; j < 5; ++j) {
-          mp[i][j] = matchScores[at][i][j];
-
-      }
-  }
-
-  float v = mp[seq->seq[p - order]][seq->seq[p]];
-
-  return v - b;*/
 }
 
 float UModel::EmissionScore(SequenceWindow *seq, int index, int order) {
@@ -353,17 +227,9 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
         float score = p[row] + tscore[CT_INSERTION][CT_MATCH] +
                       EmissionScore(sequence, nucIndex, order);
         if (score > c[parentIndex]) {
-          // printf("%i %i %f %f\n", order, indelNum, score,
-          // c[parentIndex]);
           c[parentIndex] = score;
           ct[desc[row].order] = row;
 
-          //  printf("in[%i for %i:%i,%i,%i,%i] :%f vs %f to p %f (%f,
-          //  %f= (%f with %f)\n", row, nucIndex, minIndex,
-          //  parentIndex, order, indelNum, p[row], score,
-          //  c[parentIndex], d, f, matrix->PreviousScore(parentIndex,
-          //  peridocity), matrix->PreviousScore(parentIndex,
-          //  peridocity + 1));
         }
 
         // Calculate new score based off of previous score

@@ -151,13 +151,53 @@ double Ultra::PvalForScore(float score) const {
   return exp(-1.0 * (score - loc) / scale) * freq;
 }
 
-std::vector<RepeatRegion *>* GetRepeatsForSequence(const std::string &s) {
+std::vector<RepeatRegion *>* Ultra::GetRepeatsForSequence(const std::string &seq) {
+  // Make sure that the seq window can fit in the DP matrix
+  uthread *uth = this->threads[0];
+  if (seq.length() > uth->model->matrix->length) {
+    fprintf(stderr, "ULTRA model has maximum size %llu but string has length %zu\n",
+            uth->model->matrix->length,
+            seq.length());
+
+    return nullptr;
+  }
+
+  // Make sure that uth isn't holding any repeats right now
+  if (uth->repeats.size() > 0) {
+    fprintf(stderr, "ULTRA repeat array is not empty.\n");
+    return nullptr;
+  }
+
   // Create sequence window from the string
+  SequenceWindow *seq_window = new SequenceWindow(seq.length(), 0);
+  seq_window->length = seq.length();
+  seq_window->start = 0;
+  seq_window->end = seq.length();
+
+  // Fill sequence window
+  for (int i = 0; i < seq.length(); ++i) {
+    seq_window->seq[i] = SymbolForChar(seq[i]);
+  }
+
   // Store and change primary thread
+  int pthread = this->primaryThread;
+  this->primaryThread = -10;
+
   // Run AnalyzeSequenceWindow
-  // Change back primary thread to stored value
-  // Steal the repeat array from the uth thread and give the uth thread a new one
-  // Return the repeat array
+  this->AnalyzeSequenceWindow(seq_window, uth);
+
+  // Gather repeats
+  std::vector<RepeatRegion *> *repeats = new std::vector<RepeatRegion *>();
+  for (int i = 0; i < uth->repeats.size(); ++i) {
+    repeats->push_back(uth->repeats[i]);
+  }
+
+  // Clean up after ourselves
+  uth->repeats.clear();
+  this->primaryThread = pthread;
+  delete seq_window;
+
+  return repeats;
 }
 
 void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
