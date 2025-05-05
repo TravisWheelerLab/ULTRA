@@ -13,12 +13,12 @@
 #include <vector>
 
 #include "BEDFileWriter.hpp"
-#include "TabFileWriter.hpp"
 #include "FASTAReader.hpp"
 #include "FileReader.hpp"
 #include "JSONFileWriter.hpp"
 #include "RepeatFileWriter.hpp"
 #include "RepeatSplitter.hpp"
+#include "TabFileWriter.hpp"
 #include "cli.hpp"
 #include "mask.hpp"
 #include "repeat.hpp"
@@ -74,7 +74,6 @@ public:
 
   bool storeTraceAndSequence = false;
 
-
   std::unordered_map<unsigned long long, std::vector<mregion> *>
       masks_for_seq{};
   std::vector<RepeatRegion *> outRepeats{};
@@ -93,7 +92,7 @@ public:
   void OutputRepeats(bool flush = false);
   void OutputRepeat(RepeatRegion *r, bool isSubRep = false);
 
-  std::vector<RepeatRegion *>* FindRepeatsInString(const std::string &s);
+  std::vector<RepeatRegion *> *FindRepeatsInString(const std::string &s);
 
   void OutputULTRASettings();
   void InitializeWriter();

@@ -36,9 +36,7 @@ void TabFileWriter::InitializeWriter(Ultra *ultra, FILE *out_f) {
     fprintf(out, "\tSequence");
   }
 
-
   fprintf(out, "\n");
-
 }
 
 void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
@@ -48,9 +46,9 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
   for (int i = 0; i < name.size(); ++i) {
     if ((name[i] >= 'a' && name[i] <= 'z') ||
         (name[i] >= 'A' && name[i] <= 'Z') ||
-        (name[i] >= '0' && name[i] <= '9') ||
-        name[i] == '-' || name[i] == '_' || name[i] == '.' ||
-        name[i] == ':' || name[i] == '*' || name[i] == '#') {
+        (name[i] >= '0' && name[i] <= '9') || name[i] == '-' ||
+        name[i] == '_' || name[i] == '.' || name[i] == ':' || name[i] == '*' ||
+        name[i] == '#') {
       continue;
     }
 
@@ -59,14 +57,15 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
       break;
     }
 
-   /* else {
-      name[i] = '_';
-    }*/
+    /* else {
+       name[i] = '_';
+     }*/
   }
 
   // Columns 1 (name) 2 (start) 3 (end) 4 (score)
   fprintf(out, "%s\t%lu\t%lu\t%i\t%f", name.c_str(), repeat->sequenceStart,
-          repeat->sequenceStart + repeat->repeatLength, repeat->repeatPeriod, repeat->regionScore);
+          repeat->sequenceStart + repeat->repeatLength, repeat->repeatPeriod,
+          repeat->regionScore);
   if (owner->settings->pval) {
     fprintf(out, ",%g", owner->PvalForScore(repeat->regionScore));
   }
@@ -82,9 +81,12 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
   }
 
   if (owner->settings->show_counts) {
-    auto copies = (repeat->repeatLength - repeat->insertions + repeat->deletions) / repeat->repeatPeriod;
+    auto copies =
+        (repeat->repeatLength - repeat->insertions + repeat->deletions) /
+        repeat->repeatPeriod;
 
-    fprintf(out, "\t%lu\t%d\t%d\t%d", copies, repeat->mismatches, repeat->insertions, repeat->deletions);
+    fprintf(out, "\t%lu\t%d\t%d\t%d", copies, repeat->mismatches,
+            repeat->insertions, repeat->deletions);
   }
 
   if (owner->settings->max_split >= 0) {
@@ -116,7 +118,8 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
           std::string con = ".";
           if (owner->settings->max_consensus_period >= repeat->repeatPeriod) {
             if (repeat->consensi != nullptr && repeat->consensi->size() > i) {
-              if (i > 0 && repeat->consensi->at(i) == repeat->consensi->at(i - 1))
+              if (i > 0 &&
+                  repeat->consensi->at(i) == repeat->consensi->at(i - 1))
                 continue;
               con = repeat->consensi->at(i);
             }
@@ -131,8 +134,7 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
         sizes.push_back(',');
       sizes += std::to_string(repeat->repeatLength - cstart);
 
-      fprintf(out, "\t%i\t%s", numberOfValidSplits + 1,
-              starts.c_str());
+      fprintf(out, "\t%i\t%s", numberOfValidSplits + 1, starts.c_str());
       if (owner->settings->max_consensus_period >= 0) {
         fprintf(out, "\t%s", consensi.c_str());
       }
@@ -150,7 +152,6 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
   if (owner->settings->show_seq) {
     fprintf(out, "\t%s", repeat->sequence.c_str());
   }
-
 
   fprintf(out, "\n");
 }

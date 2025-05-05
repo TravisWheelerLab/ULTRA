@@ -692,7 +692,6 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos) {
 
     int length = region->repeatPeriod;
 
-
     // We use a <= here because we calculate one additional column
     for (; i <= seqLength; ++i) {
       if (matrix->traceback[i] != 0) {

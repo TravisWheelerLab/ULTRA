@@ -79,8 +79,7 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
   ++this->repeatsOutput;
 
-  fprintf(out, "{\"SequenceName\": \"%s\"",
-          repeat->sequenceName.c_str());
+  fprintf(out, "{\"SequenceName\": \"%s\"", repeat->sequenceName.c_str());
 
   this->OutputJSONKeyValue("Start", std::to_string(repeat->sequenceStart));
   this->OutputJSONKeyValue("Length", std::to_string(repeat->repeatLength));
@@ -91,9 +90,10 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
     this->OutputJSONKeyValue("PVal", std::to_string(pval));
   }
 
-
   if (owner->settings->show_counts) {
-    auto copies = (repeat->repeatLength - repeat->insertions + repeat->deletions) / repeat->repeatPeriod;
+    auto copies =
+        (repeat->repeatLength - repeat->insertions + repeat->deletions) /
+        repeat->repeatPeriod;
     this->OutputJSONKeyValue("Copies", std::to_string(copies));
     this->OutputJSONKeyValue("Substitutions",
                              std::to_string(repeat->mismatches));

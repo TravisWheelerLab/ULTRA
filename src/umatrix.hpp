@@ -45,9 +45,9 @@ typedef struct {
 class UMatrix {
 public:
   // Class variables
-  unsigned long long maxPeriod;      // Max period is included
-  unsigned long long maxInsertions;  // Max insertion is included
-  unsigned long long maxDeletions;   // Max deletion is included
+  unsigned long long maxPeriod;     // Max period is included
+  unsigned long long maxInsertions; // Max insertion is included
+  unsigned long long maxDeletions;  // Max deletion is included
 
   unsigned long long length;         // Number of columns in matrix
   unsigned long long cellsPerColumn; // Number of rows in matrix

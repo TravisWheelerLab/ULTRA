@@ -21,7 +21,6 @@ bool UMatrix::MoveMatrixForward() {
   previousColumnIndex = currentColumnIndex;
   ++currentColumnIndex;
 
-
   // Check to see if we need to wrap around
   /*if (currentColumnIndex >= length) {
       currentColumnIndex = 0;
@@ -34,7 +33,6 @@ bool UMatrix::MoveMatrixForward() {
 
   currentTracebackColumn = tracebackColumns[currentColumnIndex];
   previousTracebackColumn = tracebackColumns[previousColumnIndex];
-
 
   return wrap;
 }
@@ -418,7 +416,7 @@ void UMatrix::CreateMatrix() {
     scoreColumns[i] = &(scoreMatrix[(i * (cellsPerColumn))]);
     tracebackColumns[i] = &(tracebackMatrix[(i * (maxPeriod + 1))]);
   }
-  
+
   previousScoreColumn = scoreColumns[0];
   currentScoreColumn = scoreColumns[1];
 

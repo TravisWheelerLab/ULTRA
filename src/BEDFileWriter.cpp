@@ -7,7 +7,10 @@
 #include "ultra.hpp"
 #include <algorithm>
 #include <iostream>
-void BEDFileWriter::InitializeWriter(Ultra *ultra, FILE *out_file) { owner = ultra; out=out_file; }
+void BEDFileWriter::InitializeWriter(Ultra *ultra, FILE *out_file) {
+  owner = ultra;
+  out = out_file;
+}
 
 void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
@@ -35,7 +38,8 @@ void BEDFileWriter::WriteRepeat(RepeatRegion *repeat) {
   // We need to decide what to do with the overall sequence
 
   std::string rep_con = std::to_string(repeat->repeatPeriod);
-  if (owner->settings->max_consensus_period >= repeat->repeatPeriod && !repeat->string_consensus.empty())
+  if (owner->settings->max_consensus_period >= repeat->repeatPeriod &&
+      !repeat->string_consensus.empty())
     rep_con = repeat->string_consensus;
 
   fprintf(out, "\t%s\n", rep_con.c_str());

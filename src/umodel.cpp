@@ -90,7 +90,6 @@ void UModel::CalculateScores() {
 
     bscore[i] = log2(backgroundProbabilties[i]);
   }
-
 }
 
 // This does not check if index - d > 0
@@ -229,7 +228,6 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
         if (score > c[parentIndex]) {
           c[parentIndex] = score;
           ct[desc[row].order] = row;
-
         }
 
         // Calculate new score based off of previous score
@@ -492,7 +490,6 @@ void UModel::CalculateCurrentColumnWithoutEmission(bool *canBeRepetitive) {
         if (score > c[parentIndex]) {
           c[parentIndex] = score;
           ct[desc[row].order] = row;
-
         }
 
         // Calculate new score based off of previous score
@@ -501,7 +498,6 @@ void UModel::CalculateCurrentColumnWithoutEmission(bool *canBeRepetitive) {
         // Update changes in match state score
         score -= matrix->PreviousScore(parentIndex, peridocity + 1);
         score += matrix->PreviousScore(parentIndex, peridocity);
-
 
         // Update insertion values
         // There is effectively no score for insertions
@@ -608,7 +604,6 @@ void UModel::CalculateCurrentColumnWithoutEmission(bool *canBeRepetitive) {
 }
 
 /*** UMODEL CLASS MANAGEMENT ***/
-
 
 UModel::UModel(int maxPeriod, int maxInsertions, int maxDeletions,
                int matrixLength) {

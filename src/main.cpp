@@ -1,11 +1,10 @@
 #include "cli.hpp"
 #include "mask.hpp"
 #include "ultra.hpp"
+#include <new> // for std::bad_alloc
 #include <string>
-#include <new>  // for std::bad_alloc
 
-
-int main_wrapper(int argc, const char * argv[]) {
+int main_wrapper(int argc, const char *argv[]) {
   // Prepare settings
   Settings *settings = new Settings();
   settings->prepare_settings();
@@ -34,7 +33,7 @@ int main_wrapper(int argc, const char * argv[]) {
         param_strings = large_tune_settings();
       else
         param_strings = small_tune_settings();
-    }else {
+    } else {
       param_strings = tune_settings_for_path(settings->tune_param_path);
     }
 
@@ -102,26 +101,27 @@ int main_wrapper(int argc, const char * argv[]) {
         }
       }
 
-      printf("(%zu/%zu): %.5f, %.5f, %s\n",(coverage.size()),
-             param_strings.size(),
-             real_coverage, fdr, arg_string.c_str());
+      printf("(%zu/%zu): %.5f, %.5f, %s\n", (coverage.size()),
+             param_strings.size(), real_coverage, fdr, arg_string.c_str());
     }
 
     printf("-----------\n");
     if (best_coverage_index >= 0) {
-      double real_coverage = (double)coverage[best_coverage_index] / (double)seq_length;
-      double false_coverage = (double)shuffled_coverage[best_coverage_index] / (double)seq_length;
+      double real_coverage =
+          (double)coverage[best_coverage_index] / (double)seq_length;
+      double false_coverage =
+          (double)shuffled_coverage[best_coverage_index] / (double)seq_length;
       double fdr = false_coverage / real_coverage;
 
       printf("Best coverage within FDR limit: %.5f, %.5f, %s\n", real_coverage,
-             fdr,
-             param_strings[best_coverage_index].c_str());
+             fdr, param_strings[best_coverage_index].c_str());
 
       delete settings;
       settings = new Settings();
       settings->prepare_settings();
       settings->set_multi_option();
-      if (!settings->parse_multi_input(argc, argv, param_strings[best_coverage_index])) {
+      if (!settings->parse_multi_input(argc, argv,
+                                       param_strings[best_coverage_index])) {
         exit(0);
       }
       settings->assign_settings();
@@ -172,25 +172,23 @@ int main_wrapper(int argc, const char * argv[]) {
   return 0;
 }
 
-
 int main(int argc, const char *argv[]) {
   char *reserve_memory = (char *)malloc(65536);
   try {
     int r = main_wrapper(argc, argv);
     return r;
-  }
-  catch (const std::bad_alloc& e) {
+  } catch (const std::bad_alloc &e) {
     // This block is executed if memory allocation fails
     free(reserve_memory); // May be necessary in order to print
     std::cerr << "Memory allocation failed: " << e.what() << std::endl;
-    std::cerr << "Your model may be too large to fit in memory"  << std::endl;
-    std::cerr << "Try running: ultra --mem <your arguments> to see expected memory usage" << std::endl;
-  }
-  catch (const std::exception& e) {
+    std::cerr << "Your model may be too large to fit in memory" << std::endl;
+    std::cerr << "Try running: ultra --mem <your arguments> to see expected "
+                 "memory usage"
+              << std::endl;
+  } catch (const std::exception &e) {
     // This block is executed for any other standard exceptions
     std::cerr << "Standard exception caught: " << e.what() << std::endl;
-  }
-  catch (...) {
+  } catch (...) {
     // This block catches any other non-standard exceptions
     std::cerr << "Unknown exception caught!" << std::endl;
   }
