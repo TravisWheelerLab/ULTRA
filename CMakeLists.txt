@@ -102,7 +102,7 @@ install(TARGETS ultra RUNTIME DESTINATION bin)
 # Optional examples target
 add_custom_target(
         examples
-        COMMAND examples/run-all.sh
+        COMMAND /usr/bin/env sh examples/run-all.sh
         VERBATIM
 )
 add_dependencies(examples ultra)
