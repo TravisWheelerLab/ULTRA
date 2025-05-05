@@ -13,7 +13,7 @@
   " **WARNING** BUILT WITHOUT RELEASE OPTIMIZATION **WARNING** \n"
 #endif
 
-#include "../lib/CLI11.hpp"
+#include "CLI11.hpp"
 #include <string>
 #include <vector>
 
