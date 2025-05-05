@@ -36,7 +36,6 @@ FileReader::~FileReader() {
     delete fastaReader;
     fastaReader = nullptr;
   }
-
 }
 
 SequenceWindow *FileReader::GetReadyWindow() {

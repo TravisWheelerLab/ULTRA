@@ -16,3 +16,4 @@ run_one() {
 
 run_one examples/example_1.fa
 run_one examples/example_2.fa
+run_one examples/example_3.fa

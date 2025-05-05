@@ -17,7 +17,6 @@ public:
   unsigned long maxSeqLength;
   unsigned long maxOverlapLength;
 
-
   bool multithread = true;
   file_type format = UNKNOWN;
 

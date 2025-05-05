@@ -82,7 +82,6 @@ SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq, uthread *uth) {
   if (shouldRead) {
     reader->FillWindows();
     reader->SetIsReading(false);
-
   }
 
   retval = reader->GetReadyWindow();
@@ -95,12 +94,12 @@ SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq, uthread *uth) {
 
 // NOTE:
 // THIS IS NOT THREAD SAFE
-// WE ASSUME THATS OK (FOR NOW)
+// WE ASSUME THAT'S OK (FOR NOW)
 int Ultra::SmallestReadID() {
   int smallest = 100000000;
 
   for (int i = 0; i < threads.size(); ++i) {
-    //printf("%i: %i\n", i, threads[i]->smallestReadID);
+    // printf("%i: %i\n", i, threads[i]->smallestReadID);
     if (threads[i]->smallestReadID < smallest) {
       smallest = threads[i]->smallestReadID;
     }
@@ -151,8 +150,57 @@ double Ultra::PvalForScore(float score) const {
   return exp(-1.0 * (score - loc) / scale) * freq;
 }
 
-void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
+std::vector<RepeatRegion *> *
+Ultra::FindRepeatsInString(const std::string &seq) {
+  // Make sure that the seq window can fit in the DP matrix
+  uthread *uth = this->threads[0];
+  if (seq.length() > uth->model->matrix->length) {
+    fprintf(stderr,
+            "ULTRA model has maximum size %llu but string has length %zu\n",
+            uth->model->matrix->length, seq.length());
 
+    return nullptr;
+  }
+
+  // Make sure that uth isn't holding any repeats right now
+  if (uth->repeats.size() > 0) {
+    fprintf(stderr, "ULTRA repeat array is not empty.\n");
+    return nullptr;
+  }
+
+  // Create sequence window from the string
+  SequenceWindow *seq_window = new SequenceWindow(seq.length(), 0);
+  seq_window->length = seq.length();
+  seq_window->start = 0;
+  seq_window->end = seq.length();
+
+  // Fill sequence window
+  for (int i = 0; i < seq.length(); ++i) {
+    seq_window->seq[i] = SymbolForChar(seq[i]);
+  }
+
+  // Store and change primary thread
+  int pthread = this->primaryThread;
+  this->primaryThread = -10;
+
+  // Run AnalyzeSequenceWindow
+  this->AnalyzeSequenceWindow(seq_window, uth);
+
+  // Gather repeats
+  std::vector<RepeatRegion *> *repeats = new std::vector<RepeatRegion *>();
+  for (int i = 0; i < uth->repeats.size(); ++i) {
+    repeats->push_back(uth->repeats[i]);
+  }
+
+  // Clean up after ourselves
+  uth->repeats.clear();
+  this->primaryThread = pthread;
+  delete seq_window;
+
+  return repeats;
+}
+
+void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
 
   int sleng = (int)sequence->length + (int)sequence->overlap;
 
@@ -166,6 +214,7 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   for (int i = 0; i < sleng; ++i) {
     model->CalculateCurrentColumn(sequence, i);
   }
+  model->CalculateCurrentColumnWithoutEmission();
 
   // WE'RE RIGHT HERE
   // GOING TO TRY TO PUSH ALL THE CODE IN !!!
@@ -214,7 +263,8 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
     uth->repeats.clear();
     uth->smallestReadID = uth->activeReadID;
 
-    if (outRepeats.size() > repeatBuffer && !this->settings->disable_streaming_out) {
+    if (outRepeats.size() > repeatBuffer &&
+        !this->settings->disable_streaming_out) {
       OutputRepeats();
     }
 
@@ -241,8 +291,6 @@ void Ultra::OutputRepeats(bool flush) {
     }
     maxReadID = 100000000;
   }
-
-
 
   SortRepeatRegions();
 
@@ -346,9 +394,7 @@ void Ultra::SortRepeatRegions() {
   std::sort(outRepeats.begin(), outRepeats.end(), CompareRepeatOrder());
 }
 
-unsigned long long Ultra::Coverage() {
-    return total_coverage;
-}
+unsigned long long Ultra::Coverage() { return total_coverage; }
 
 Ultra::Ultra(Settings *s) {
   settings = s;
@@ -358,15 +404,19 @@ Ultra::Ultra(Settings *s) {
   if (!settings->out_file.empty()) {
 
     int c = 0;
-    if (settings->ultra_out) c++;
-    if (settings->json_out) c++;
-    if (settings->bed_out) c++;
+    if (settings->ultra_out)
+      c++;
+    if (settings->json_out)
+      c++;
+    if (settings->bed_out)
+      c++;
     if (c > 1) {
       if (settings->ultra_out) {
         std::string ultra_path = settings->out_file + ".tsv";
         FILE *out = fopen(ultra_path.c_str(), "w");
         if (out == NULL) {
-          fprintf(stderr, "Unable to open output file %s\n", ultra_path.c_str());
+          fprintf(stderr, "Unable to open output file %s\n",
+                  ultra_path.c_str());
           exit(-1);
         }
         outs.push_back(out);
@@ -399,7 +449,8 @@ Ultra::Ultra(Settings *s) {
     else {
       FILE *out = fopen(settings->out_file.c_str(), "w");
       if (out == NULL) {
-        fprintf(stderr, "Unable to open output file %s\n", settings->out_file.c_str());
+        fprintf(stderr, "Unable to open output file %s\n",
+                settings->out_file.c_str());
         exit(-1);
       }
       outs.push_back(out);
@@ -409,19 +460,19 @@ Ultra::Ultra(Settings *s) {
         writers.push_back(new JSONFileWriter());
       else if (settings->bed_out)
         writers.push_back(new BEDFileWriter());
-
     }
 
     std::string settings_file_path = settings->out_file + ".settings";
     if (!settings->hide_settings) {
       settings_out = fopen(settings_file_path.c_str(), "w");
       if (settings_out == NULL) {
-        fprintf(stderr, "Unable to open settings output file %s\n", settings_file_path.c_str());
+        fprintf(stderr, "Unable to open settings output file %s\n",
+                settings_file_path.c_str());
         exit(-1);
       }
     }
 
-  }else {
+  } else {
     if (settings->ultra_out)
       writers.push_back(new TabFileWriter());
     else if (settings->json_out)
@@ -431,19 +482,18 @@ Ultra::Ultra(Settings *s) {
     outs.push_back(stdout);
   }
 
-
-
   numberOfThreads = settings->threads;
   scoreThreshold = settings->min_score;
   outputReadID = settings->show_wid;
   outputRepeatSequence = settings->show_seq;
 
   passID = 0;
-
-  reader = new FileReader(settings->in_file, settings->windows,
-                          settings->window_size, settings->overlap,
-                          settings->threads > 1);
-  reader->fastaReader->shuffle = shuffleSequence;
+  if (!settings->run_without_reader) {
+    reader = new FileReader(settings->in_file, settings->windows,
+                            settings->window_size, settings->overlap,
+                            settings->threads > 1);
+    reader->fastaReader->shuffle = shuffleSequence;
+  }
 
   int leng = settings->window_size + (settings->overlap + 2);
   storeTraceAndSequence = true;
@@ -460,7 +510,7 @@ Ultra::Ultra(Settings *s) {
     // We now are making the v_maxPeriod setting more intuitive, by adding 1 to
     // it. This makes a v_maxPeriod of 10 able to detect repeats of length 10.
     UModel *mod = new UModel(settings->max_period + 1, settings->max_insert,
-                             settings->max_delete, leng);
+                             settings->max_delete, leng + 1);
 
     mod->periodDecay = settings->period_decay;
 
@@ -499,18 +549,23 @@ Ultra::Ultra(Settings *s) {
   }
 
   if (numberOfThreads == 1) {
-    reader->multithread = false;
+    if (!settings->run_without_reader) {
+      reader->multithread = false;
+    }
     multithreading = false;
   }
 
   else {
-    reader->multithread = true;
+    if (!settings->run_without_reader) {
+      reader->multithread = true;
+    }
     multithreading = true;
   }
 }
 
 Ultra::~Ultra() {
   settings = nullptr;
+
   delete reader;
   reader = nullptr;
 
@@ -526,18 +581,18 @@ Ultra::~Ultra() {
   }
   outs.clear();
 
-  for (auto& pair : masks_for_seq) {
-    delete pair.second;  // pair.second is a std::vector<mregion> *
+  for (auto &pair : masks_for_seq) {
+    delete pair.second; // pair.second is a std::vector<mregion> *
   }
   masks_for_seq.clear();
 
   for (auto val : outRepeats) {
-    delete val;  // pair.second is a std::vector<mregion> *
+    delete val; // pair.second is a std::vector<mregion> *
   }
   outRepeats.clear();
 
   for (auto val : models) {
-    delete val;  // pair.second is a std::vector<mregion> *
+    delete val; // pair.second is a std::vector<mregion> *
   }
   models.clear();
 
@@ -547,7 +602,7 @@ Ultra::~Ultra() {
     }
     val->splitter->DeallocSplitWindow();
     delete val->splitter;
-    delete val;  // pair.second is a std::vector<mregion> *
+    delete val; // pair.second is a std::vector<mregion> *
   }
   threads.clear();
 }
@@ -559,4 +614,3 @@ bool CompareRepeatOrder::operator()(RepeatRegion *lhs, RepeatRegion *rhs) {
 
   return lhs->sequenceStart > rhs->sequenceStart;
 }
-

@@ -423,7 +423,6 @@ void ValidateSplits(std::vector<std::string> *consensi,
                             join_threshold)) {
       consensi->at(i) = consensi->at(i - 1);
       splits->at(i - 1) = -1;
-
     }
   }
 }

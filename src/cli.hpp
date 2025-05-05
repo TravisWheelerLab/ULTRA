@@ -5,16 +5,15 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.0.4"
+#define ULTRA_VERSION_STRING "1.1.0"
 #define DEBUG_STRING ""
 #ifdef DEBUG_PRAGMA
 #undef DEBUG_STRING
-#define DEBUG_STRING " **WARNING** BUILT WITHOUT RELEASE OPTIMIZATION **WARNING** \n"
+#define DEBUG_STRING                                                           \
+  " **WARNING** BUILT WITHOUT RELEASE OPTIMIZATION **WARNING** \n"
 #endif
 
-
-
-#include "../lib/CLI11.hpp"
+#include "CLI11.hpp"
 #include <string>
 #include <vector>
 
@@ -41,7 +40,6 @@ struct Settings {
   bool ultra_out = false;
   bool bed_out = false;
   bool json_out = false;
-
 
   bool show_counts = false;
   bool show_seq = false;
@@ -70,7 +68,6 @@ struct Settings {
   unsigned long long min_units = 2;
 
   // Tuning parameters
-
   double tune_fdr = 0.05;
   bool tune = false;
   bool tune_medium = false;
@@ -112,13 +109,14 @@ struct Settings {
   unsigned long long max_namable_period = 50;
   unsigned long long max_highfi_naming = 20;
 
+  bool run_without_reader = false;
+
   CLI::App app{"\n"
                "=================================================\n"
                "(U)ltra (L)ocates (T)andemly (R)epetitive (A)reas\n"
                "     Daniel R. Olson and Travis J. Wheeler\n"
-               "                 Version " ULTRA_VERSION_STRING "\n"
-               DEBUG_STRING
-               "     Use '--cite' for citation instructions\n"
+               "                 Version " ULTRA_VERSION_STRING
+               "\n" DEBUG_STRING "     Use '--cite' for citation instructions\n"
                "=================================================\n"};
 
   void prepare_settings();
@@ -131,13 +129,13 @@ struct Settings {
   std::string json_string();
 };
 
-
 std::vector<std::string> small_tune_settings();
 std::vector<std::string> medium_tune_settings();
 std::vector<std::string> large_tune_settings();
 std::vector<std::string> tune_settings_for_path(std::string path);
 
-void string_to_args(const std::string& str, int& argc, char**& argv);
-std::pair<int, char**> combine_args(int argc1, const char** argv1, int argc2, char** argv2);
+void string_to_args(const std::string &str, int &argc, char **&argv);
+std::pair<int, char **> combine_args(int argc1, const char **argv1, int argc2,
+                                     char **argv2);
 
 #endif // ULTRA_CLI_HPP

@@ -32,7 +32,8 @@ void SequenceWindow::PrepareWindow(std::string seqName, unsigned long sid,
   }
 }
 
-long long SequenceWindow::ReadLine(std::string line, long long place, unsigned long long &total_seq_length) {
+long long SequenceWindow::ReadLine(std::string line, long long place,
+                                   unsigned long long &total_seq_length) {
   // printf ("(mem: %llx overlap:%llx newseq: %llx, length: %llu, place %llu)
   // Reading line: %s\n", (unsigned long)seqMem, (unsigned long)overlapSeq,
   // (unsigned long)newSeq, length, place,  line.c_str());
@@ -156,7 +157,7 @@ bool CompareSequenceWindows::operator()(SequenceWindow *lhs,
 }
 
 void ShuffleSequenceWindow(SequenceWindow *window) {
-  std::random_device rd;  // a seed source for the random number engine
+  std::random_device rd; // a seed source for the random number engine
   std::mt19937 gen(rd());
   std::uniform_int_distribution<unsigned long long> dist;
   for (unsigned long long i = 0; i < window->length; ++i) {

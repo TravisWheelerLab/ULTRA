@@ -35,11 +35,11 @@ void Settings::prepare_settings() {
   app.add_option("-o,--out", this->out_file, "Output file path")
       ->group("Output");
   app.add_flag("--disable_streaming_out", this->disable_streaming_out,
-               "Disables streaming output; no output will be created until all analysis has been completed")
+               "Disables streaming output; no output will be created until all "
+               "analysis has been completed")
       ->group("Output");
 
-  app.add_flag("-c, --show_counts",
-               this->show_counts,
+  app.add_flag("-c, --show_counts", this->show_counts,
                "Output #copies, #substitutions, #insertions, #deletions")
       ->group("Output");
 
@@ -47,24 +47,22 @@ void Settings::prepare_settings() {
                "Use p-values instead of scores in BED output")
       ->group("Output");
 
-  app.add_flag("--pval_loc", this->p_value_loc,
-               "The exponential location used for converting scores to p-values.")
+  app.add_flag(
+         "--pval_loc", this->p_value_loc,
+         "The exponential location used for converting scores to p-values.")
       ->group("Output");
 
   app.add_flag("--pval_scale", this->p_value_scale,
                "The exponential scale used for converting scores to p-values")
       ->group("Output");
 
-  app.add_flag("--tsv", this->ultra_out,
-               "Use TSV output format")
+  app.add_flag("--tsv", this->ultra_out, "Use TSV output format")
       ->group("Output");
 
-  app.add_flag("--json", this->json_out,
-               "Use JSON output format")
+  app.add_flag("--json", this->json_out, "Use JSON output format")
       ->group("Output");
 
-  app.add_flag("--bed", this->bed_out,
-               "Use BED output format")
+  app.add_flag("--bed", this->bed_out, "Use BED output format")
       ->group("Output");
 
   app.add_option("--max_consensus", this->max_consensus_period,
@@ -72,8 +70,7 @@ void Settings::prepare_settings() {
       ->default_val(this->max_consensus_period)
       ->group("Output");
 
-  app.add_flag("--show_seq", this->show_seq,
-               "Output repetitive region")
+  app.add_flag("--show_seq", this->show_seq, "Output repetitive region")
       ->group("Output");
 
   app.add_flag("--show_delta", this->show_deltas,
@@ -107,16 +104,16 @@ void Settings::prepare_settings() {
   app.add_flag("--hs, --hide_settings", this->hide_settings,
                "Do not output settings")
       ->group("Output");
-  app.add_flag("--hidesettings", this->hide_settings,
-               "Do not output settings")
+  app.add_flag("--hidesettings", this->hide_settings, "Do not output settings")
       ->group("");
 
   app.add_flag("--suppress", this->suppress_out,
                "Do not output BED or JSON annotation")
       ->group("Output");
 
-  app.add_flag("--fdr", this->estimate_fdr,
-               "Estimate the False Discovery rate (runtime will be twice as long)")
+  app.add_flag(
+         "--fdr", this->estimate_fdr,
+         "Estimate the False Discovery rate (runtime will be twice as long)")
       ->group("Output");
 
   // *************
@@ -139,8 +136,7 @@ void Settings::prepare_settings() {
   app.add_option("--win_size", this->window_size,
                  "Manually set sequence window size")
       ->group("System");
-  app.add_option("--winsize", this->window_size)
-      ->group("");
+  app.add_option("--winsize", this->window_size)->group("");
 
   app.add_option("--overlap", this->overlap,
                  "Manually set sequence window overlap size")
@@ -185,9 +181,9 @@ void Settings::prepare_settings() {
   // Tune options
   // *************
 
-
   app.add_flag("--tune", this->tune,
-               "Tune parameters using a small search grid before running (see README)")
+               "Tune parameters using a small search grid before running (see "
+               "README)")
       ->group("Parameter Tuning");
 
   app.add_flag("--tune_medium", this->tune_medium,
@@ -195,7 +191,8 @@ void Settings::prepare_settings() {
       ->group("Parameter Tuning");
 
   app.add_flag("--tune_large", this->tune_large,
-               "Tune parameters using a larger search grid before running (see README)")
+               "Tune parameters using a larger search grid before running (see "
+               "README)")
       ->group("Parameter Tuning");
 
   app.add_option("--tune_file", this->tune_param_path,
@@ -203,11 +200,9 @@ void Settings::prepare_settings() {
       ->default_val("")
       ->group("Parameter Tuning");
 
-  app.add_flag("--tune_indel", this->tune_indels,
-               "Enable indels while tuning")
+  app.add_flag("--tune_indel", this->tune_indels, "Enable indels while tuning")
       ->group("Parameter Tuning");
-  app.add_flag("--tune_indels", this->tune_indels,
-               "Enable indels while tuning")
+  app.add_flag("--tune_indels", this->tune_indels, "Enable indels while tuning")
       ->group("");
 
   app.add_option("--tune_fdr", this->tune_fdr,
@@ -305,7 +300,8 @@ void Settings::prepare_settings() {
       ->default_val(this->max_split)
       ->group("");
 
-  app.add_option("--split_threshold", this->split_threshold, "Split threshold value")
+  app.add_option("--split_threshold", this->split_threshold,
+                 "Split threshold value")
       ->default_val(this->split_threshold)
       ->group("Splitting and Naming");
   app.add_option("--splitval", this->split_threshold, "Split threshold value")
@@ -351,8 +347,9 @@ bool Settings::parse_input(int argc, const char **argv) {
     if (strlen(argv[i]) >= 3) {
       if (argv[i][0] == '-') {
         if (isalpha(argv[i][1])) {
-          fprintf(stderr, "Argument '%s' is not allowed (long arguments begin with --, "
-                          "filenames may not begin with -)\n",
+          fprintf(stderr,
+                  "Argument '%s' is not allowed (long arguments begin with --, "
+                  "filenames may not begin with -)\n",
                   argv[i]);
           return false;
         }
@@ -374,7 +371,8 @@ bool Settings::parse_input(int argc, const char **argv) {
     printf("BibTeX: \n"
            "@article{10.1093/bioadv/vbae149,\n"
            "    author = {Olson, Daniel R and Wheeler, Travis J},\n"
-           "    title = {ULTRA-effective labeling of tandem repeats in genomic sequence},\n"
+           "    title = {ULTRA-effective labeling of tandem repeats in genomic "
+           "sequence},\n"
            "    journal = {Bioinformatics Advances},\n"
            "    volume = {4},\n"
            "    number = {1},\n"
@@ -384,13 +382,16 @@ bool Settings::parse_input(int argc, const char **argv) {
            "    issn = {2635-0041},\n"
            "    doi = {10.1093/bioadv/vbae149},\n"
            "    url = {https://doi.org/10.1093/bioadv/vbae149},\n"
-           "    eprint = {https://academic.oup.com/bioinformaticsadvances/article-pdf/4/1/vbae149/60779841/vbae149.pdf},\n"
+           "    eprint = "
+           "{https://academic.oup.com/bioinformaticsadvances/article-pdf/4/1/"
+           "vbae149/60779841/vbae149.pdf},\n"
            "}\n");
     exit(0);
   }
 
   bool passed = true;
-  if (this->in_file.empty() && !this->show_memory) {
+  if (this->in_file.empty() && !this->show_memory &&
+      !this->run_without_reader) {
     fprintf(stderr, "Input file required.\n");
     passed = false;
   }
@@ -413,13 +414,16 @@ bool Settings::parse_input(int argc, const char **argv) {
     }
   }
 
-  if ((this->ultra_out || this->json_out || this->bed_out) && this->suppress_out) {
-    fprintf(stderr, "--suppress is incompatible with --tsv, --json, and --bed\n");
+  if ((this->ultra_out || this->json_out || this->bed_out) &&
+      this->suppress_out) {
+    fprintf(stderr,
+            "--suppress is incompatible with --tsv, --json, and --bed\n");
     passed = false;
   }
 
   if (this->mask_file.empty() && this->mask_with_n) {
-    fprintf(stderr, "--maskn requires an output file path provided to --mask\n");
+    fprintf(stderr,
+            "--maskn requires an output file path provided to --mask\n");
     passed = false;
   }
 
@@ -514,7 +518,8 @@ bool Settings::parse_input(int argc, const char **argv) {
     passed = false;
   }
 
-  if (this->tune_only || this->tune_medium || this->tune_large || this->tune_indels) {
+  if (this->tune_only || this->tune_medium || this->tune_large ||
+      this->tune_indels) {
     this->tune = true;
   }
 
@@ -523,19 +528,26 @@ bool Settings::parse_input(int argc, const char **argv) {
     passed = false;
   }
 
-  if (!this->tune_param_path.empty() && (this->tune_medium || this->tune_large)) {
-    fprintf(stderr, "Cannot use both --tune_file and (--tune_small or --tune_large).\n");
+  if (!this->tune_param_path.empty() &&
+      (this->tune_medium || this->tune_large)) {
+    fprintf(
+        stderr,
+        "Cannot use both --tune_file and (--tune_small or --tune_large).\n");
     passed = false;
   }
 
   int c = 0;
-  if (this->ultra_out) c++;
-  if (this->json_out) c++;
-  if (this->bed_out) c++;
+  if (this->ultra_out)
+    c++;
+  if (this->json_out)
+    c++;
+  if (this->bed_out)
+    c++;
 
   if (c > 1) {
     if (this->out_file.empty()) {
-      fprintf(stderr, "Output file path must be provided when using multiple output formats .\n");
+      fprintf(stderr, "Output file path must be provided when using multiple "
+                      "output formats .\n");
       passed = false;
     }
   }
@@ -547,7 +559,8 @@ bool Settings::parse_input(int argc, const char **argv) {
   return passed;
 }
 
-bool Settings::parse_multi_input(int argc, const char **argv, std::string arg_str) {
+bool Settings::parse_multi_input(int argc, const char **argv,
+                                 std::string arg_str) {
   // Create combined arguments
   int new_argc;
   char **new_argv;
@@ -556,7 +569,7 @@ bool Settings::parse_multi_input(int argc, const char **argv, std::string arg_st
   auto combined_argc = pair.first;
   auto combined_argv = pair.second;
   // Parse the combined arguments
-  bool result = parse_input(combined_argc, (const char**)combined_argv);
+  bool result = parse_input(combined_argc, (const char **)combined_argv);
 
   // Free the argument memory
   for (int i = 0; i < new_argc; ++i) {
@@ -652,10 +665,9 @@ void Settings::assign_settings() {
     }
 
     // Large models use less than 4 GB per thread
-    else  {
+    else {
       this->window_size = 25 * this->max_period;
     }
-
   }
 
   this->a_freq = this->at / 2.0;
@@ -808,8 +820,7 @@ std::string Settings::json_string() {
 }
 #undef JSONMACRO
 
-std::vector<std::string> small_tune_settings()
-{
+std::vector<std::string> small_tune_settings() {
 
   std::vector<std::string> settings;
 
@@ -833,8 +844,7 @@ std::vector<std::string> small_tune_settings()
   return settings;
 }
 
-std::vector<std::string> medium_tune_settings()
-{
+std::vector<std::string> medium_tune_settings() {
 
   std::vector<std::string> settings;
 
@@ -859,13 +869,13 @@ std::vector<std::string> medium_tune_settings()
   return settings;
 }
 
-std::vector<std::string> large_tune_settings()
-{
+std::vector<std::string> large_tune_settings() {
 
   std::vector<std::string> settings;
 
   std::vector<float> match_settings = std::vector<float>{0.6, 0.7, 0.8, 0.9};
-  std::vector<float> at_settings = std::vector<float>{0.3, 0.35, 0.4, 0.5, 0.6, 0.65, 0.7};
+  std::vector<float> at_settings =
+      std::vector<float>{0.3, 0.35, 0.4, 0.5, 0.6, 0.65, 0.7};
   std::vector<float> repeat_start = std::vector<float>{0.001, 0.005, 0.01};
   std::vector<float> repeat_stop = std::vector<float>{0.005, 0.01, 0.05};
 
@@ -908,8 +918,9 @@ std::vector<std::string> tune_settings_for_path(std::string path) {
       string_to_args(line, argc, argv);
       Settings *test_settings = new Settings();
       test_settings->prepare_settings();
-      if (!test_settings->parse_input(argc, (const char**)argv)) {
-        std::cerr << "Invalid arguments on line " << line_num << " in tune file. \"" << line << "\"" << std::endl;
+      if (!test_settings->parse_input(argc, (const char **)argv)) {
+        std::cerr << "Invalid arguments on line " << line_num
+                  << " in tune file. \"" << line << "\"" << std::endl;
         exit(0);
       }
 
@@ -921,16 +932,13 @@ std::vector<std::string> tune_settings_for_path(std::string path) {
 
       settings.push_back(line);
     }
-
   }
 
   file.close();
   return settings;
 }
 
-
-
-void string_to_args(const std::string& str, int& argc, char**& argv) {
+void string_to_args(const std::string &str, int &argc, char **&argv) {
   std::istringstream iss(str);
   std::vector<std::string> tokens;
   std::string token;
@@ -944,7 +952,7 @@ void string_to_args(const std::string& str, int& argc, char**& argv) {
   argc = tokens.size();
 
   // Allocate argv
-  argv = new char*[argc + 1];
+  argv = new char *[argc + 1];
 
   // Copy tokens to argv
   for (int i = 0; i < argc; ++i) {
@@ -956,9 +964,10 @@ void string_to_args(const std::string& str, int& argc, char**& argv) {
   argv[argc] = nullptr;
 }
 
-std::pair<int, char**> combine_args(int argc1, const char** argv1, int argc2, char** argv2) {
+std::pair<int, char **> combine_args(int argc1, const char **argv1, int argc2,
+                                     char **argv2) {
   int combinedArgc = argc1 + argc2;
-  char** combinedArgv = new char*[combinedArgc + 1];
+  char **combinedArgv = new char *[combinedArgc + 1];
 
   for (int i = 0; i < argc1; ++i) {
     combinedArgv[i] = new char[std::strlen(argv1[i]) + 1];

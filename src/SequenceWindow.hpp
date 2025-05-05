@@ -44,7 +44,8 @@ public:
 
   // ReadLine() returns how much of line was read
   // and will returns -1 if the line is a new sequence
-  long long ReadLine(std::string line, long long place, unsigned long long &total_seq_length);
+  long long ReadLine(std::string line, long long place,
+                     unsigned long long &total_seq_length);
   void CopyOverlap(symbol *b);
   void CalculateSymbolFrequencies();
 

@@ -66,6 +66,7 @@ public:
 
   void CalculateCurrentColumn(SequenceWindow *seq, int nucIndex,
                               bool *canBeRepetitive = NULL);
+  void CalculateCurrentColumnWithoutEmission(bool *canBeRepetitive = NULL);
 
   // Clas management
   UModel(int maxPeriod, int maxInsertions, int maxDeletions, int matrixLength);
