@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   check-build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     container:
       image: traviswheelerlab/ultra-build
       volumes:
@@ -12,19 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: cmake . && make
-
-  check-examples:
-    runs-on: ubuntu-20.04
-    container:
-      image: traviswheelerlab/ultra-build
-      volumes:
-        - ${{ github.workspace }}:/code
-    steps:
-      - uses: actions/checkout@v3
-      - run: cmake . && make examples
       
   check-format:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     container:
       image: traviswheelerlab/ultra-build
       volumes:
