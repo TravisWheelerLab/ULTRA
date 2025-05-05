@@ -12,7 +12,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: cmake . && make
-      
+
+  check-examples:
+    runs-on: ubuntu-latest
+    container:
+      image: traviswheelerlab/ultra-build
+      volumes:
+        - ${{ github.workspace }}:/code
+    steps:
+      - uses: actions/checkout@v3
+      - run: cmake . && make examples
+
   check-format:
     runs-on: ubuntu-latest
     container:
