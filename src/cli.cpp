@@ -111,6 +111,10 @@ void Settings::prepare_settings() {
                "Do not output BED or JSON annotation")
       ->group("Output");
 
+  app.add_flag("--disable_summary", this->disable_summary,
+               "Disable summary statistics")
+      ->group("Output");
+
   app.add_flag(
          "--fdr", this->estimate_fdr,
          "Estimate the False Discovery rate (runtime will be twice as long)")
@@ -207,6 +211,7 @@ void Settings::prepare_settings() {
 
   app.add_option("--tune_fdr", this->tune_fdr,
                  "FDR to be tuned against (see README)")
+      ->default_val(this->tune_fdr)
       ->group("Parameter Tuning");
 
   app.add_flag("--tune_only", this->tune_only,

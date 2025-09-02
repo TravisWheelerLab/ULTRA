@@ -105,7 +105,7 @@ int main_wrapper(int argc, const char *argv[]) {
              param_strings.size(), real_coverage, fdr, arg_string.c_str());
     }
 
-    printf("-----------\n");
+    printf("----------------------------\n");
     if (best_coverage_index >= 0) {
       double real_coverage =
           (double)coverage[best_coverage_index] / (double)seq_length;
@@ -113,7 +113,7 @@ int main_wrapper(int argc, const char *argv[]) {
           (double)shuffled_coverage[best_coverage_index] / (double)seq_length;
       double fdr = false_coverage / real_coverage;
 
-      printf("Best coverage within FDR limit: %.5f, %.5f, %s\n", real_coverage,
+      printf("Best coverage within FDR limit (%.3f): %.5f, %.5f, %s\n", settings->tune_fdr, real_coverage,
              fdr, param_strings[best_coverage_index].c_str());
 
       delete settings;
@@ -126,7 +126,7 @@ int main_wrapper(int argc, const char *argv[]) {
       }
       settings->assign_settings();
     } else {
-      printf("No parameters found within FDR limit.\n");
+      printf("No parameters found within FDR limit (%.3f).\n", settings->tune_fdr);
       exit(0);
     }
 
@@ -147,6 +147,12 @@ int main_wrapper(int argc, const char *argv[]) {
     OutputMaskedFASTA(settings->in_file, f, ultra->masks_for_seq,
                       settings->mask_with_n);
     fclose(f);
+  }
+  if (!settings->disable_summary) {
+    seq_length = ultra->reader->fastaReader->total_seq_length;
+    double coverage_ratio = (double)true_coverage / (double)seq_length;
+    printf("----------------------------\n");
+    printf("Annotation Coverage: %.4f (%llu / %llu)\n", coverage_ratio, true_coverage, seq_length);
   }
 
   delete ultra;

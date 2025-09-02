@@ -5,7 +5,7 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.1.0"
+#define ULTRA_VERSION_STRING "1.2.0"
 #define DEBUG_STRING ""
 #ifdef DEBUG_PRAGMA
 #undef DEBUG_STRING
@@ -30,6 +30,7 @@ struct Settings {
   // Output settings
   std::string out_file = "";
   bool pval = false;
+  bool disable_summary = false;
   bool disable_streaming_out = false;
   float p_value_loc = 4.27294921875;
   float p_value_scale = 1.8913602828979492;
