@@ -207,6 +207,7 @@ void Settings::prepare_settings() {
 
   app.add_option("--tune_fdr", this->tune_fdr,
                  "FDR to be tuned against (see README)")
+      ->default_val(this->tune_fdr)
       ->group("Parameter Tuning");
 
   app.add_flag("--tune_only", this->tune_only,
