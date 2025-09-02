@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        "Dockerfile_*": "dockerfile",
-        "cmath": "cpp"
-    }
-}
