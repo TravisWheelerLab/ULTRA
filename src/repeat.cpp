@@ -76,7 +76,7 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
       i += bdesc.indelNumber;
     }
 
-    if (fplace > windowStart+repeatLength)
+    if (fplace >= windowStart+repeatLength)
       break;
 
     symbol s = window->seq[fplace];
