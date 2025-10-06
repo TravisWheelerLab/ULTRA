@@ -102,12 +102,6 @@ void SequenceWindow::CalculateSymbolFrequencies() {
   }
 }
 
-/*
-bool SequenceWindow::operator<(const SequenceWindow& rhs) {
-    if (this->seqID != rhs.seqID)
-        return this->seqID < rhs.readID;
-    return (this->readID < rhs.readID);
-}*/
 
 SequenceWindow::SequenceWindow(unsigned long ml, unsigned long mo) {
 

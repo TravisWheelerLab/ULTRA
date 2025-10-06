@@ -54,7 +54,6 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
            }*/
 
     }
-
     else if (fdesc.type == CT_DELETION) {
       deletions += fdesc.indelNumber;
       bplace += fdesc.indelNumber;
@@ -76,6 +75,9 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
       fplace += bdesc.indelNumber;
       i += bdesc.indelNumber;
     }
+
+    if (fplace > windowStart+repeatLength)
+      break;
 
     symbol s = window->seq[fplace];
     symbol sb = window->seq[bplace];
