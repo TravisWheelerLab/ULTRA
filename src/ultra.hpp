@@ -74,8 +74,7 @@ public:
 
   bool storeTraceAndSequence = false;
 
-  std::unordered_map<unsigned long long, std::vector<mregion> *>
-      masks_for_seq{};
+  std::unordered_map<unsigned long long, std::vector<mregion> *> masks_for_seq{};
   std::vector<RepeatRegion *> outRepeats{};
   std::vector<UModel *> models{};
 
