@@ -4,6 +4,8 @@ project(
         HOMEPAGE_URL https://github.com/TravisWheelerLab/ULTRA
 )
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+
 # By default we do NOT build the standalone ULTRA library
 option(BUILD_ULTRA_LIB "Also build ULTRA as a standalone library" OFF)
 

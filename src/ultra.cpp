@@ -69,7 +69,6 @@ SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq, uthread *uth) {
     pthread_mutex_lock(&outerLock);
 
   // Check to see if we need to read more sequence first
-
   if (!reader->DoneReadingFile()) {
     if (!reader->IsReading()) {
       if (reader->ReadyWindowsSize() == 0) {
