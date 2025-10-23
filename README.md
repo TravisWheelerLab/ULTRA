@@ -13,10 +13,10 @@ cmake .
 make
 ```
 ## Basic usage
-A list of all flags and options can be seen with `ultra -h`. To annotate tandem repeats with ULTRA use `ultra [options] <path to FASTA file>`.  The following examples demonstrate common use cases.
+A list of all flags and options can be seen with `ultra -h`. To annotate tandem repeats with ULTRA use `ultra [options] <path to FASTA file>`.  The following walkthroughs and examples demonstrate common use cases.
   
 <details>
-<summary>Example 1 - Default settings</summary>
+<summary>Walkthrough 1 - Default settings</summary>
 
 `examples/example_1.fa` contains randomly generated sequence with three inserted tandem repeats. We can use ULTRA to annotate the file by running:
 ```
@@ -52,7 +52,7 @@ By default ULTRA will use lower-case masking, although ULTRA will use N-masking 
 </details>
 
 <details>
-<summary>Example 2 - Large period repeats</summary>
+<summary>Walkthrough 2 - Large period repeats</summary>
   
 `examples/example_2.fa` contains a period 1000 repeat, which is larger than ULTRA's default maximum detectable repetitive period (100). To find the large period repeat we must adjust ULTRA's maximum detectable repetitive period using the `-p <max repeat period>` option.
 
@@ -77,7 +77,7 @@ period_1000_repeat  0 17999 1000  22938.433594  . 1 0 .
 ```
 </details>
 <details>
-<summary>Example 3 - Tuning and FDR</summary>
+<summary>Walkthrough 3 - Tuning and FDR</summary>
   
 `examples/example_3.fa` contains randomly generated 80% AT rich sequence along with two inserted tandem repeats (an "AAAGC" repeat and an "AAAATAC" repeat). The large AT bias is far outside ULTRA's default expectation, and as a result ULTRA will have a high false discovery rate, as seen by running:
 ```
@@ -96,6 +96,30 @@ SeqID Start End Period  Score Consensus #Subrepeats SubrepeatStarts SubrepeatCon
 80_AT 8406  9134  7 716.489990  AAAATAC 1 0 AAAATAC
 ```
 </details>
+
+<details>
+<summary>Faster run configurations</summary>
+All of these examples use 8 threads (-t 8), although increasing the number of threads will generally improve performance up to around 80 threads. These examples also use fewer indel states (-i 3 -d 3); this greatly reduces runtime, although it does (very slightly) reduce sensitivity.
+
+```
+# max period of 10, good if all you are interested in 
+# is STRs; this is much faster than fasTAN
+ultra --read_all -p 10 -t 8 -i 3 -d 3 -o <output file> <input file>
+
+# max period of 100, this is slightly slower than tools like fasTAN
+ultra --read_all -p 100 -t 8 -i 3 -d 3 -o <output file> <input file>
+
+# max period of 500 (a common max period when using TRF)
+ultra --read_all -p 500 -t 8 -i 3 -d 3 -o <output file> <input file>
+
+# max period of 2000 -- this will be slow
+# You can speed things up with more threads
+# (80 threads will be able to annotate the human genome in a few hours)
+ultra --read_all -p 2000 -t 8 -i 2 -d 2 -o <output file> <input file>
+```
+
+</details>
+
 
 ## Output formats and tuning guide
 <details>
