@@ -326,7 +326,8 @@ void Ultra::OutputRepeats(bool flush) {
     }
 
     r->SortConsensi();
-    if (r->repeatLength / r->repeatPeriod >= settings->min_units)
+    if (r->regionScore >= scoreThreshold &&
+        r->repeatLength / r->repeatPeriod >= settings->min_units)
       OutputRepeat(r);
 
     delete r;
