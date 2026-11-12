@@ -3,6 +3,7 @@
 //
 
 #include "cli.hpp"
+#include <cmath>
 #include <cstring>
 #include <iostream>
 #include <vector>
@@ -467,7 +468,7 @@ bool Settings::parse_input(int argc, const char **argv) {
       }
     }
 
-    if (abs(1.0 - sum) > 0.001) {
+    if (std::fabs(1.0 - sum) > 0.001) {
       fprintf(stderr, "--acgt arguments must sum to 1.0 ± 0.001\n");
       passed = false;
     }

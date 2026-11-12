@@ -113,7 +113,7 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
   if (owner->settings->show_logo_nums && repeat->logoNumbers != nullptr) {
     std::string logoNumbers = "\"" + std::to_string(repeat->logoNumbers[0]);
-    for (int i = 0; i < repeat->repeatLength; ++i) {
+    for (int i = 1; i < repeat->repeatLength; ++i) {
       logoNumbers.append("," + std::to_string(repeat->logoNumbers[i]));
     }
 

@@ -23,7 +23,8 @@ int main() {
   // We can also pass in an argument string to settings like so:
   int argc;
   char **argv;
-  std::string arg_string = "-p 25 -i 3 -d 3";
+  // The first word stands in for the program name
+  std::string arg_string = "ultra -p 25 -i 3 -d 3";
   string_to_args(arg_string, argc, argv);
 
   settings->prepare_settings(); // This should be called before running settings->parse_input()

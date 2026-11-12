@@ -1,5 +1,6 @@
 
 #include "mask.hpp"
+#include <cctype>
 
 void OutputMaskedFASTA(
     const std::string &in_path, FILE *out_file,
@@ -24,67 +25,45 @@ void OutputMaskedFASTA(
       seq_pos = 0;
       seq_id += 1;
       mask_i = 0;
-      fprintf(out_file, "%s\n", line.c_str());
 
+      // Each record is masked with its own regions only
+      if (cmask != nullptr) {
+        delete cmask;
+        cmask = nullptr;
+      }
       if (masks.find(seq_id) != masks.end()) {
-        if (cmask != nullptr)
-          delete cmask;
-        cmask = masks[seq_id];
         cmask = CleanedMasks(masks[seq_id]);
-        if (cmask->size() == 0) {
-          delete cmask;
-          cmask = nullptr;
-        }
       }
     }
 
-    else {
-      // If there are no masks for this sequence, just skip over it
-      if (cmask == nullptr) {
-        fprintf(out_file, "%s\n", line.c_str());
-        continue;
-      }
+    // Comment lines are not sequence; nothing to do once the masks run out
+    else if (cmask != nullptr && line[0] != ';' && mask_i < cmask->size()) {
+      for (int i = 0; i < line.length(); ++i) {
+        // Count positions the way SequenceWindow::ReadLine does
+        if (!isalnum((unsigned char)line[i]))
+          continue;
 
-      // If there are masks for this sequence, check to see if we need to mask
-      if (cmask) {
-        for (int i = 0; i < line.length(); ++i) {
-          if (line[i] == 'a' || line[i] == 'A' || line[i] == 'c' ||
-              line[i] == 'C' || line[i] == 'g' || line[i] == 'G' ||
-              line[i] == 't' || line[i] == 'T') {
+        // Regions are sorted and disjoint
+        while (mask_i < cmask->size() && cmask->at(mask_i).end <= seq_pos)
+          mask_i += 1;
 
-            if (cmask) {
-              if (cmask->at(mask_i).start <= seq_pos) {
-                // We need to mask
-                if (cmask->at(mask_i).end > seq_pos) {
-                  // We should mask
-                  if (n_mask) {
-                    line[i] = 'n';
-                  }
-
-                  else {
-                    line[i] = std::tolower(line[i]);
-                  }
-                }
-                // We are done with cmask_i
-                else {
-                  mask_i += 1;
-                  if (mask_i >= cmask->size()) {
-                    cmask = nullptr;
-                  }
-                }
-              }
-            }
-            seq_pos += 1;
-          }
-
-          else if (line[i] == 'n' || line[i] == 'N') {
-            seq_pos += 1;
+        if (mask_i < cmask->size() && cmask->at(mask_i).start <= seq_pos) {
+          char u = std::toupper((unsigned char)line[i]);
+          if (u == 'A' || u == 'C' || u == 'G' || u == 'T') {
+            if (n_mask)
+              line[i] = 'n';
+            else
+              line[i] = std::tolower((unsigned char)line[i]);
           }
         }
-        fprintf(out_file, "%s\n", line.c_str());
+        seq_pos += 1;
       }
     }
+
+    fprintf(out_file, "%s\n", line.c_str());
   }
+  if (cmask != nullptr)
+    delete cmask;
   in_file.close();
 }
 
