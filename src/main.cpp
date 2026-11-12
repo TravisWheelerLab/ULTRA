@@ -144,6 +144,11 @@ int main_wrapper(int argc, const char *argv[]) {
   // Check to see if we are making a masked file
   if (settings->produce_mask) {
     FILE *f = fopen(settings->mask_file.c_str(), "w");
+    if (f == nullptr) {
+      fprintf(stderr, "Unable to open mask file %s\n",
+              settings->mask_file.c_str());
+      exit(-1);
+    }
     OutputMaskedFASTA(settings->in_file, f, ultra->masks_for_seq,
                       settings->mask_with_n);
     fclose(f);

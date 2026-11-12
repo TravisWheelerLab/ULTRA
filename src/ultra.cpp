@@ -357,7 +357,9 @@ void Ultra::OutputULTRASettings() {
 
 void Ultra::OutputRepeat(RepeatRegion *r, bool isSubRep) {
 
-  if (r->readID > last_read_id) {
+  // Coverage is counted per sequence
+  if (r->sequenceID != last_seq_id) {
+    last_seq_id = r->sequenceID;
     last_rep_end = 0;
   }
 

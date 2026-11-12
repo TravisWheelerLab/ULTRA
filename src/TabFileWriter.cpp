@@ -72,7 +72,7 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
   // We need to decide what to do with the overall sequence
   std::string rep_con = ".";
-  if (owner->settings->max_consensus_period != 0) {
+  if (owner->settings->max_consensus_period >= 0) {
     if (owner->settings->max_consensus_period >= repeat->repeatPeriod &&
         !repeat->string_consensus.empty())
       rep_con = repeat->string_consensus;
