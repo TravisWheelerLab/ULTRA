@@ -72,8 +72,17 @@ void RepeatRegion::CreateLogo(SequenceWindow *window, UMatrix *matrix) {
     }
 
     else if (bdesc.type == CT_DELETION) {
+      // The bases skipped here belong to the columns the previous copy
+      // deleted, so count them there
+      for (int j = 0; j < bdesc.indelNumber; ++j) {
+        if (fplace + j < windowStart + repeatLength)
+          logo[(p + j) % repeatPeriod][window->seq[fplace + j]] += 1;
+      }
       fplace += bdesc.indelNumber;
       i += bdesc.indelNumber;
+      // The skipped bases of this copy sit at the unit positions the previous
+      // copy deleted, so the logo phase has to move past them as well.
+      p += bdesc.indelNumber;
     }
 
     if (fplace >= windowStart+repeatLength)
@@ -331,7 +340,7 @@ void RepeatRegion::StoreScores(UMatrix *matrix) {
 
     int prevCell = matrix->traceback[p - 1];
     if (matrix->cellDescriptions[prevCell].type != CT_MATCH)
-      prevCell = matrix->cellDescriptions[cell].parentIndex;
+      prevCell = matrix->cellDescriptions[prevCell].parentIndex;
     float ps = matrix->scoreColumns[p - 1][prevCell];
 
     scores[i - 1] = s - ps;
@@ -786,11 +795,22 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
 
   joint_rep->string_consensus = r1->string_consensus;
   joint_rep->sequenceStart = r1->sequenceStart;
-  joint_rep->repeatLength =
-      (r2->sequenceStart + r2->repeatLength) - r1->sequenceStart;
 
+  // The joint region is the first s1_seq_len positions of r1 followed by r2
+  // without its first r2_skip positions. If r2 ends inside r1 the joint
+  // region is all of r1 and none of r2; taking r1 up to the start of r2 and
+  // then all of r2 would cut r1 short.
+  bool r2_inside = r2->sequenceStart + r2->repeatLength <=
+                   r1->sequenceStart + r1->repeatLength;
   int s1_seq_len = r2->sequenceStart - r1->sequenceStart;
+  int r2_skip = 0;
+  if (r2_inside) {
+    s1_seq_len = r1->repeatLength;
+    r2_skip = r2->repeatLength;
+  }
   int overlap = (r1->sequenceStart + r1->repeatLength) - r2->sequenceStart;
+
+  joint_rep->repeatLength = s1_seq_len + (r2->repeatLength - r2_skip);
 
   joint_rep->sequenceName = r1->sequenceName;
   joint_rep->sequenceID = r1->sequenceID;
@@ -806,12 +826,16 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
 
   // We have to join ->sequence
   if (!r1->sequence.empty() && !r2->sequence.empty()) {
-    joint_rep->sequence = r1->sequence.substr(0, s1_seq_len) + r2->sequence;
+    joint_rep->sequence =
+        r1->sequence.substr(0, s1_seq_len) +
+        r2->sequence.substr(std::min((size_t)r2_skip, r2->sequence.size()));
   }
 
   // Check if we have to join ->traceback
   if (!r1->traceback.empty() && !r2->traceback.empty()) {
-    joint_rep->traceback = r1->traceback.substr(0, s1_seq_len) + r2->traceback;
+    joint_rep->traceback =
+        r1->traceback.substr(0, s1_seq_len) +
+        r2->traceback.substr(std::min((size_t)r2_skip, r2->traceback.size()));
   }
 
   // Check to see if we have to join scores
@@ -826,7 +850,7 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
     }
 
     // Copy from repeat 2
-    for (int j = 0; j < r2->repeatLength; ++j) {
+    for (int j = r2_skip; j < r2->repeatLength; ++j) {
       joint_rep->scores[i] = r2->scores[j];
       ++i;
     }
@@ -844,7 +868,7 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
     }
 
     // Copy from repeat 2
-    for (int j = 0; j < r2->repeatLength; ++j) {
+    for (int j = r2_skip; j < r2->repeatLength; ++j) {
       joint_rep->logoNumbers[i] = r2->logoNumbers[j];
       ++i;
     }
@@ -862,6 +886,16 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
   // Right now we do this lazily by combining split vectors
   // A better way of doing this is to join the logo nums
   // and then pass it through
+
+  // r2 adds nothing, so the splits of r1 stand
+  if (r2_inside) {
+    if (r1->splits != nullptr) {
+      joint_rep->splits = new std::vector<int>(*r1->splits);
+      if (r1->consensi != nullptr)
+        joint_rep->consensi = new std::vector<std::string>(*r1->consensi);
+    }
+    return joint_rep;
+  }
 
   // don't bother joining repeat splits if diff repeat periods
   if (r1->repeatPeriod != r2->repeatPeriod)
@@ -893,7 +927,10 @@ RepeatRegion *joint_repeat_region(RepeatRegion *r1, RepeatRegion *r2) {
     return joint_rep;
 
   for (int i = split_start; i < r2->splits->size(); ++i) {
-    joint_rep->splits->push_back(r2->splits->at(i));
+    // Splits are positions within their own repeat; move r2's to where r2
+    // sits in the joint region (-1 marks a split that was removed)
+    int split_i = r2->splits->at(i);
+    joint_rep->splits->push_back(split_i < 0 ? split_i : split_i + s1_seq_len);
     joint_rep->consensi->push_back(r2->consensi->at(i + 1));
   }
 
