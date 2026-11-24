@@ -3,6 +3,7 @@
 //
 
 #include "cli.hpp"
+#include <climits>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -45,7 +46,7 @@ void Settings::prepare_settings() {
       ->group("Output");
 
   app.add_flag("--pval", this->pval,
-               "Use p-values instead of scores in BED output")
+               "Add p-values to TSV and JSON output")
       ->group("Output");
 
   app.add_flag(
@@ -418,6 +419,11 @@ bool Settings::parse_input(int argc, const char **argv) {
       fprintf(stderr, "--show_logo is only available with --json\n");
       passed = false;
     }
+
+    if (this->show_wid) {
+      fprintf(stderr, "--show_wid is only available with --json\n");
+      passed = false;
+    }
   }
 
   if ((this->ultra_out || this->json_out || this->bed_out) &&
@@ -448,9 +454,71 @@ bool Settings::parse_input(int argc, const char **argv) {
     passed = false;
   }
 
+  // These used to pass and then crash, wrap or loop: a negative --win_size
+  // or --overlap (other than -1, "not set") became a huge unsigned size, and
+  // --windows is narrowed to a 32-bit int.
+  if (this->window_size < -1) {
+    fprintf(stderr, "--win_size must be at least 1\n");
+    passed = false;
+  }
+
+  if (this->overlap < -1) {
+    fprintf(stderr, "--overlap must be at least 0\n");
+    passed = false;
+  }
+
+  if (this->windows > INT_MAX) {
+    fprintf(stderr, "--windows must be at most 2147483647\n");
+    passed = false;
+  }
+
   if (this->max_period < 1) {
     fprintf(stderr, "--period must be at least 1\n");
     passed = false;
+  }
+
+  // The model takes these as 32-bit ints; larger values used to wrap (to "no
+  // indels", or to a small count).
+  if (this->max_insert > INT_MAX) {
+    fprintf(stderr, "--inserts must be at most 2147483647\n");
+    passed = false;
+  }
+
+  if (this->max_delete > INT_MAX) {
+    fprintf(stderr, "--deletes must be at most 2147483647\n");
+    passed = false;
+  }
+
+  // NaN fails no comparison, so the range checks below let it through and
+  // the model was built from NaN probabilities.
+  const std::pair<const char *, double> numbers[] = {
+      {"--score", this->min_score},
+      {"--tune_fdr", this->tune_fdr},
+      {"--at", this->at},
+      {"--match", this->match_probability},
+      {"--decay", this->period_decay},
+      {"--nr", this->transition_nr},
+      {"--rn", this->transition_rn},
+      {"--ri", this->transition_ri},
+      {"--rd", this->transition_rd},
+      {"--ii", this->transition_ii},
+      {"--dd", this->transition_dd},
+      {"--split_threshold", this->split_threshold},
+      {"--pval_loc", this->p_value_loc},
+      {"--pval_scale", this->p_value_scale},
+  };
+  for (const auto &n : numbers) {
+    if (std::isnan(n.second)) {
+      fprintf(stderr, "%s must be a number\n", n.first);
+      passed = false;
+    }
+  }
+  for (float v : this->acgt) {
+    if (std::isnan(v)) {
+      fprintf(stderr, "--acgt arguments must be numbers\n");
+      passed = false;
+      break;
+    }
   }
 
   if (this->at < 0.0 || this->at > 1.0) {
@@ -524,8 +592,9 @@ bool Settings::parse_input(int argc, const char **argv) {
     passed = false;
   }
 
+  // --tune_file is a tuning grid, so it tunes on its own
   if (this->tune_only || this->tune_medium || this->tune_large ||
-      this->tune_indels) {
+      this->tune_indels || !this->tune_param_path.empty()) {
     this->tune = true;
   }
 
@@ -674,6 +743,13 @@ void Settings::assign_settings() {
     else {
       this->window_size = 25 * this->max_period;
     }
+  }
+
+  // calculate_num_states makes read_all read the whole file (windows = -1),
+  // but it runs only without --win_size, so with one the input was streamed
+  // after all.
+  if (this->read_all) {
+    this->windows = -1;
   }
 
   this->a_freq = this->at / 2.0;

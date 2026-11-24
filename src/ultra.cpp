@@ -3,8 +3,10 @@
 //  ultraP
 //
 
+#include <cerrno>
 #include <climits>
 #include <cmath>
+#include <cstring>
 #include <condition_variable>
 #include <deque>
 #include <map>
@@ -404,8 +406,14 @@ void Ultra::OutputRepeats(bool flush) {
       writer->EndWriter();
   }
 
-  for (auto out : outs)
-    fflush(out);
+  // A write error (a full disk, say) used to go unnoticed. A closed pipe
+  // ends the program with SIGPIPE before this, as before.
+  for (auto out : outs) {
+    if (fflush(out) != 0 || ferror(out)) {
+      fprintf(stderr, "Error writing output: %s\n", strerror(errno));
+      exit(-1);
+    }
+  }
 }
 
 void Ultra::OutputULTRASettings() {
