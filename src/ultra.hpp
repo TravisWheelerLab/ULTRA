@@ -27,14 +27,11 @@
 
 class Ultra;
 
+// The model and splitter one worker thread analyses windows with.
 typedef struct s_uthread {
   int id;
-  pthread_t p_thread;
   Ultra *ultra;
   UModel *model;
-  std::vector<RepeatRegion *> repeats{};
-  int activeReadID = 0;
-  int smallestReadID = 0;
   SplitWindow *splitter;
 } uthread;
 
@@ -48,7 +45,6 @@ public:
 
   int numberOfThreads = 1;
   int minReaderSize = 100;
-  int primaryThread = 0;
 
   FILE *settings_out;
 
@@ -86,7 +82,17 @@ public:
   void StoreMaskForRegion(RepeatRegion *r);
 
   void AnalyzeFile();
-  void AnalyzeFileWithThread(void *tid);
+  void AnalyzeFileWithThread();
+  void AnalyzeFileWithWorkers();
+  void FindRepeatsInWindow(SequenceWindow *sequence, uthread *thrd,
+                           std::vector<RepeatRegion *> &repeats);
+  void BeginWindow(SequenceWindow *sequence);
+  void FinishWindow(std::vector<RepeatRegion *> &repeats);
+
+  // Read ids of the window being applied and of the oldest window that may
+  // still have repeats to come
+  unsigned long long activeReadID = 0;
+  unsigned long long smallestReadID = 0;
   void AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *thrd);
   void OutputRepeats(bool flush = false);
   void OutputRepeat(RepeatRegion *r, bool isSubRep = false);
@@ -101,16 +107,13 @@ public:
   double Log2PvalForScore(float score, float period) const;
   double PvalForScore(float score) const;
 
-  SequenceWindow *GetSequenceWindow(SequenceWindow *seq, uthread *uth);
+  SequenceWindow *GetSequenceWindow(SequenceWindow *seq);
 
-  int SmallestReadID();
+  unsigned long long SmallestReadID();
 
   void SortRepeatRegions();
   unsigned long long Coverage();
 
-  pthread_mutex_t outerLock;
-  pthread_mutex_t innerLock;
-  pthread_mutex_t repeatLock;
 
   Ultra(Settings *settings);
   ~Ultra();
@@ -121,6 +124,5 @@ public:
   bool operator()(RepeatRegion *lhs, RepeatRegion *rhs);
 };
 
-void *UltraThreadLaunch(void *dat);
 
 #endif /* ultra_hpp */

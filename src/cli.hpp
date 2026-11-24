@@ -5,7 +5,7 @@
 #ifndef ULTRA_CLI_HPP
 #define ULTRA_CLI_HPP
 
-#define ULTRA_VERSION_STRING "1.3.0"
+#define ULTRA_VERSION_STRING "1.3.1"
 #define DEBUG_STRING ""
 #ifdef DEBUG_PRAGMA
 #undef DEBUG_STRING
@@ -138,5 +138,9 @@ std::vector<std::string> tune_settings_for_path(std::string path);
 void string_to_args(const std::string &str, int &argc, char **&argv);
 std::pair<int, char **> combine_args(int argc1, const char **argv1, int argc2,
                                      char **argv2);
+
+// `s` as the contents of a JSON string ('"', '\\' and control characters
+// escaped)
+std::string json_escape(const std::string &s);
 
 #endif // ULTRA_CLI_HPP

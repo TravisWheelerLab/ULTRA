@@ -145,6 +145,8 @@ UModelDriver::UModelDriver(UModel *m, int ws) {
 
   model = m;
   matrix = m->matrix;
+  // The driver reads insertion and deletion rows of older columns
+  matrix->KeepAllRows();
 
   windowCount = 0;
 

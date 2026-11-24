@@ -23,6 +23,13 @@ endif()
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Scores must not depend on the compiler or the platform. Fusing a multiply
+# and an add into one instruction (the default of clang on arm64, and of GCC
+# where FMA instructions are enabled) rounds differently, so it is turned off.
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-ffp-contract=off)
+endif()
+
 # Header files (for installation / PUBLIC_HEADER)
 set(HPP_FILES
         src/FASTAReader.hpp

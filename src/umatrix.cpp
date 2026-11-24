@@ -4,6 +4,8 @@
  */
 
 #include "umatrix.hpp"
+#include <algorithm>
+#include <stdio.h>
 
 /*
  MoveMatrixForward moves the matrix forward while accounting for wrapping:
@@ -17,19 +19,21 @@ bool UMatrix::MoveMatrixForward() {
 
   bool wrap = false;
 
-  // Move forward our column indexes
+  // The current column is complete.
+  if (allRows != NULL) {
+    float *full = ScoreColumn(currentColumnIndex);
+    float *dst = allRows + currentColumnIndex * cellsPerColumn;
+    for (unsigned long long r = 0; r < cellsPerColumn; ++r)
+      dst[r] = full[r];
+  }
+
+  // Move forward our column indexes (this never wraps)
   previousColumnIndex = currentColumnIndex;
   ++currentColumnIndex;
 
-  // Check to see if we need to wrap around
-  /*if (currentColumnIndex >= length) {
-      currentColumnIndex = 0;
-      wrap = true;
-  }*/
-
   // Assign our column pointers to the new columns
-  currentScoreColumn = scoreColumns[currentColumnIndex];
-  previousScoreColumn = scoreColumns[previousColumnIndex];
+  currentScoreColumn = ScoreColumn(currentColumnIndex);
+  previousScoreColumn = ScoreColumn(previousColumnIndex);
 
   currentTracebackColumn = tracebackColumns[currentColumnIndex];
   previousTracebackColumn = tracebackColumns[previousColumnIndex];
@@ -37,50 +41,117 @@ bool UMatrix::MoveMatrixForward() {
   return wrap;
 }
 
+void UMatrix::KeepAllRows() {
+  if (allRows == NULL) {
+    allRows = (float *)calloc(cellsPerColumn * (length + 1), sizeof(float));
+    allRowsSince = currentColumnIndex;
+  }
+}
+
+void UMatrix::RecordHistory(unsigned long long col) {
+  float *full = ScoreColumn(col);
+  for (unsigned long long o = 0; o < maxPeriod; ++o)
+    history[o * historyStride + col] = full[matchRows[o]];
+}
+
+float UMatrix::ScoreAt(unsigned long long col, int row) const {
+  cell d = cellDescriptions[row];
+  if (d.type == CT_MATCH || d.type == CT_BACKGROUND)
+    return HistoryAt(col, d.order);
+  if (allRows != NULL && col >= allRowsSince)
+    return allRows[col * cellsPerColumn + row];
+  if (IsFullColumn(col))
+    return ScoreColumn(col)[row];
+  fprintf(stderr,
+          "UMatrix: column %llu keeps only its background and match rows; "
+          "call KeepAllRows() before computing the window to read its "
+          "insertion and deletion rows\n",
+          col);
+  abort();
+}
+
 /*
- AdjustScoreToZero adjusts the previous numberOfColumns columns so that
- the scores are closer to zero (to ensure precision):
- 1. Calculate how much we are adjusting the score by
- 2. Adjust the previous numberOfColumns columns by that much
+ AdjustScoreToZero adjusts every column so that the scores are closer to zero
+ (to ensure precision): every score is shifted by minus the previous
+ column's background score. numberOfColumns is unused (every column is
+ adjusted).
  */
 void UMatrix::AdjustScoreToZero(int numberOfColumns) {
   // Calculate adjustment
   lastScoreAdjustment = previousScoreColumn[0] * -1;
   totalScoreAdjustment += lastScoreAdjustment;
 
-  // Adjust columns
-  for (int i = 0; i < length; ++i) {
-    int c = PreviousColumn(i + 1);
-    AdjustColumn(c, lastScoreAdjustment);
+  float adj = lastScoreAdjustment;
+  for (unsigned long long o = 0; o < maxPeriod + 1; ++o) {
+    float *h = history + o * historyStride;
+    for (unsigned long long c = 0; c < length; ++c)
+      h[c] += adj;
+  }
+  unsigned long long cols[2] = {previousColumnIndex, currentColumnIndex};
+  for (int k = 0; k < 2; ++k) {
+    if (cols[k] < length) {
+      float *f = ScoreColumn(cols[k]);
+      for (unsigned long long r = 0; r < cellsPerColumn; ++r)
+        f[r] += adj;
+    }
+  }
+  if (allRows != NULL) {
+    for (unsigned long long i = 0; i < cellsPerColumn * length; ++i)
+      allRows[i] += adj;
   }
 }
 
+// Resets numberOfColumns columns from startingAt to row 0 = 0 and every other
+// row = NEG_INF
 void UMatrix::AdjustScoreToZero(int startingAt, int numberOfColumns) {
   for (int i = 0; i < numberOfColumns; ++i) {
-    int p = i + startingAt;
-    for (int j = 1; j < cellsPerColumn; ++j) {
-      scoreColumns[p][j] = NEG_INF;
+    unsigned long long p = i + startingAt;
+    for (unsigned long long o = 0; o < maxPeriod + 1; ++o)
+      history[o * historyStride + p] = o == 0 ? 0 : NEG_INF;
+    if (IsFullColumn(p)) {
+      float *col = ScoreColumn(p);
+      for (unsigned long long j = 1; j < cellsPerColumn; ++j)
+        col[j] = NEG_INF;
+      col[0] = 0;
     }
-    scoreColumns[p][0] = 0;
+    if (allRows != NULL) {
+      float *col = allRows + p * cellsPerColumn;
+      for (unsigned long long j = 1; j < cellsPerColumn; ++j)
+        col[j] = NEG_INF;
+      col[0] = 0;
+    }
   }
 }
 
 // Adjust every row in <column> to be [row] = [row] + adjustment
 void UMatrix::AdjustColumn(int column, float adjustment) {
-  for (int i = 0; i < cellsPerColumn; ++i) {
-    scoreColumns[column][i] += adjustment;
+  unsigned long long c = column;
+  for (unsigned long long o = 0; o < maxPeriod + 1; ++o)
+    history[o * historyStride + c] += adjustment;
+  if (IsFullColumn(c)) {
+    float *f = ScoreColumn(c);
+    for (unsigned long long r = 0; r < cellsPerColumn; ++r)
+      f[r] += adjustment;
+  }
+  if (allRows != NULL) {
+    float *f = allRows + c * cellsPerColumn;
+    for (unsigned long long r = 0; r < cellsPerColumn; ++r)
+      f[r] += adjustment;
   }
 }
 
-// Return the score in scoreColumns[currentColumnIndex - d][row]
-// Account for warpping if currentColumnIndex - d < 0
+// Return the score of row in the column d before the current one (d = 0 is
+// the current column, read as it is being filled). Account for wrapping if
+// currentColumnIndex - d < 0
 float UMatrix::PreviousScore(int row, int d) {
   float s = NEG_INF;
 
   if (d < length) {
-    int c = PreviousColumn(d);
-
-    s = scoreColumns[c][row];
+    unsigned long long c = PreviousColumn(d);
+    if (c == currentColumnIndex)
+      s = currentScoreColumn[row];
+    else
+      s = ScoreAt(c, row);
   }
 
   return s;
@@ -219,14 +290,15 @@ int *UMatrix::ForwardTraceback(int *traceArray, int windowLength, int row) {
 void UMatrix::CalculateTraceback(unsigned long long startColumn) {
   // Assume best row is 0
   unsigned long long row = 0;
-  float best_value = scoreColumns[startColumn][0];
+  float best_value = HistoryAt(startColumn, 0);
 
-  for (unsigned long long i = 1; i < cellsPerColumn; ++i) {
-    if (cellDescriptions[i].type == CT_MATCH)
-      if (scoreColumns[startColumn][i] > best_value) {
-        row = i;
-        best_value = scoreColumns[startColumn][i];
-      }
+  // The match rows in row order, which is order order.
+  for (unsigned long long o = 1; o < maxPeriod; ++o) {
+    float v = HistoryAt(startColumn, (int)o);
+    if (v > best_value) {
+      row = matchRows[o];
+      best_value = v;
+    }
   }
   // Do the normal calculations
   for (unsigned long long i = 0; i <= startColumn; ++i) {
@@ -272,29 +344,30 @@ void UMatrix::CalculateTraceback(unsigned long long startColumn) {
 }
 
 void UMatrix::RestartMatrix() {
+  currentColumnIndex = 1;
+  previousColumnIndex = 0;
 
-  // AdjustScoreToZero(0, 100);
-
-  /*for (int i = 0; i < maxPeriod; ++i) {
-      tracebackColumns[0][i] = 0;
-      tracebackColumns[1][i] = 0;
-  }*/
-
-  previousScoreColumn = scoreColumns[0];
-  currentScoreColumn = scoreColumns[1];
+  previousScoreColumn = ScoreColumn(0);
+  currentScoreColumn = ScoreColumn(1);
 
   previousTracebackColumn = tracebackColumns[0];
   currentTracebackColumn = tracebackColumns[1];
 
-  currentColumnIndex = 1;
-  previousColumnIndex = 0;
-
-  for (int i = 0; i < cellsPerColumn; ++i) {
+  for (unsigned long long i = 0; i < cellsPerColumn; ++i) {
     previousScoreColumn[i] = 0;
   }
+  for (unsigned long long o = 0; o < maxPeriod + 1; ++o) {
+    history[o * historyStride] = 0;
+  }
 
-  for (int i = 0; i < maxPeriod + 1; ++i) {
+  for (unsigned long long i = 0; i < maxPeriod + 1; ++i) {
     previousTracebackColumn[i] = 0;
+  }
+
+  if (allRows != NULL) {
+    for (unsigned long long i = 0; i < cellsPerColumn; ++i)
+      allRows[i] = 0;
+    allRowsSince = 0;
   }
 }
 
@@ -405,28 +478,70 @@ void UMatrix::CreateMatrix() {
               cellDescriptions[i].parentIndex);
    }*/
 
+  // The row of each order's match cell
+  matchRows = (int *)malloc(sizeof(int) * maxPeriod);
+  matchRows[0] = 0;
+  for (unsigned long long r = 1; r < cellsPerColumn; ++r) {
+    if (cellDescriptions[r].type == CT_MATCH)
+      matchRows[cellDescriptions[r].order] = (int)r;
+  }
+
+  // Steady-state bounds (see SteadyState)
+  steady.minPreviousColumn = 0;
+  steady.maxLookback = 0;
+  steady.maxSequenceBack = 0;
+  steady.byOrder.assign(maxPeriod > 0 ? maxPeriod : 1, OrderBounds{0, 0, 0});
+  for (unsigned long long r = 0; r < cellsPerColumn; ++r) {
+    cell d = cellDescriptions[r];
+    long long o = d.order, k = d.indelNumber;
+    long long minPrev = 0, lookback = 0, seqBack = 0;
+    if (d.type == CT_MATCH) {
+      minPrev = o - 1;
+      lookback = o - 1;
+      seqBack = o;
+    } else if (d.type == CT_INSERTION) {
+      minPrev = 2 * o + k + 1;
+      lookback = o + k + 1;
+      seqBack = 2 * o + k;
+    } else if (d.type == CT_DELETION) {
+      minPrev = 3 * o;
+      lookback = o + 1;
+      seqBack = 2 * o;
+    }
+    steady.minPreviousColumn = std::max(steady.minPreviousColumn, minPrev);
+    steady.maxLookback = std::max(steady.maxLookback, lookback);
+    steady.maxSequenceBack = std::max(steady.maxSequenceBack, seqBack);
+    OrderBounds &b = steady.byOrder[d.order];
+    b.minPreviousColumn = std::max(b.minPreviousColumn, minPrev);
+    b.maxLookback = std::max(b.maxLookback, lookback);
+    b.maxSequenceBack = std::max(b.maxSequenceBack, seqBack);
+  }
+  // Prefix maxima: entry o covers orders 1..o
+  for (size_t o = 1; o < steady.byOrder.size(); ++o) {
+    OrderBounds p = steady.byOrder[o - 1];
+    OrderBounds &b = steady.byOrder[o];
+    b.minPreviousColumn = std::max(b.minPreviousColumn, p.minPreviousColumn);
+    b.maxLookback = std::max(b.maxLookback, p.maxLookback);
+    b.maxSequenceBack = std::max(b.maxSequenceBack, p.maxSequenceBack);
+  }
+
   // Allocate matrices
-  scoreMatrix = (float *)malloc(sizeof(float) * cellsPerColumn * (length + 1));
+  historyStride = length + 1;
+  fullColumns = (float *)calloc(2 * cellsPerColumn, sizeof(float));
+  history = (float *)calloc((maxPeriod + 1) * historyStride, sizeof(float));
   tracebackMatrix = (int *)malloc(sizeof(int) * (maxPeriod + 1) * (length + 1));
-  scoreColumns = (float **)malloc(sizeof(float *) * (length + 1));
   tracebackColumns = (int **)malloc(sizeof(int *) * (length + 1));
 
-  // Assign columns of matrices
-  for (int i = 0; i < length; ++i) {
-    scoreColumns[i] = &(scoreMatrix[(i * (cellsPerColumn))]);
+  // Assign columns of the traceback matrix
+  for (unsigned long long i = 0; i <= length; ++i) {
     tracebackColumns[i] = &(tracebackMatrix[(i * (maxPeriod + 1))]);
   }
 
-  previousScoreColumn = scoreColumns[0];
-  currentScoreColumn = scoreColumns[1];
+  previousScoreColumn = ScoreColumn(0);
+  currentScoreColumn = ScoreColumn(1);
 
   previousTracebackColumn = tracebackColumns[0];
   currentTracebackColumn = tracebackColumns[1];
-
-  // Zero out 0th columns
-  for (int i = 0; i < cellsPerColumn; ++i) {
-    previousScoreColumn[i] = 0;
-  }
 
   for (int i = 0; i < maxPeriod + 1; ++i) {
     previousTracebackColumn[i] = 0;
@@ -445,23 +560,23 @@ void UMatrix::CreateMatrix() {
 UMatrix::UMatrix(int maximumPeriod, int maximumInsertions, int maximumDeletions,
                  int matrixLength) {
   maxPeriod = maximumPeriod;
-  maxInsertions = maximumInsertions;
-  maxDeletions = maximumDeletions;
+  // A negative indel count builds no indel cells
+  maxInsertions = maximumInsertions > 0 ? maximumInsertions : 0;
+  maxDeletions = maximumDeletions > 0 ? maximumDeletions : 0;
   length = matrixLength;
 
   this->CreateMatrix();
 }
 
 UMatrix::~UMatrix() {
-  if (scoreMatrix != NULL) {
-    free(scoreMatrix);
-    scoreMatrix = NULL;
-  }
-
-  if (scoreColumns != NULL) {
-    free(scoreColumns);
-    scoreColumns = NULL;
-  }
+  free(fullColumns);
+  fullColumns = NULL;
+  free(history);
+  history = NULL;
+  free(matchRows);
+  matchRows = NULL;
+  free(allRows);
+  allRows = NULL;
 
   if (tracebackMatrix != NULL) {
     free(tracebackMatrix);

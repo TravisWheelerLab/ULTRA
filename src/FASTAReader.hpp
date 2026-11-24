@@ -58,7 +58,11 @@ public:
 
   bool CopyOverlapBufferFromWindow(SequenceWindow *window,
                                    unsigned long overlapLength);
-  bool FillWindows();
+  // Reads windows in file order into the free windows of the pool. With a
+  // pool, stops once limit windows have been made ready; windows are read in
+  // file order whatever the limit, so their contents and read ids do not
+  // depend on it. With readWholeFile the whole file is read.
+  bool FillWindows(size_t limit = (size_t)-1);
   bool ReadWindow(SequenceWindow *window);
 
   bool multithread = true;

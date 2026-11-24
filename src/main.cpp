@@ -68,6 +68,9 @@ int main_wrapper(int argc, const char *argv[]) {
       search_setting.ultra_out = false;
       search_setting.json_out = false;
       search_setting.bed_out = false;
+      // The search runs write nothing, so they must not open (and so empty)
+      // the -o file
+      search_setting.out_file.clear();
 
       // We first get the normal coverage
       auto ultra = new Ultra(&search_setting);
