@@ -261,7 +261,11 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
         score += tscore[CT_MATCH][CT_INSERTION];
         score += tscore[CT_INSERTION][CT_INSERTION] *
                  (float)(desc[row].indelNumber - 1);
-        score += log2(1.0 - tp_matchToZero) * (float)order;
+        // The bases after an indel are matches, so they pay the match to
+        // match transition (it was log2(1 - tp_matchToZero), cheaper than a
+        // match state, which made a path at period P - 1 with an insertion
+        // in every copy outscore the true period P of a long unit)
+        score += (double)tscore[CT_MATCH][CT_MATCH] * (float)order;
 
         // We don not need to consider the insertion cost at this point
         // because the insertion state is 0th order, and will have
@@ -339,7 +343,11 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
         // Calculate transition score
         score += tscore[CT_MATCH][CT_DELETION];
         score += tscore[CT_DELETION][CT_DELETION] * (float)(indelNum - 1);
-        score += log2(1.0 - tp_matchToZero) * (float)order;
+        // The bases after an indel are matches, so they pay the match to
+        // match transition (it was log2(1 - tp_matchToZero), cheaper than a
+        // match state, which made a path at period P - 1 with an insertion
+        // in every copy outscore the true period P of a long unit)
+        score += (double)tscore[CT_MATCH][CT_MATCH] * (float)order;
 
         // Calculate deletion state emission scores
         for (int j = 0; j < order - indelNum; ++j) {
@@ -518,7 +526,11 @@ void UModel::CalculateCurrentColumnWithoutEmission(bool *canBeRepetitive) {
         score += tscore[CT_MATCH][CT_INSERTION];
         score += tscore[CT_INSERTION][CT_INSERTION] *
                  (float)(desc[row].indelNumber - 1);
-        score += log2(1.0 - tp_matchToZero) * (float)order;
+        // The bases after an indel are matches, so they pay the match to
+        // match transition (it was log2(1 - tp_matchToZero), cheaper than a
+        // match state, which made a path at period P - 1 with an insertion
+        // in every copy outscore the true period P of a long unit)
+        score += (double)tscore[CT_MATCH][CT_MATCH] * (float)order;
 
         // We don not need to consider the insertion cost at this point
         // because the insertion state is 0th order, and will have
@@ -581,7 +593,11 @@ void UModel::CalculateCurrentColumnWithoutEmission(bool *canBeRepetitive) {
         // Calculate transition score
         score += tscore[CT_MATCH][CT_DELETION];
         score += tscore[CT_DELETION][CT_DELETION] * (float)(indelNum - 1);
-        score += log2(1.0 - tp_matchToZero) * (float)order;
+        // The bases after an indel are matches, so they pay the match to
+        // match transition (it was log2(1 - tp_matchToZero), cheaper than a
+        // match state, which made a path at period P - 1 with an insertion
+        // in every copy outscore the true period P of a long unit)
+        score += (double)tscore[CT_MATCH][CT_MATCH] * (float)order;
 
         c[row] = score;
 

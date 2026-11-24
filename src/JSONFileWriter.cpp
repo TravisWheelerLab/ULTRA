@@ -79,7 +79,12 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
   ++this->repeatsOutput;
 
-  fprintf(out, "{\"SequenceName\": \"%s\"", repeat->sequenceName.c_str());
+  // The header up to a NUL, without the '\r' a CRLF file leaves at its end,
+  // escaped for JSON
+  std::string name(repeat->sequenceName.c_str());
+  if (!name.empty() && name.back() == '\r')
+    name.pop_back();
+  fprintf(out, "{\"SequenceName\": \"%s\"", json_escape(name).c_str());
 
   this->OutputJSONKeyValue("Start", std::to_string(repeat->sequenceStart));
   this->OutputJSONKeyValue("Length", std::to_string(repeat->repeatLength));

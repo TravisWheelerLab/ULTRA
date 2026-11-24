@@ -727,9 +727,44 @@ void Settings::print_memory_usage() {
   printf("============================\n");
 }
 
+// `s` as the contents of a JSON string: '"', '\\' and control characters
+// are escaped, so that paths and names with them still give valid JSON
+std::string json_escape(const std::string &s) {
+  std::string out;
+  out.reserve(s.size() + 8);
+  for (unsigned char c : s) {
+    switch (c) {
+    case '"':
+      out += "\\\"";
+      break;
+    case '\\':
+      out += "\\\\";
+      break;
+    case '\n':
+      out += "\\n";
+      break;
+    case '\r':
+      out += "\\r";
+      break;
+    case '\t':
+      out += "\\t";
+      break;
+    default:
+      if (c < 0x20) {
+        char buf[8];
+        snprintf(buf, sizeof(buf), "\\u%04x", c);
+        out += buf;
+      } else {
+        out += (char)c;
+      }
+    }
+  }
+  return out;
+}
+
 // This could be done in less code with templates. Yikcy wicky yucky wucky.
 std::string json_var(std::string name, std::string value) {
-  return "\"" + name + "\": " + "\"" + value + "\",\n";
+  return "\"" + name + "\": " + "\"" + json_escape(value) + "\",\n";
 }
 
 std::string json_var(std::string name, bool value) {
