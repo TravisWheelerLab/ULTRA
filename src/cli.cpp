@@ -3,6 +3,7 @@
 //
 
 #include "cli.hpp"
+#include "umodel.hpp"
 #include <climits>
 #include <cmath>
 #include <cstring>
@@ -777,8 +778,16 @@ void Settings::assign_settings() {
 void Settings::print_memory_usage() {
 
   int num_states = this->calculate_num_states();
-  unsigned long long dp_size = (unsigned long long)num_states;
-  dp_size *= (unsigned long long)(this->window_size + (2 * this->overlap));
+  unsigned long long total_window =
+      (unsigned long long)(this->window_size + (2 * this->overlap));
+  // History scores and traceback entries for every column, plus every state
+  // of the previous and the current column
+  unsigned long long dp_size = (this->max_period + 1) * total_window * 2 +
+                               (unsigned long long)num_states * 2;
+  // The blocked steady-state kernel also keeps emission scores by window
+  // position
+  if (UsesBlockedKernel(this->max_insert, this->max_delete))
+    dp_size += POSITION_EMISSION_ARRAYS * total_window;
   printf("----------------------------\n");
   printf("Maximum repeat period: %llu\n", this->max_period);
   printf("Number of model states: %i\n", num_states);

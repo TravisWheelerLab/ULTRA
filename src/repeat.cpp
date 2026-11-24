@@ -569,12 +569,12 @@ void RepeatRegion::StoreScores(UMatrix *matrix) {
     int cell = matrix->traceback[p];
     if (matrix->cellDescriptions[cell].type != CT_MATCH)
       cell = matrix->cellDescriptions[cell].parentIndex;
-    float s = matrix->scoreColumns[p][cell];
+    float s = matrix->ScoreAt(p, cell);
 
     int prevCell = matrix->traceback[p - 1];
     if (matrix->cellDescriptions[prevCell].type != CT_MATCH)
       prevCell = matrix->cellDescriptions[prevCell].parentIndex;
-    float ps = matrix->scoreColumns[p - 1][prevCell];
+    float ps = matrix->ScoreAt(p - 1, prevCell);
 
     scores[i - 1] = s - ps;
   }
@@ -932,7 +932,7 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos) {
     region->sequenceStart =
         window->start + (i - window->overlap - region->repeatPeriod) - 1;
 
-    region->startScore = matrix->scoreColumns[i][row];
+    region->startScore = matrix->ScoreAt(i, row);
 
     int length = region->repeatPeriod;
 
@@ -952,7 +952,7 @@ RepeatRegion *GetNextRepeat(SequenceWindow *window, UMatrix *matrix, int *pos) {
 
     row = matrix->traceback[i - 1];
 
-    region->endScore = matrix->scoreColumns[i - 1][row];
+    region->endScore = matrix->ScoreAt(i - 1, row);
     region->regionScore = region->endScore - region->startScore;
   }
 
