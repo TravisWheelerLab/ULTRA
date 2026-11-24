@@ -99,9 +99,9 @@ unsigned long FileReader::ReadyWindowsSize() {
   return 0;
 }
 
-bool FileReader::FillWindows() {
+bool FileReader::FillWindows(size_t limit) {
   if (format == FASTA)
-    return fastaReader->FillWindows();
+    return fastaReader->FillWindows(limit);
 
   else
     return true;
