@@ -79,15 +79,24 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
 
   ++this->repeatsOutput;
 
-  fprintf(out, "{\"SequenceName\": \"%s\"", repeat->sequenceName.c_str());
+  // The header up to a NUL, without the '\r' a CRLF file leaves at its end,
+  // escaped for JSON
+  std::string name(repeat->sequenceName.c_str());
+  if (!name.empty() && name.back() == '\r')
+    name.pop_back();
+  fprintf(out, "{\"SequenceName\": \"%s\"", json_escape(name).c_str());
 
   this->OutputJSONKeyValue("Start", std::to_string(repeat->sequenceStart));
   this->OutputJSONKeyValue("Length", std::to_string(repeat->repeatLength));
   this->OutputJSONKeyValue("Period", std::to_string(repeat->repeatPeriod));
   this->OutputJSONKeyValue("Score", std::to_string(repeat->regionScore));
   if (owner->settings->pval) {
+    // %g as in the TSV: %f printed every p-value below 5e-7 (the
+    // best-scoring repeats) as 0.000000
     double pval = owner->PvalForScore(repeat->regionScore);
-    this->OutputJSONKeyValue("PVal", std::to_string(pval));
+    char buf[64];
+    snprintf(buf, sizeof(buf), "%g", pval);
+    this->OutputJSONKeyValue("PVal", std::string(buf));
   }
 
   if (owner->settings->show_counts) {
@@ -101,7 +110,18 @@ void JSONFileWriter::WriteRepeat(RepeatRegion *repeat) {
     this->OutputJSONKeyValue("Deletions", std::to_string(repeat->deletions));
   }
 
-  this->OutputJSONKeyValue("Consensus", repeat->string_consensus, true);
+  // --max_consensus applies to JSON as to TSV and BED: "." for a period
+  // above it, no consensus below 0
+  if (owner->settings->max_consensus_period >= repeat->repeatPeriod) {
+    this->OutputJSONKeyValue("Consensus", repeat->string_consensus, true);
+  } else if (owner->settings->max_consensus_period >= 0) {
+    this->OutputJSONKeyValue("Consensus", ".", true);
+  }
+
+  // --show_wid: the window (read) the repeat was found in
+  if (owner->settings->show_wid) {
+    this->OutputJSONKeyValue("WindowID", std::to_string(repeat->readID));
+  }
 
   if (owner->settings->show_seq) {
     this->OutputJSONKeyValue("Sequence", repeat->sequence, true);

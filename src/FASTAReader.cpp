@@ -36,7 +36,7 @@ bool FASTAReader::CopyOverlapBufferFromWindow(SequenceWindow *window,
   return true;
 }
 
-bool FASTAReader::FillWindows() {
+bool FASTAReader::FillWindows(size_t limit) {
 
   // printf("************\nFILLING\n************\n");
   if (doneReadingFile) {
@@ -72,7 +72,10 @@ bool FASTAReader::FillWindows() {
   }
 
   else {
-    while (!waitingWindows.empty() &&
+    size_t filled = 0;
+    // Stopping early loses nothing: the window that reaches the end of the
+    // file takes the rest of it, so nothing stays buffered.
+    while (filled < limit && !waitingWindows.empty() &&
            (!doneReadingFile || linePlace != READ_ALL)) {
 
       SequenceWindow *win = GetWaitingWindow();
@@ -80,9 +83,10 @@ bool FASTAReader::FillWindows() {
         return false;
       }
 
-      if (win->length > 0)
+      if (win->length > 0) {
         AddReadyWindow(win);
-      else
+        ++filled;
+      } else
         AddWaitingWindow(win);
     }
   }

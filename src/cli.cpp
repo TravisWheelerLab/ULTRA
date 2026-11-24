@@ -3,6 +3,8 @@
 //
 
 #include "cli.hpp"
+#include "umodel.hpp"
+#include <climits>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -45,7 +47,7 @@ void Settings::prepare_settings() {
       ->group("Output");
 
   app.add_flag("--pval", this->pval,
-               "Use p-values instead of scores in BED output")
+               "Add p-values to TSV and JSON output")
       ->group("Output");
 
   app.add_flag(
@@ -418,6 +420,11 @@ bool Settings::parse_input(int argc, const char **argv) {
       fprintf(stderr, "--show_logo is only available with --json\n");
       passed = false;
     }
+
+    if (this->show_wid) {
+      fprintf(stderr, "--show_wid is only available with --json\n");
+      passed = false;
+    }
   }
 
   if ((this->ultra_out || this->json_out || this->bed_out) &&
@@ -448,9 +455,71 @@ bool Settings::parse_input(int argc, const char **argv) {
     passed = false;
   }
 
+  // These used to pass and then crash, wrap or loop: a negative --win_size
+  // or --overlap (other than -1, "not set") became a huge unsigned size, and
+  // --windows is narrowed to a 32-bit int.
+  if (this->window_size < -1) {
+    fprintf(stderr, "--win_size must be at least 1\n");
+    passed = false;
+  }
+
+  if (this->overlap < -1) {
+    fprintf(stderr, "--overlap must be at least 0\n");
+    passed = false;
+  }
+
+  if (this->windows > INT_MAX) {
+    fprintf(stderr, "--windows must be at most 2147483647\n");
+    passed = false;
+  }
+
   if (this->max_period < 1) {
     fprintf(stderr, "--period must be at least 1\n");
     passed = false;
+  }
+
+  // The model takes these as 32-bit ints; larger values used to wrap (to "no
+  // indels", or to a small count).
+  if (this->max_insert > INT_MAX) {
+    fprintf(stderr, "--inserts must be at most 2147483647\n");
+    passed = false;
+  }
+
+  if (this->max_delete > INT_MAX) {
+    fprintf(stderr, "--deletes must be at most 2147483647\n");
+    passed = false;
+  }
+
+  // NaN fails no comparison, so the range checks below let it through and
+  // the model was built from NaN probabilities.
+  const std::pair<const char *, double> numbers[] = {
+      {"--score", this->min_score},
+      {"--tune_fdr", this->tune_fdr},
+      {"--at", this->at},
+      {"--match", this->match_probability},
+      {"--decay", this->period_decay},
+      {"--nr", this->transition_nr},
+      {"--rn", this->transition_rn},
+      {"--ri", this->transition_ri},
+      {"--rd", this->transition_rd},
+      {"--ii", this->transition_ii},
+      {"--dd", this->transition_dd},
+      {"--split_threshold", this->split_threshold},
+      {"--pval_loc", this->p_value_loc},
+      {"--pval_scale", this->p_value_scale},
+  };
+  for (const auto &n : numbers) {
+    if (std::isnan(n.second)) {
+      fprintf(stderr, "%s must be a number\n", n.first);
+      passed = false;
+    }
+  }
+  for (float v : this->acgt) {
+    if (std::isnan(v)) {
+      fprintf(stderr, "--acgt arguments must be numbers\n");
+      passed = false;
+      break;
+    }
   }
 
   if (this->at < 0.0 || this->at > 1.0) {
@@ -524,8 +593,9 @@ bool Settings::parse_input(int argc, const char **argv) {
     passed = false;
   }
 
+  // --tune_file is a tuning grid, so it tunes on its own
   if (this->tune_only || this->tune_medium || this->tune_large ||
-      this->tune_indels) {
+      this->tune_indels || !this->tune_param_path.empty()) {
     this->tune = true;
   }
 
@@ -676,6 +746,13 @@ void Settings::assign_settings() {
     }
   }
 
+  // calculate_num_states makes read_all read the whole file (windows = -1),
+  // but it runs only without --win_size, so with one the input was streamed
+  // after all.
+  if (this->read_all) {
+    this->windows = -1;
+  }
+
   this->a_freq = this->at / 2.0;
   this->t_freq = this->at / 2.0;
   this->c_freq = (1.0 - this->at) / 2.0;
@@ -701,8 +778,16 @@ void Settings::assign_settings() {
 void Settings::print_memory_usage() {
 
   int num_states = this->calculate_num_states();
-  unsigned long long dp_size = (unsigned long long)num_states;
-  dp_size *= (unsigned long long)(this->window_size + (2 * this->overlap));
+  unsigned long long total_window =
+      (unsigned long long)(this->window_size + (2 * this->overlap));
+  // History scores and traceback entries for every column, plus every state
+  // of the previous and the current column
+  unsigned long long dp_size = (this->max_period + 1) * total_window * 2 +
+                               (unsigned long long)num_states * 2;
+  // The blocked steady-state kernel also keeps emission scores by window
+  // position
+  if (UsesBlockedKernel(this->max_insert, this->max_delete))
+    dp_size += POSITION_EMISSION_ARRAYS * total_window;
   printf("----------------------------\n");
   printf("Maximum repeat period: %llu\n", this->max_period);
   printf("Number of model states: %i\n", num_states);
@@ -727,9 +812,44 @@ void Settings::print_memory_usage() {
   printf("============================\n");
 }
 
+// `s` as the contents of a JSON string: '"', '\\' and control characters
+// are escaped, so that paths and names with them still give valid JSON
+std::string json_escape(const std::string &s) {
+  std::string out;
+  out.reserve(s.size() + 8);
+  for (unsigned char c : s) {
+    switch (c) {
+    case '"':
+      out += "\\\"";
+      break;
+    case '\\':
+      out += "\\\\";
+      break;
+    case '\n':
+      out += "\\n";
+      break;
+    case '\r':
+      out += "\\r";
+      break;
+    case '\t':
+      out += "\\t";
+      break;
+    default:
+      if (c < 0x20) {
+        char buf[8];
+        snprintf(buf, sizeof(buf), "\\u%04x", c);
+        out += buf;
+      } else {
+        out += (char)c;
+      }
+    }
+  }
+  return out;
+}
+
 // This could be done in less code with templates. Yikcy wicky yucky wucky.
 std::string json_var(std::string name, std::string value) {
-  return "\"" + name + "\": " + "\"" + value + "\",\n";
+  return "\"" + name + "\": " + "\"" + json_escape(value) + "\",\n";
 }
 
 std::string json_var(std::string name, bool value) {

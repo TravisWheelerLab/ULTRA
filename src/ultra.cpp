@@ -3,17 +3,17 @@
 //  ultraP
 //
 
+#include <cerrno>
+#include <climits>
 #include <cmath>
+#include <cstring>
+#include <condition_variable>
+#include <deque>
+#include <map>
+#include <mutex>
+#include <thread>
 
 #include "ultra.hpp"
-#include <cmath>
-void *UltraThreadLaunch(void *dat) {
-  uthread *uth = (uthread *)dat;
-
-  uth->ultra->AnalyzeFileWithThread(dat);
-  return nullptr;
-}
-
 void Ultra::AnalyzeFile() {
 
   if (numberOfThreads <= 0) {
@@ -21,34 +21,21 @@ void Ultra::AnalyzeFile() {
     exit(-1);
   }
   reader->fastaReader->shuffle = shuffleSequence;
-  reader->FillWindows();
-
-  if (pthread_mutex_init(&outerLock, nullptr) != 0) {
-    fprintf(stderr, "Failed to create outer mutex lock. Exiting.\n");
-    exit(-1);
-  }
-
-  if (pthread_mutex_init(&innerLock, nullptr) != 0) {
-    fprintf(stderr, "Failed to create inner mutex lock. Exiting.\n");
-    exit(-1);
-  }
-
-  if (pthread_mutex_init(&repeatLock, nullptr) != 0) {
-    fprintf(stderr, "Failed to create repeat lock. Exiting.\n");
-    exit(-1);
+  if (numberOfThreads == 1) {
+    reader->FillWindows();
+  } else {
+    // The workers start on the first windows while the rest are read; see
+    // AnalyzeFileWithWorkers.
+    reader->FillWindows(2 * (size_t)numberOfThreads);
   }
 
   OutputULTRASettings();
   InitializeWriter();
 
-  // float Log2PvalForScore(float score, float period);
-
-  for (int i = 1; i < numberOfThreads; ++i) {
-    pthread_create(&threads[i]->p_thread, nullptr, UltraThreadLaunch,
-                   threads[i]);
-  }
-
-  UltraThreadLaunch(threads[0]);
+  if (numberOfThreads == 1)
+    AnalyzeFileWithThread();
+  else
+    AnalyzeFileWithWorkers();
 }
 
 void Ultra::InitializeWriter() {
@@ -57,82 +44,153 @@ void Ultra::InitializeWriter() {
   }
 }
 
-SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq, uthread *uth) {
-
-  SequenceWindow *retval = nullptr;
-  bool shouldRead = false;
-
+// Returns seq to the pool of free windows, refills the pool when no ready
+// window is left, and takes the ready window with the smallest read ID.
+SequenceWindow *Ultra::GetSequenceWindow(SequenceWindow *seq) {
   if (seq != nullptr)
     reader->AddWaitingWindow(seq);
 
-  if (multithreading)
-    pthread_mutex_lock(&outerLock);
-
   // Check to see if we need to read more sequence first
-  if (!reader->DoneReadingFile()) {
-    if (!reader->IsReading()) {
-      if (reader->ReadyWindowsSize() == 0) {
-        shouldRead = true;
-        reader->SetIsReading(true);
-      }
-    }
-  }
-
-  if (shouldRead) {
+  if (!reader->DoneReadingFile() && !reader->IsReading() &&
+      reader->ReadyWindowsSize() == 0) {
+    reader->SetIsReading(true);
     reader->FillWindows();
     reader->SetIsReading(false);
   }
 
-  retval = reader->GetReadyWindow();
-
-  if (multithreading)
-    pthread_mutex_unlock(&outerLock);
-
-  return retval;
+  return reader->GetReadyWindow();
 }
 
-// NOTE:
-// THIS IS NOT THREAD SAFE
-// WE ASSUME THAT'S OK (FOR NOW)
-int Ultra::SmallestReadID() {
-  int smallest = 100000000;
+// The smallest read ID of a window that may still have repeats to come.
+unsigned long long Ultra::SmallestReadID() { return smallestReadID; }
 
-  for (int i = 0; i < threads.size(); ++i) {
-    // printf("%i: %i\n", i, threads[i]->smallestReadID);
-    if (threads[i]->smallestReadID < smallest) {
-      smallest = threads[i]->smallestReadID;
-    }
-  }
-  /*
-  printf("%i\n", smallest);
-  printf("====================\n");*/
-  return smallest;
-}
-
-void Ultra::AnalyzeFileWithThread(void *dat) {
-
-  uthread *uth = (uthread *)dat;
-  int tid = uth->id;
-
-  SequenceWindow *currentWindow = GetSequenceWindow(nullptr, uth);
+// One thread: windows are analysed in read order.
+void Ultra::AnalyzeFileWithThread() {
+  uthread *uth = threads[0];
+  SequenceWindow *currentWindow = GetSequenceWindow(nullptr);
   while (currentWindow != nullptr || !reader->DoneReadingFile()) {
     if (currentWindow != nullptr)
       AnalyzeSequenceWindow(currentWindow, uth);
 
-    currentWindow = GetSequenceWindow(currentWindow, uth);
+    currentWindow = GetSequenceWindow(currentWindow);
   }
+}
 
-  if (multithreading) {
-    if (tid == 0) {
-      for (int i = 1; i < numberOfThreads; ++i) {
-        pthread_join(threads[i]->p_thread, nullptr);
+// -t N: gives the output of AnalyzeFileWithThread. Windows are read in file
+// order and handed to the workers, and their results are applied in read
+// order, each window returning to the pool after its results, as the
+// one-thread loop does. Free windows are refilled a few at a time as they
+// come back, keeping two windows per worker queued, so the workers never wait
+// for a whole pool to be applied. Window contents and read ids depend only on
+// file order, so this does not change the output.
+//
+// (ULTRA 1.2 let every thread output the repeats of a shared buffer in turn,
+// so the output, and which repeats were joined across window boundaries,
+// changed from run to run.)
+void Ultra::AnalyzeFileWithWorkers() {
+  struct Done {
+    SequenceWindow *window;
+    std::vector<RepeatRegion *> repeats;
+  };
+
+  std::mutex jobLock;
+  std::condition_variable jobReady;
+  std::deque<std::pair<size_t, SequenceWindow *>> jobs;
+  bool noMoreJobs = false;
+
+  std::mutex doneLock;
+  std::condition_variable doneReady;
+  std::map<size_t, Done> done;
+
+  const size_t workers = (size_t)numberOfThreads;
+  const size_t queueTarget = 2 * workers;
+
+  std::vector<std::thread> pool;
+  for (size_t w = 0; w < workers; ++w) {
+    uthread *uth = threads[w];
+    pool.emplace_back([&, uth]() {
+      while (true) {
+        std::pair<size_t, SequenceWindow *> job;
+        {
+          std::unique_lock<std::mutex> lock(jobLock);
+          jobReady.wait(lock, [&]() { return noMoreJobs || !jobs.empty(); });
+          if (jobs.empty())
+            return;
+          job = jobs.front();
+          jobs.pop_front();
+        }
+        Done d;
+        d.window = job.second;
+        FindRepeatsInWindow(job.second, uth, d.repeats);
+        {
+          std::lock_guard<std::mutex> lock(doneLock);
+          done[job.first] = std::move(d);
+        }
+        doneReady.notify_one();
       }
+    });
+  }
+
+  // Read order of the next window to hand out and of the next one whose
+  // results are applied.
+  size_t nextSent = 0;
+  size_t nextApplied = 0;
+  while (true) {
+    // Keep two windows per worker queued. Windows are read as soon as the
+    // pool has free ones; reading order and read ids do not depend on when
+    // this happens.
+    while (nextSent - nextApplied < queueTarget) {
+      if (reader->ReadyWindowsSize() == 0) {
+        if (reader->DoneReadingFile())
+          break;
+        reader->SetIsReading(true);
+        reader->FillWindows(workers);
+        reader->SetIsReading(false);
+      }
+      bool sent = false;
+      SequenceWindow *w;
+      while ((w = reader->GetReadyWindow()) != nullptr) {
+        {
+          std::lock_guard<std::mutex> lock(jobLock);
+          jobs.push_back(std::make_pair(nextSent, w));
+        }
+        jobReady.notify_one();
+        ++nextSent;
+        sent = true;
+      }
+      if (!sent) // The pool has no free window, or the file is done.
+        break;
     }
 
-    else {
-      pthread_exit(nullptr);
+    if (nextApplied == nextSent) {
+      if (reader->DoneReadingFile() && reader->ReadyWindowsSize() == 0)
+        break;
+      continue;
     }
+
+    // Apply results strictly in read order, as the one-thread loop does,
+    // returning each window to the pool afterwards.
+    Done d;
+    {
+      std::unique_lock<std::mutex> lock(doneLock);
+      doneReady.wait(lock, [&]() { return done.count(nextApplied) > 0; });
+      auto it = done.find(nextApplied);
+      d = std::move(it->second);
+      done.erase(it);
+    }
+    BeginWindow(d.window);
+    FinishWindow(d.repeats);
+    reader->AddWaitingWindow(d.window);
+    ++nextApplied;
   }
+
+  {
+    std::lock_guard<std::mutex> lock(jobLock);
+    noMoreJobs = true;
+  }
+  jobReady.notify_all();
+  for (auto &t : pool)
+    t.join();
 }
 
 double Ultra::Log2PvalForScore(float score, float period) const {
@@ -149,21 +207,19 @@ double Ultra::PvalForScore(float score) const {
   return exp(-1.0 * (score - loc) / scale) * freq;
 }
 
+// Library entry point: analyses seq as one window (it must fit the model, so
+// set window_size to at least the longest string) and returns its repeats,
+// which are not filtered, joined or written.
 std::vector<RepeatRegion *> *
 Ultra::FindRepeatsInString(const std::string &seq) {
-  // Make sure that the seq window can fit in the DP matrix
+  // A window of n symbols fills matrix columns 1..n and then column n + 1
+  // without emission, so n must be below the matrix length.
   uthread *uth = this->threads[0];
-  if (seq.length() > uth->model->matrix->length) {
+  if (seq.length() >= uth->model->matrix->length) {
     fprintf(stderr,
             "ULTRA model has maximum size %llu but string has length %zu\n",
-            uth->model->matrix->length, seq.length());
+            uth->model->matrix->length - 1, seq.length());
 
-    return nullptr;
-  }
-
-  // Make sure that uth isn't holding any repeats right now
-  if (uth->repeats.size() > 0) {
-    fprintf(stderr, "ULTRA repeat array is not empty.\n");
     return nullptr;
   }
 
@@ -178,34 +234,46 @@ Ultra::FindRepeatsInString(const std::string &seq) {
     seq_window->seq[i] = SymbolForChar(seq[i]);
   }
 
-  // Store and change primary thread
-  int pthread = this->primaryThread;
-  this->primaryThread = -10;
-
-  // Run AnalyzeSequenceWindow
-  this->AnalyzeSequenceWindow(seq_window, uth);
-
-  // Gather repeats
   std::vector<RepeatRegion *> *repeats = new std::vector<RepeatRegion *>();
-  for (int i = 0; i < uth->repeats.size(); ++i) {
-    repeats->push_back(uth->repeats[i]);
-  }
-
-  // Clean up after ourselves
-  uth->repeats.clear();
-  this->primaryThread = pthread;
+  FindRepeatsInWindow(seq_window, uth, *repeats);
   delete seq_window;
 
   return repeats;
 }
 
 void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
+  BeginWindow(sequence);
+  std::vector<RepeatRegion *> repeats;
+  FindRepeatsInWindow(sequence, uth, repeats);
+  FinishWindow(repeats);
+}
+
+// The read-ID bookkeeping for the window about to be applied.
+void Ultra::BeginWindow(SequenceWindow *sequence) {
+  activeReadID = sequence->readID;
+  if (activeReadID < smallestReadID)
+    smallestReadID = activeReadID;
+}
+
+// Hands a window's repeats to outRepeats and writes out what is complete once
+// the buffer is over repeatBuffer.
+void Ultra::FinishWindow(std::vector<RepeatRegion *> &repeats) {
+  outRepeats.insert(outRepeats.end(), repeats.begin(), repeats.end());
+  repeats.clear();
+  smallestReadID = activeReadID;
+
+  if (outRepeats.size() > repeatBuffer &&
+      !this->settings->disable_streaming_out) {
+    OutputRepeats();
+  }
+}
+
+// Finds the repeats of one window with the model and splitter of uth. Safe to
+// run on several threads at once, each with its own uthread.
+void Ultra::FindRepeatsInWindow(SequenceWindow *sequence, uthread *uth,
+                                std::vector<RepeatRegion *> &repeats) {
 
   int sleng = (int)sequence->length + (int)sequence->overlap;
-
-  uth->activeReadID = sequence->readID;
-  if (uth->activeReadID < uth->smallestReadID)
-    uth->smallestReadID = uth->activeReadID;
 
   UModel *model = uth->model;
   model->matrix->RestartMatrix();
@@ -215,9 +283,6 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   }
   model->CalculateCurrentColumnWithoutEmission();
 
-  // WE'RE RIGHT HERE
-  // GOING TO TRY TO PUSH ALL THE CODE IN !!!
-  // printf("Calculating traceback\n");
   model->matrix->CalculateTraceback(model->matrix->previousColumnIndex);
   int i = 0;
   RepeatRegion *r = GetNextRepeat(sequence, model->matrix, &i);
@@ -225,7 +290,6 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
   while (r != nullptr) {
 
     if (storeTraceAndSequence) {
-      // printf("Storing trace...\n");
       r->StoreSequence(sequence);
       r->StoreTraceback(model->matrix);
       r->StoreScores(model->matrix);
@@ -236,11 +300,6 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
                                settings->min_split_window);
     if (r->repeatPeriod <= settings->max_split) {
       if (r->repeatLength > 2 * splitWindow) {
-
-        // This almost feels right.
-        // Probably want to change it later though.
-        float join_threshold = 1.0 - (1.0 / settings->split_threshold);
-
         r->splits = uth->splitter->SplitsForRegion(r, splitWindow,
                                                    settings->split_threshold);
         r->consensi = uth->splitter->ConsensiForSplit(r, r->splits, 0.65);
@@ -252,43 +311,26 @@ void Ultra::AnalyzeSequenceWindow(SequenceWindow *sequence, uthread *uth) {
       }
     }
 
-    uth->repeats.push_back(r);
+    repeats.push_back(r);
     r = GetNextRepeat(sequence, model->matrix, &i);
-  }
-
-  if (primaryThread == uth->id) {
-    outRepeats.insert(outRepeats.end(), uth->repeats.begin(),
-                      uth->repeats.end());
-    uth->repeats.clear();
-    uth->smallestReadID = uth->activeReadID;
-
-    if (outRepeats.size() > repeatBuffer &&
-        !this->settings->disable_streaming_out) {
-      OutputRepeats();
-    }
-
-    primaryThread = (primaryThread + 1) % numberOfThreads;
-    // printf("%i\n", primaryThread);
   }
 }
 
+// Sorts outRepeats, then joins and writes every repeat from windows more than
+// 3 reads back (all of them when flush, which also ends the writers).
 void Ultra::OutputRepeats(bool flush) {
 
   if (!flush && settings->disable_streaming_out)
     return;
-  int maxReadID = SmallestReadID() - (3 * numberOfThreads);
-  if (maxReadID < 0)
-    maxReadID = 0;
+  // Repeats from windows at least this far on may still be joined with the
+  // next windows' repeats, so they wait.
+  unsigned long long maxReadID = SmallestReadID();
+  maxReadID = maxReadID > 3 ? maxReadID - 3 : 0;
 
   if (flush) {
-    for (int i = 0; i < numberOfThreads; ++i) {
-      if (threads[i]->repeats.size() > 0) {
-        outRepeats.insert(outRepeats.end(), threads[i]->repeats.begin(),
-                          threads[i]->repeats.end());
-        threads[i]->repeats.clear();
-      }
-    }
-    maxReadID = 100000000;
+    // Everything is written. (ULTRA 1.2 used 100,000,000 here, which dropped
+    // every repeat from a later window.)
+    maxReadID = ULLONG_MAX;
   }
 
   SortRepeatRegions();
@@ -310,23 +352,48 @@ void Ultra::OutputRepeats(bool flush) {
         return;
       }
 
+      // The repeat to join r with: the next one if it overlaps r with the
+      // same period. Otherwise the first later one that still starts within
+      // r and has r's period: a repeat of another period found inside r,
+      // such as a microsatellite in a satellite's unit, sorts between r and
+      // its continuation from the next window and kept the two from being
+      // joined, so they were written as two overlapping records.
+      long take = -1;
       if (repeats_overlap(r, outRepeats.back())) {
-        auto old_r = r;
-        r = joint_repeat_region(r, outRepeats.back());
-        if (r->splits != nullptr)
-          ValidateSplits(r->consensi, r->splits, 0.85);
-
-        delete old_r;
-        delete outRepeats.back();
-        outRepeats.pop_back();
+        take = (long)outRepeats.size() - 1;
+      } else {
+        unsigned long rEnd = r->sequenceStart + r->repeatLength;
+        for (long k = (long)outRepeats.size() - 2; k >= 0; --k) {
+          RepeatRegion *c = outRepeats[k];
+          if (c->sequenceID != r->sequenceID || c->sequenceStart > rEnd)
+            break;
+          if (c->readID >= maxReadID) {
+            // Not final yet: wait, as for the next repeat.
+            outRepeats.push_back(r);
+            return;
+          }
+          if (repeats_overlap(r, c)) {
+            take = k;
+            break;
+          }
+        }
       }
-
-      else
+      if (take < 0)
         break;
+
+      auto old_r = r;
+      r = joint_repeat_region(r, outRepeats[take]);
+      if (r->splits != nullptr)
+        ValidateSplits(r->consensi, r->splits, 0.85);
+
+      delete old_r;
+      delete outRepeats[take];
+      outRepeats.erase(outRepeats.begin() + take);
     }
 
     r->SortConsensi();
     if (r->regionScore >= scoreThreshold &&
+        r->repeatLength >= settings->min_length &&
         r->repeatLength / r->repeatPeriod >= settings->min_units)
       OutputRepeat(r);
 
@@ -337,11 +404,16 @@ void Ultra::OutputRepeats(bool flush) {
   if (flush) {
     for (auto writer : writers)
       writer->EndWriter();
-    // fprintf(out, "]\n}\n");
   }
 
-  for (auto out : outs)
-    fflush(out);
+  // A write error (a full disk, say) used to go unnoticed. A closed pipe
+  // ends the program with SIGPIPE before this, as before.
+  for (auto out : outs) {
+    if (fflush(out) != 0 || ferror(out)) {
+      fprintf(stderr, "Error writing output: %s\n", strerror(errno));
+      exit(-1);
+    }
+  }
 }
 
 void Ultra::OutputULTRASettings() {
@@ -493,7 +565,7 @@ Ultra::Ultra(Settings *s) {
   if (!settings->run_without_reader) {
     reader = new FileReader(settings->in_file, settings->windows,
                             settings->window_size, settings->overlap,
-                            settings->threads > 1);
+                            false);
     reader->fastaReader->shuffle = shuffleSequence;
   }
 
@@ -541,7 +613,6 @@ Ultra::Ultra(Settings *s) {
     newThread->id = i;
     newThread->ultra = this;
     newThread->model = models[i];
-    newThread->repeats.reserve(64);
     newThread->splitter = new SplitWindow();
     if (!settings->no_split)
       newThread->splitter->AllocateSplitWindow(4, settings->max_period + 1);
@@ -550,19 +621,12 @@ Ultra::Ultra(Settings *s) {
     threads.push_back(newThread);
   }
 
-  if (numberOfThreads == 1) {
-    if (!settings->run_without_reader) {
-      reader->multithread = false;
-    }
-    multithreading = false;
+  // Only the main thread reads windows, so the reader needs no locks.
+  if (!settings->run_without_reader) {
+    reader->multithread = false;
+    reader->fastaReader->multithread = false;
   }
-
-  else {
-    if (!settings->run_without_reader) {
-      reader->multithread = true;
-    }
-    multithreading = true;
-  }
+  multithreading = numberOfThreads > 1;
 }
 
 Ultra::~Ultra() {
@@ -599,9 +663,6 @@ Ultra::~Ultra() {
   models.clear();
 
   for (auto val : threads) {
-    for (auto val2 : val->repeats) {
-      delete val2;
-    }
     val->splitter->DeallocSplitWindow();
     delete val->splitter;
     delete val; // pair.second is a std::vector<mregion> *

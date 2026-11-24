@@ -28,7 +28,7 @@ public:
   SequenceWindow *GetWaitingWindow();
   bool AddWaitingWindow(SequenceWindow *window);
 
-  bool FillWindows();
+  bool FillWindows(size_t limit = (size_t)-1);
 
   bool IsReading();
   bool DoneReadingFile();

@@ -113,7 +113,18 @@ void TabFileWriter::WriteRepeat(RepeatRegion *repeat) {
         }
       }
 
-      if (owner->settings->max_consensus_period >= 0) {
+      bool hidden =
+          owner->settings->max_consensus_period < repeat->repeatPeriod;
+      if (owner->settings->max_consensus_period >= 0 && hidden) {
+        // One '.' per subrepeat listed in SubrepeatStarts (one per
+        // consensus, including those of removed splits, could give the
+        // column more entries than #Subrepeats)
+        for (int i = 0; i <= numberOfValidSplits; ++i) {
+          if (i > 0)
+            consensi.push_back(',');
+          consensi.push_back('.');
+        }
+      } else if (owner->settings->max_consensus_period >= 0) {
         for (int i = 0; i < repeat->consensi->size(); ++i) {
           std::string con = ".";
           if (owner->settings->max_consensus_period >= repeat->repeatPeriod) {

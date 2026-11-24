@@ -65,7 +65,18 @@ public:
 
   int overlapCorrection;
 
+  // Substitutions, insertions and deletions at each position of the repeat,
+  // 3 counts per position (empty if not counted). Joined repeats add these
+  // up instead of losing their counts.
+  std::vector<unsigned int> events;
+
   void CreateLogo(SequenceWindow *window, UMatrix *matrix);
+  void WalkLogo(SequenceWindow *window, UMatrix *matrix, bool testIndels,
+                std::vector<int> &outLogo, int &outMismatches,
+                int &outInsertions, int &outDeletions,
+                std::vector<unsigned int> *outEvents);
+  std::vector<int> RealignLogo(const std::vector<int> &logo,
+                               SequenceWindow *window);
   void CreateLogoWithoutMatrix(); // Requires traceback + sequence + lookBack
 
   void CreateConsensusFromLogo();
