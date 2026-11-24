@@ -360,6 +360,10 @@ std::string SplitWindow::ConsensusForRegion(RepeatRegion *r, int start, int end,
   FillLogoForRegion(r, start, end);
 
   for (int i = 0; i < r->repeatPeriod; ++i) {
+    // Only N (or other non-ACGT) bases at this unit position: it cannot be
+    // resolved, which the consensus shows as '*'
+    if (logo_totals[i] == 0)
+      continue;
     float bestVal = consensus_threshold;
     for (int a = 0; a < alphabetSize; ++a) {
       float mass = logo[a][i] / logo_totals[i];

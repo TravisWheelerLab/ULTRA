@@ -18,6 +18,10 @@ void OutputMaskedFASTA(
   unsigned long long seq_pos = 0;
   unsigned long long mask_i = 0;
   std::vector<mregion> *cmask = nullptr;
+  // Lines before the first header are record 0 to the reader, which reports
+  // repeats in them, so they are masked with record 0's regions
+  if (masks.find(0) != masks.end())
+    cmask = CleanedMasks(masks[0]);
 
   while (std::getline(in_file, line)) {
     if (line[0] == '>') {

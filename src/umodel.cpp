@@ -259,8 +259,13 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
 
         // Transition cost
         score += tscore[CT_MATCH][CT_INSERTION];
-        score += tscore[CT_INSERTION][CT_INSERTION] *
-                 (float)(desc[row].indelNumber - 1);
+        // The extensions of an insertion of more than one base. Skipped for
+        // one base: adding t * 0 changes nothing for a finite t, and with
+        // --ii 0 (t = -inf) it made the score NaN, so that even single-base
+        // insertions could never be taken.
+        if (desc[row].indelNumber > 1)
+          score += tscore[CT_INSERTION][CT_INSERTION] *
+                   (float)(desc[row].indelNumber - 1);
         // The bases after an indel are matches, so they pay the match to
         // match transition (it was log2(1 - tp_matchToZero), cheaper than a
         // match state, which made a path at period P - 1 with an insertion
@@ -342,7 +347,9 @@ void UModel::CalculateCurrentColumn(SequenceWindow *sequence, int nucIndex,
 
         // Calculate transition score
         score += tscore[CT_MATCH][CT_DELETION];
-        score += tscore[CT_DELETION][CT_DELETION] * (float)(indelNum - 1);
+        // As for insertions (--dd 0)
+        if (indelNum > 1)
+          score += tscore[CT_DELETION][CT_DELETION] * (float)(indelNum - 1);
         // The bases after an indel are matches, so they pay the match to
         // match transition (it was log2(1 - tp_matchToZero), cheaper than a
         // match state, which made a path at period P - 1 with an insertion
@@ -524,8 +531,13 @@ void UModel::CalculateCurrentColumnWithoutEmission(bool *canBeRepetitive) {
 
         // Transition cost
         score += tscore[CT_MATCH][CT_INSERTION];
-        score += tscore[CT_INSERTION][CT_INSERTION] *
-                 (float)(desc[row].indelNumber - 1);
+        // The extensions of an insertion of more than one base. Skipped for
+        // one base: adding t * 0 changes nothing for a finite t, and with
+        // --ii 0 (t = -inf) it made the score NaN, so that even single-base
+        // insertions could never be taken.
+        if (desc[row].indelNumber > 1)
+          score += tscore[CT_INSERTION][CT_INSERTION] *
+                   (float)(desc[row].indelNumber - 1);
         // The bases after an indel are matches, so they pay the match to
         // match transition (it was log2(1 - tp_matchToZero), cheaper than a
         // match state, which made a path at period P - 1 with an insertion
@@ -592,7 +604,9 @@ void UModel::CalculateCurrentColumnWithoutEmission(bool *canBeRepetitive) {
 
         // Calculate transition score
         score += tscore[CT_MATCH][CT_DELETION];
-        score += tscore[CT_DELETION][CT_DELETION] * (float)(indelNum - 1);
+        // As for insertions (--dd 0)
+        if (indelNum > 1)
+          score += tscore[CT_DELETION][CT_DELETION] * (float)(indelNum - 1);
         // The bases after an indel are matches, so they pay the match to
         // match transition (it was log2(1 - tp_matchToZero), cheaper than a
         // match state, which made a path at period P - 1 with an insertion
